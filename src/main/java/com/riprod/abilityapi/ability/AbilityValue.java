@@ -12,16 +12,6 @@ public final class AbilityValue {
         this.value = value;
     }
 
-    public boolean asBoolean() {
-        if (value instanceof Boolean b) {
-            return b;
-        }
-        if (value instanceof Number n) {
-            return n.doubleValue() != 0;
-        }
-        return false;
-    }
-
     public double asNumber() {
         if (value instanceof Number n) {
             return n.doubleValue();

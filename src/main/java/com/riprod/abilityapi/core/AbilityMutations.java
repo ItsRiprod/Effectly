@@ -1,6 +1,7 @@
 package com.riprod.abilityapi.core;
 
 import com.riprod.abilityapi.ability.AbilityConditionSpec;
+import com.riprod.abilityapi.core.asset.AbilityAsset;
 import com.hypixel.hytale.component.ComponentAccessor;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -12,8 +13,10 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -37,6 +40,7 @@ public final class AbilityMutations {
             double value,
             @Nullable List<AbilityConditionSpec> conditions,
             boolean persistent) {
+        if (!enabledOrWarn(abilityId)) return;
         mutate(playerId, abilityId,
                 roster -> applyGrant(roster, abilityId, sourceId, value, conditions, persistent),
                 (context, handler) -> grantIn(context, abilityId, sourceId, value, conditions, persistent));
@@ -54,6 +58,7 @@ public final class AbilityMutations {
             @Nonnull String abilityId,
             @Nonnull String sourceId,
             @Nonnull List<AbilityConditionSpec> conditions) {
+        if (!enabledOrWarn(abilityId)) return;
         mutate(playerId, abilityId,
                 roster -> {
                     AbilityEntry entry = roster.get(abilityId);
@@ -87,6 +92,7 @@ public final class AbilityMutations {
             double value,
             @Nullable List<AbilityConditionSpec> conditions,
             boolean persistent) {
+        if (!enabledOrWarn(abilityId)) return;
         AbilityHandler handler = AbilityHandlerRegistry.forAbility(abilityId);
         if (handler == null) {
             LOGGER.atWarning().log("No handler registered for ability '%s'; ignoring", abilityId);
@@ -133,7 +139,13 @@ public final class AbilityMutations {
         List<AbilityConditionSpec> resolved = conditions != null
                 ? conditions
                 : (previous != null ? previous.getConditions() : List.of());
-        AbilityGrant grant = new AbilityGrant(value, resolved, persistent);
+        double clamped = AbilityAsset.clampToRange(abilityId, value);
+        if (clamped != value) {
+            LOGGER.atWarning().atMostEvery(1, TimeUnit.MINUTES)
+                    .log("Source '%s' granted '%s' as %s, outside the range declared by the asset; clamped to %s",
+                            sourceId, abilityId, value, clamped);
+        }
+        AbilityGrant grant = new AbilityGrant(clamped, resolved, persistent);
         if (entry == null) {
             entry = new AbilityEntry(sourceId, grant);
             roster.put(abilityId, entry);
@@ -141,6 +153,13 @@ public final class AbilityMutations {
             entry.putGrant(sourceId, grant);
         }
         return entry;
+    }
+
+    private static boolean enabledOrWarn(@Nonnull String abilityId) {
+        if (AbilityAsset.isEnabled(abilityId)) return true;
+        LOGGER.atWarning().atMostEvery(1, TimeUnit.MINUTES)
+                .log("Ability '%s' is disabled or unknown; the grant was ignored", abilityId);
+        return false;
     }
 
     private static void applyRevoke(
@@ -157,6 +176,11 @@ public final class AbilityMutations {
         AbilityRoster roster = context.getRoster();
         if (roster != null) {
             for (Map.Entry<String, AbilityEntry> granted : roster.getAbilities().entrySet()) {
+                if (!AbilityAsset.isEnabled(granted.getKey())) {
+                    LOGGER.at(Level.FINE).atMostEvery(5, TimeUnit.MINUTES)
+                            .log("Ability '%s' is disabled; leaving it in the roster", granted.getKey());
+                    continue;
+                }
                 AbilityHandler handler = AbilityHandlerRegistry.forAbility(granted.getKey());
                 if (handler == null) {
                     LOGGER.atFine().log("No handler for ability '%s'; leaving it in the roster", granted.getKey());

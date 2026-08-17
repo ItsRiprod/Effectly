@@ -31,12 +31,6 @@ public final class AbilityConditionService {
 
     private AbilityConditionService() {}
 
-    /** Returns the logger used by this service (e.g. to set level to FINE from plugin setup). */
-    @Nonnull
-    public static HytaleLogger getLogger() {
-        return LOGGER;
-    }
-
     /**
      * Returns true if the ability is set for the player and all its conditions pass
      * in the current context (e.g. player position for zone).

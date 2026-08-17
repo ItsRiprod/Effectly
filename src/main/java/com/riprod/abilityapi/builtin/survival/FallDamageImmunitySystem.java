@@ -1,22 +1,26 @@
 package com.riprod.abilityapi.builtin.survival;
 
 import com.riprod.abilityapi.systems.AbilityConditionService;
-import com.riprod.abilityapi.builtin.combat.DamageModifierPipelineDependencies;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.component.SystemGroup;
 import com.hypixel.hytale.component.dependency.Dependency;
+import com.hypixel.hytale.component.dependency.Order;
+import com.hypixel.hytale.component.dependency.SystemGroupDependency;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.modules.entity.damage.Damage;
 import com.hypixel.hytale.server.core.modules.entity.damage.DamageCause;
 import com.hypixel.hytale.server.core.modules.entity.damage.DamageEventSystem;
+import com.hypixel.hytale.server.core.modules.entity.damage.DamageModule;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import java.util.Set;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Prevents fall damage for players with the fall_damage_immunity ability.
@@ -24,10 +28,20 @@ import javax.annotation.Nonnull;
 public class FallDamageImmunitySystem extends DamageEventSystem {
     private static final Query<EntityStore> QUERY = FallDamageImmunityComponent.getComponentType();
 
+    @Nullable
+    @Override
+    public SystemGroup<EntityStore> getGroup() {
+        var dm = DamageModule.get();
+        return dm != null ? dm.getFilterDamageGroup() : null;
+    }
+
     @Nonnull
     @Override
     public Set<Dependency<EntityStore>> getDependencies() {
-        return DamageModifierPipelineDependencies.afterFilterBeforeApplyDamage();
+        var dm = DamageModule.get();
+        var gatherGroup = dm != null ? dm.getGatherDamageGroup() : null;
+        if (gatherGroup == null) return Set.of();
+        return Set.of(new SystemGroupDependency<>(Order.AFTER, gatherGroup));
     }
 
     @Nonnull

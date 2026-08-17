@@ -1,6 +1,6 @@
 package com.riprod.abilityapi.builtin.healthregen;
 
-import com.riprod.abilityapi.builtin.combat.DamageModifierPipelineDependencies;
+import com.riprod.abilityapi.core.damage.DamageModifierPipelineDependencies;
 import com.riprod.abilityapi.builtin.survival.FallDamageImmunitySystem;
 import com.riprod.abilityapi.builtin.survival.InvulnerabilitySystem;
 import com.hypixel.hytale.component.dependency.Order;

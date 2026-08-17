@@ -48,7 +48,7 @@ public final class AbilityHandlerRegistry {
     @Nullable
     public static AbilityHandler forAbility(@Nonnull String abilityId) {
         AbilityAsset asset = AbilityAsset.getAssetMap().getAsset(abilityId);
-        if (asset == null || !asset.isEnabled()) return null;
+        if (asset == null) return null;
         return HANDLERS.get(asset.getHandler());
     }
 
@@ -56,7 +56,7 @@ public final class AbilityHandlerRegistry {
         AbilityRoster roster = AbilityRoster.of(context.getRef(), context.getComponents());
         if (roster == null) return false;
         for (String abilityId : roster.getAbilities().keySet()) {
-            if (forAbility(abilityId) == handler) return true;
+            if (AbilityAsset.isEnabled(abilityId) && forAbility(abilityId) == handler) return true;
         }
         return false;
     }

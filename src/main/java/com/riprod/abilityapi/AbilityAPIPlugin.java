@@ -14,8 +14,6 @@ import com.riprod.abilityapi.builtin.staminaregen.StaminaRegenHandler;
 import com.riprod.abilityapi.builtin.movespeed.MoveSpeedHandler;
 import com.riprod.abilityapi.builtin.oxygen.OxygenHandler;
 import com.riprod.abilityapi.builtin.swimspeed.SwimSpeedHandler;
-import com.riprod.abilityapi.core.stat.AbilityStatSystem;
-import com.riprod.abilityapi.core.stat.StatContributions;
 import com.riprod.abilityapi.builtin.wallclimb.WallClimbHandler;
 import com.riprod.abilityapi.builtin.survival.FallDamageImmunityHandler;
 import com.riprod.abilityapi.builtin.survival.InvulnerabilityHandler;
@@ -60,7 +58,6 @@ public class AbilityAPIPlugin extends JavaPlugin {
     protected void setup() {
         AbilityHandlerRegistry.reset();
         AbilityConditions.reset();
-        StatContributions.reset();
 
         AbilityConditions.register(new InZoneCondition());
         AbilityConditions.register(new InSunlightCondition());
@@ -102,9 +99,6 @@ public class AbilityAPIPlugin extends JavaPlugin {
         AbilityHandlerRegistry.register(new MoveSpeedHandler());
         AbilityHandlerRegistry.register(new SwimSpeedHandler());
         AbilityHandlerRegistry.installAll(this.getEntityStoreRegistry());
-
-        // every contributor must be registered before the stat system materialises its OR query
-        this.getEntityStoreRegistry().registerSystem(new AbilityStatSystem());
 
         this.getEntityStoreRegistry().registerSystem(new AbilityLoginSystem());
 

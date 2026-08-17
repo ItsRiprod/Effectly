@@ -19,13 +19,6 @@ public final class AbilityApiConfig extends Config {
     @Nonnull
     public static final BuilderCodec<AbilityApiConfig> CODEC = BuilderCodec
             .builder(AbilityApiConfig.class, AbilityApiConfig::new)
-            .append(new KeyedCodec<>("StatReassertSeconds", Codec.FLOAT),
-                    (config, v) -> config.statReassertSeconds = v,
-                    config -> config.statReassertSeconds)
-            .documentation("How often the shared stat system re-applies stat-backed abilities. Applies "
-                    + "to every stat ability at once, so it is not owned by any one of them.")
-            .addValidator(Validators.min(0.1f))
-            .add()
             .append(new KeyedCodec<>("SunlightMinFactor", Codec.DOUBLE),
                     (config, v) -> config.sunlightMinFactor = v,
                     config -> config.sunlightMinFactor)
@@ -42,7 +35,6 @@ public final class AbilityApiConfig extends Config {
             .add()
             .build();
 
-    private float statReassertSeconds = 1.0f;
     private double sunlightMinFactor = 0.2;
     private int sunlightMinEffective = 10;
 
@@ -52,10 +44,6 @@ public final class AbilityApiConfig extends Config {
     @Nonnull
     public static AbilityApiConfig get() {
         return Configly.getOrElse(TYPE, AbilityApiConfig.class, DEFAULTS);
-    }
-
-    public float getStatReassertSeconds() {
-        return statReassertSeconds;
     }
 
     public double getSunlightMinFactor() {

@@ -1,4 +1,4 @@
-package com.riprod.abilityapi.builtin.combat;
+package com.riprod.abilityapi.core.damage;
 
 import com.hypixel.hytale.component.dependency.Dependency;
 import com.hypixel.hytale.component.dependency.Order;

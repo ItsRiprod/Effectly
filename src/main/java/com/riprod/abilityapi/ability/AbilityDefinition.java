@@ -13,14 +13,4 @@ public record AbilityDefinition(
         double max,
         @Nonnull String description
 ) {
-    public boolean isValidValue(Object value) {
-        if (type == AbilityType.BINARY) {
-            return value instanceof Boolean;
-        }
-        if (type == AbilityType.NUMERIC && value instanceof Number num) {
-            double v = num.doubleValue();
-            return v >= min && v <= max;
-        }
-        return false;
-    }
 }

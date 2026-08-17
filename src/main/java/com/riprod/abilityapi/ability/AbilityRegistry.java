@@ -2,27 +2,17 @@ package com.riprod.abilityapi.ability;
 
 import com.riprod.abilityapi.core.asset.AbilityAsset;
 import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public final class AbilityRegistry {
-    private static final Map<String, AbilityDefinition> REGISTRY = new HashMap<>();
 
     private AbilityRegistry() {}
 
-    public static void register(@Nonnull AbilityDefinition def) {
-        REGISTRY.put(def.id(), def);
-    }
-
     @Nullable
     public static AbilityDefinition get(@Nonnull String id) {
-        AbilityDefinition programmatic = REGISTRY.get(id);
-        if (programmatic != null) return programmatic;
-
         AbilityAsset asset = asset(id);
         return asset != null ? toDefinition(asset) : null;
     }
@@ -33,16 +23,8 @@ public final class AbilityRegistry {
 
     @Nonnull
     public static Set<String> getAllIds() {
-        Set<String> ids = new LinkedHashSet<>(REGISTRY.keySet());
         DefaultAssetMap<String, AbilityAsset> map = assetMap();
-        if (map != null) {
-            ids.addAll(map.getAssetMap().keySet());
-        }
-        return ids;
-    }
-
-    public static void clear() {
-        REGISTRY.clear();
+        return map != null ? new LinkedHashSet<>(map.getAssetMap().keySet()) : Set.of();
     }
 
     @Nonnull

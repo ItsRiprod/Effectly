@@ -50,12 +50,6 @@ public final class AbilityRosters {
         return out;
     }
 
-    @Nullable
-    public static AbilityValue readValue(@Nonnull UUID playerId, @Nonnull String abilityId) {
-        AbilityRoster roster = byUuid(playerId);
-        AbilityEntry entry = roster != null ? roster.get(abilityId) : null;
-        return entry != null ? entry.toValue(abilityId) : null;
-    }
 
 
     @Nullable

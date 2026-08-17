@@ -1,6 +1,5 @@
 {
   "Type": "AbilityAPI",
-  "StatReassertSeconds": 1.0,
   "SunlightMinFactor": 0.2,
   "SunlightMinEffective": 10
 }

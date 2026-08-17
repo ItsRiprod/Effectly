@@ -1,12 +1,7 @@
 package com.riprod.abilityapi.builtin.secondchance;
 
 import com.riprod.abilityapi.systems.AbilityConditionService;
-import com.riprod.abilityapi.builtin.combat.AbilityDamageResistanceSystem;
-import com.riprod.abilityapi.builtin.combat.DamageModifierPipelineDependencies;
-import com.riprod.abilityapi.builtin.survival.FallDamageImmunitySystem;
-import com.riprod.abilityapi.builtin.survival.InvulnerabilitySystem;
-import com.hypixel.hytale.component.dependency.Order;
-import com.hypixel.hytale.component.dependency.SystemDependency;
+import com.riprod.abilityapi.core.damage.DamageModifierPipelineDependencies;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
@@ -22,7 +17,6 @@ import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntitySta
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Nonnull;
 
@@ -36,12 +30,7 @@ public class SecondChanceSystem extends DamageEventSystem {
     @Nonnull
     @Override
     public Set<Dependency<EntityStore>> getDependencies() {
-        Set<Dependency<EntityStore>> dependencies = new HashSet<>(
-                DamageModifierPipelineDependencies.afterFilterBeforeApplyDamage());
-        dependencies.add(new SystemDependency<>(Order.AFTER, AbilityDamageResistanceSystem.class));
-        dependencies.add(new SystemDependency<>(Order.AFTER, InvulnerabilitySystem.class));
-        dependencies.add(new SystemDependency<>(Order.AFTER, FallDamageImmunitySystem.class));
-        return dependencies;
+        return DamageModifierPipelineDependencies.afterFilterBeforeApplyDamage();
     }
 
     @Nonnull

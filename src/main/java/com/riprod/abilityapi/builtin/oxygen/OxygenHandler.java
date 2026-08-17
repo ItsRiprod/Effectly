@@ -1,17 +1,23 @@
 package com.riprod.abilityapi.builtin.oxygen;
 
+import com.riprod.abilityapi.ability.AbilityValue;
 import com.riprod.abilityapi.core.AbilityContext;
 import com.riprod.abilityapi.core.AbilityEntry;
 import com.riprod.abilityapi.core.AbilityHandler;
-import com.riprod.abilityapi.core.stat.StatContributions;
-import com.riprod.abilityapi.core.stat.StatPacingComponent;
+import com.riprod.abilityapi.systems.AbilityConditionService;
 import com.hypixel.hytale.component.ComponentRegistryProxy;
+import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
+import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
+import com.hypixel.hytale.server.core.modules.entitystats.modifier.Modifier;
+import com.hypixel.hytale.server.core.modules.entitystats.modifier.StaticModifier;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import javax.annotation.Nonnull;
 
 public final class OxygenHandler implements AbilityHandler {
 
     public static final String ID = "oxygen";
+
+    private static final String MODIFIER_KEY = "AbilityAPI:oxygen";
 
     @Nonnull
     @Override
@@ -28,21 +34,66 @@ public final class OxygenHandler implements AbilityHandler {
     @Override
     public void install(@Nonnull ComponentRegistryProxy<EntityStore> registry) {
         OxygenComponent.register(registry);
-        StatPacingComponent.register(registry);
-        StatContributions.register(new OxygenContributor());
+        registry.registerSystem(new OxygenSystem());
     }
 
     @Override
     public void grant(@Nonnull AbilityContext context, @Nonnull String abilityId, @Nonnull AbilityEntry entry) {
-        OxygenComponent component = new OxygenComponent();
+        OxygenComponent component = context.getComponents()
+                .getComponent(context.getRef(), OxygenComponent.getComponentType());
+        if (component == null) {
+            component = new OxygenComponent();
+            context.getComponents().putComponent(context.getRef(), OxygenComponent.getComponentType(), component);
+        }
         component.bind(abilityId);
-        context.getComponents().putComponent(context.getRef(), OxygenComponent.getComponentType(), component);
-        StatContributions.onGrant(context);
+        component.requestRecheck();
+        apply(context, component);
     }
 
     @Override
     public void revoke(@Nonnull AbilityContext context, @Nonnull String abilityId) {
+        OxygenComponent component = context.getComponents()
+                .getComponent(context.getRef(), OxygenComponent.getComponentType());
+        if (component != null) write(context, component, 0f);
         context.getComponents().removeComponent(context.getRef(), OxygenComponent.getComponentType());
-        StatContributions.onRevoke(context);
+    }
+
+    static void apply(@Nonnull AbilityContext context, @Nonnull OxygenComponent component) {
+        write(context, component, resolveAmount(context, component));
+    }
+
+    private static float resolveAmount(@Nonnull AbilityContext context, @Nonnull OxygenComponent component) {
+        String abilityId = component.getAbilityId();
+        if (abilityId == null) return 0f;
+
+        AbilityValue value = AbilityConditionService.getActiveAbilityValue(
+                context.getRef(), context.getComponents(), context.getWorld(), context.getUuid(), abilityId);
+        if (value == null || !value.isPresent() || value.asNumber() <= 0) return 0f;
+
+        return (float) (value.asNumber()
+                * component.configOrDefault(OxygenConfig.class, OxygenConfig.DEFAULTS).getUnitsPerSecond());
+    }
+
+    private static void write(
+            @Nonnull AbilityContext context,
+            @Nonnull OxygenComponent component,
+            float amount) {
+        if (amount == component.getAppliedAmount()) return;
+
+        EntityStatMap statMap = context.getComponents()
+                .getComponent(context.getRef(), EntityStatMap.getComponentType());
+        if (statMap == null) return;
+
+        int statIndex = DefaultEntityStatTypes.getOxygen();
+        if (statIndex < 0 || statIndex >= statMap.size()) return;
+
+        if (amount > 0f) {
+            statMap.putModifier(EntityStatMap.Predictable.SELF, statIndex, MODIFIER_KEY,
+                    new StaticModifier(Modifier.ModifierTarget.MAX,
+                            StaticModifier.CalculationType.ADDITIVE, amount));
+        } else {
+            statMap.removeModifier(EntityStatMap.Predictable.SELF, statIndex, MODIFIER_KEY);
+        }
+        component.setAppliedAmount(amount);
     }
 }

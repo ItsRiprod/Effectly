@@ -90,6 +90,19 @@ public final class AbilityAsset implements JsonAssetWithMap<String, DefaultAsset
         return this.handler;
     }
 
+    public static boolean isEnabled(@Nonnull String abilityId) {
+        AbilityAsset asset = getAssetMap().getAsset(abilityId);
+        return asset != null && asset.enabled;
+    }
+
+    public static double clampToRange(@Nonnull String abilityId, double value) {
+        AbilityAsset asset = getAssetMap().getAsset(abilityId);
+        if (asset == null) return value;
+        if (value < asset.min) return asset.min;
+        if (value > asset.max) return asset.max;
+        return value;
+    }
+
     @Nullable
     public static <T extends AbilityHandlerConfig> T configFor(
             @Nonnull String abilityId, @Nonnull Class<T> type) {
