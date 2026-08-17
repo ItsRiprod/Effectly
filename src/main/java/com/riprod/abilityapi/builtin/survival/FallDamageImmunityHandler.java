@@ -30,6 +30,6 @@ public final class FallDamageImmunityHandler implements AbilityHandler {
 
     @Override
     public void revoke(@Nonnull AbilityContext context, @Nonnull String abilityId) {
-        context.getComponents().removeComponent(context.getRef(), FallDamageImmunityComponent.getComponentType());
+        context.getComponents().tryRemoveComponent(context.getRef(), FallDamageImmunityComponent.getComponentType());
     }
 }

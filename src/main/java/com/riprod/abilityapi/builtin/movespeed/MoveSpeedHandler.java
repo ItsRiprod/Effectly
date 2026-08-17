@@ -40,18 +40,16 @@ public final class MoveSpeedHandler implements AbilityHandler {
     public void grant(@Nonnull AbilityContext context, @Nonnull String abilityId, @Nonnull AbilityEntry entry) {
         MoveSpeedComponent component = context.getComponents()
                 .getComponent(context.getRef(), MoveSpeedComponent.getComponentType());
-        if (component == null) {
-            component = new MoveSpeedComponent();
-            context.getComponents().putComponent(
-                    context.getRef(), MoveSpeedComponent.getComponentType(), component);
-        }
+        if (component == null) component = new MoveSpeedComponent();
         component.bind(abilityId);
+        context.getComponents().putComponent(
+                context.getRef(), MoveSpeedComponent.getComponentType(), component);
         apply(context, component);
     }
 
     @Override
     public void revoke(@Nonnull AbilityContext context, @Nonnull String abilityId) {
-        context.getComponents().removeComponent(context.getRef(), MoveSpeedComponent.getComponentType());
+        context.getComponents().tryRemoveComponent(context.getRef(), MoveSpeedComponent.getComponentType());
         SpeedModifiers.remove(context, MODIFIER_KEY);
     }
 

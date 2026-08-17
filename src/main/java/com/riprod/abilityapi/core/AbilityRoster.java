@@ -14,12 +14,14 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.jetbrains.annotations.NotNull;
+
 public final class AbilityRoster implements Component<EntityStore> {
 
     public static final String COMPONENT_ID = "AbilityAPI:Roster";
 
     @Nonnull
-    public static final BuilderCodec<AbilityRoster> CODEC = BuilderCodec
+    public static final BuilderCodec<@NotNull AbilityRoster> CODEC = BuilderCodec
             .builder(AbilityRoster.class, AbilityRoster::new)
             .append(new KeyedCodec<>("Abilities", new MapCodec<>(AbilityEntry.CODEC, LinkedHashMap::new, false)),
                     (roster, v) -> roster.abilities = v == null ? new LinkedHashMap<>() : new LinkedHashMap<>(v),

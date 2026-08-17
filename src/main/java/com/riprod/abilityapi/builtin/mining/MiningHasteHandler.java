@@ -38,6 +38,6 @@ public final class MiningHasteHandler implements AbilityHandler {
 
     @Override
     public void revoke(@Nonnull AbilityContext context, @Nonnull String abilityId) {
-        context.getComponents().removeComponent(context.getRef(), MiningHasteComponent.getComponentType());
+        context.getComponents().tryRemoveComponent(context.getRef(), MiningHasteComponent.getComponentType());
     }
 }

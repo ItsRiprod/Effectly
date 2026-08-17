@@ -37,17 +37,15 @@ public final class FlightHandler implements AbilityHandler {
     @Override
     public void grant(@Nonnull AbilityContext context, @Nonnull String abilityId, @Nonnull AbilityEntry entry) {
         FlightComponent component = context.getComponents().getComponent(context.getRef(), FlightComponent.getComponentType());
-        if (component == null) {
-            component = new FlightComponent();
-            context.getComponents().putComponent(context.getRef(), FlightComponent.getComponentType(), component);
-        }
+        if (component == null) component = new FlightComponent();
         component.bind(abilityId);
+        context.getComponents().putComponent(context.getRef(), FlightComponent.getComponentType(), component);
         applyCanFly(context, isActive(context));
     }
 
     @Override
     public void revoke(@Nonnull AbilityContext context, @Nonnull String abilityId) {
-        context.getComponents().removeComponent(context.getRef(), FlightComponent.getComponentType());
+        context.getComponents().tryRemoveComponent(context.getRef(), FlightComponent.getComponentType());
         applyCanFly(context, false);
     }
 

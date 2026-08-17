@@ -32,15 +32,13 @@ public final class WallClimbHandler implements AbilityHandler {
     @Override
     public void grant(@Nonnull AbilityContext context, @Nonnull String abilityId, @Nonnull AbilityEntry entry) {
         WallClimbComponent component = context.getComponents().getComponent(context.getRef(), WallClimbComponent.getComponentType());
-        if (component == null) {
-            component = new WallClimbComponent();
-            context.getComponents().putComponent(context.getRef(), WallClimbComponent.getComponentType(), component);
-        }
+        if (component == null) component = new WallClimbComponent();
         component.bind(abilityId);
+        context.getComponents().putComponent(context.getRef(), WallClimbComponent.getComponentType(), component);
     }
 
     @Override
     public void revoke(@Nonnull AbilityContext context, @Nonnull String abilityId) {
-        context.getComponents().removeComponent(context.getRef(), WallClimbComponent.getComponentType());
+        context.getComponents().tryRemoveComponent(context.getRef(), WallClimbComponent.getComponentType());
     }
 }

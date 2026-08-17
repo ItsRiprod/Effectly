@@ -74,7 +74,7 @@ public final class AbilityContext {
     }
 
     public void clearRoster() {
-        components.removeComponent(ref, AbilityRoster.getComponentType());
+        components.tryRemoveComponent(ref, AbilityRoster.getComponentType());
         roster = null;
         rosterResolved = true;
     }

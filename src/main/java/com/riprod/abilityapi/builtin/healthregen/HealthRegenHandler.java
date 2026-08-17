@@ -33,15 +33,13 @@ public final class HealthRegenHandler implements AbilityHandler {
     @Override
     public void grant(@Nonnull AbilityContext context, @Nonnull String abilityId, @Nonnull AbilityEntry entry) {
         HealthRegenComponent component = context.getComponents().getComponent(context.getRef(), HealthRegenComponent.getComponentType());
-        if (component == null) {
-            component = new HealthRegenComponent();
-            context.getComponents().putComponent(context.getRef(), HealthRegenComponent.getComponentType(), component);
-        }
+        if (component == null) component = new HealthRegenComponent();
         component.bind(abilityId);
+        context.getComponents().putComponent(context.getRef(), HealthRegenComponent.getComponentType(), component);
     }
 
     @Override
     public void revoke(@Nonnull AbilityContext context, @Nonnull String abilityId) {
-        context.getComponents().removeComponent(context.getRef(), HealthRegenComponent.getComponentType());
+        context.getComponents().tryRemoveComponent(context.getRef(), HealthRegenComponent.getComponentType());
     }
 }

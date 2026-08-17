@@ -33,15 +33,13 @@ public final class SecondChanceHandler implements AbilityHandler {
     @Override
     public void grant(@Nonnull AbilityContext context, @Nonnull String abilityId, @Nonnull AbilityEntry entry) {
         SecondChanceComponent component = context.getComponents().getComponent(context.getRef(), SecondChanceComponent.getComponentType());
-        if (component == null) {
-            component = new SecondChanceComponent();
-            context.getComponents().putComponent(context.getRef(), SecondChanceComponent.getComponentType(), component);
-        }
+        if (component == null) component = new SecondChanceComponent();
         component.bind(abilityId);
+        context.getComponents().putComponent(context.getRef(), SecondChanceComponent.getComponentType(), component);
     }
 
     @Override
     public void revoke(@Nonnull AbilityContext context, @Nonnull String abilityId) {
-        context.getComponents().removeComponent(context.getRef(), SecondChanceComponent.getComponentType());
+        context.getComponents().tryRemoveComponent(context.getRef(), SecondChanceComponent.getComponentType());
     }
 }

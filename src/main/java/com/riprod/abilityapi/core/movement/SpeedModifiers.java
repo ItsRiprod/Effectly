@@ -13,12 +13,10 @@ public final class SpeedModifiers {
     public static void put(@Nonnull AbilityContext context, @Nonnull String key, float factor) {
         SpeedModifierComponent store = context.getComponents()
                 .getComponent(context.getRef(), SpeedModifierComponent.getComponentType());
-        if (store == null) {
-            store = new SpeedModifierComponent();
-            context.getComponents().putComponent(
-                    context.getRef(), SpeedModifierComponent.getComponentType(), store);
-        }
+        if (store == null) store = new SpeedModifierComponent();
         store.put(key, factor);
+        context.getComponents().putComponent(
+                context.getRef(), SpeedModifierComponent.getComponentType(), store);
         write(context, store.product());
     }
 
@@ -29,7 +27,7 @@ public final class SpeedModifiers {
 
         write(context, store.product());
         if (store.isEmpty()) {
-            context.getComponents().removeComponent(
+            context.getComponents().tryRemoveComponent(
                     context.getRef(), SpeedModifierComponent.getComponentType());
         }
     }

@@ -41,13 +41,11 @@ public final class OxygenHandler implements AbilityHandler {
     public void grant(@Nonnull AbilityContext context, @Nonnull String abilityId, @Nonnull AbilityEntry entry) {
         OxygenComponent component = context.getComponents()
                 .getComponent(context.getRef(), OxygenComponent.getComponentType());
-        if (component == null) {
-            component = new OxygenComponent();
-            context.getComponents().putComponent(context.getRef(), OxygenComponent.getComponentType(), component);
-        }
+        if (component == null) component = new OxygenComponent();
         component.bind(abilityId);
         component.requestRecheck();
         apply(context, component);
+        context.getComponents().putComponent(context.getRef(), OxygenComponent.getComponentType(), component);
     }
 
     @Override
@@ -55,7 +53,7 @@ public final class OxygenHandler implements AbilityHandler {
         OxygenComponent component = context.getComponents()
                 .getComponent(context.getRef(), OxygenComponent.getComponentType());
         if (component != null) write(context, component, 0f);
-        context.getComponents().removeComponent(context.getRef(), OxygenComponent.getComponentType());
+        context.getComponents().tryRemoveComponent(context.getRef(), OxygenComponent.getComponentType());
     }
 
     static void apply(@Nonnull AbilityContext context, @Nonnull OxygenComponent component) {

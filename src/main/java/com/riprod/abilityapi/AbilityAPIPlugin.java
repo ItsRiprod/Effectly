@@ -105,7 +105,7 @@ public class AbilityAPIPlugin extends JavaPlugin {
         EquipmentAbilityComponent.register(this.getEntityStoreRegistry());
         this.getEntityStoreRegistry().registerSystem(new EquipmentAttachSystem());
         this.getEntityStoreRegistry().registerSystem(new EquipmentChangeSystem());
-        this.getEntityStoreRegistry().registerSystem(new EquipmentActiveSlotSystem());
+        // this.getEntityStoreRegistry().registerSystem(new EquipmentActiveSlotSystem());
 
         this.getCommandRegistry().registerCommand(new AbilityCommand(this));
         LOGGER.atInfo().log("AbilityAPI setup complete");

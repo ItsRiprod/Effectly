@@ -38,6 +38,6 @@ public final class MiningFortuneHandler implements AbilityHandler {
 
     @Override
     public void revoke(@Nonnull AbilityContext context, @Nonnull String abilityId) {
-        context.getComponents().removeComponent(context.getRef(), MiningFortuneComponent.getComponentType());
+        context.getComponents().tryRemoveComponent(context.getRef(), MiningFortuneComponent.getComponentType());
     }
 }

@@ -41,18 +41,16 @@ public final class SwimSpeedHandler implements AbilityHandler {
     public void grant(@Nonnull AbilityContext context, @Nonnull String abilityId, @Nonnull AbilityEntry entry) {
         SwimSpeedComponent component = context.getComponents()
                 .getComponent(context.getRef(), SwimSpeedComponent.getComponentType());
-        if (component == null) {
-            component = new SwimSpeedComponent();
-            context.getComponents().putComponent(
-                    context.getRef(), SwimSpeedComponent.getComponentType(), component);
-        }
+        if (component == null) component = new SwimSpeedComponent();
         component.bind(abilityId);
+        context.getComponents().putComponent(
+                context.getRef(), SwimSpeedComponent.getComponentType(), component);
         apply(context, component);
     }
 
     @Override
     public void revoke(@Nonnull AbilityContext context, @Nonnull String abilityId) {
-        context.getComponents().removeComponent(context.getRef(), SwimSpeedComponent.getComponentType());
+        context.getComponents().tryRemoveComponent(context.getRef(), SwimSpeedComponent.getComponentType());
         SpeedModifiers.remove(context, MODIFIER_KEY);
     }
 

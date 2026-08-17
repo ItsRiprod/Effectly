@@ -38,6 +38,6 @@ public final class ResistanceHandler implements AbilityHandler {
     @Override
     public void revoke(@Nonnull AbilityContext context, @Nonnull String abilityId) {
         if (AbilityHandlerRegistry.holdsAnyFor(context, this)) return;
-        context.getComponents().removeComponent(context.getRef(), ResistanceComponent.getComponentType());
+        context.getComponents().tryRemoveComponent(context.getRef(), ResistanceComponent.getComponentType());
     }
 }

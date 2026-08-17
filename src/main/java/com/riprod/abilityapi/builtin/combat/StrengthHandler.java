@@ -30,6 +30,6 @@ public final class StrengthHandler implements AbilityHandler {
 
     @Override
     public void revoke(@Nonnull AbilityContext context, @Nonnull String abilityId) {
-        context.getComponents().removeComponent(context.getRef(), StrengthComponent.getComponentType());
+        context.getComponents().tryRemoveComponent(context.getRef(), StrengthComponent.getComponentType());
     }
 }

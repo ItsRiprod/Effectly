@@ -25,13 +25,14 @@ public final class StaminaRegenHandler implements AbilityHandler {
 
     @Override
     public void grant(@Nonnull AbilityContext context, @Nonnull String abilityId, @Nonnull AbilityEntry entry) {
-        if (context.getComponents().getComponent(context.getRef(), StaminaRegenComponent.getComponentType()) == null) {
-            context.getComponents().putComponent(context.getRef(), StaminaRegenComponent.getComponentType(), new StaminaRegenComponent());
-        }
+        StaminaRegenComponent component = context.getComponents()
+                .getComponent(context.getRef(), StaminaRegenComponent.getComponentType());
+        if (component == null) component = new StaminaRegenComponent();
+        context.getComponents().putComponent(context.getRef(), StaminaRegenComponent.getComponentType(), component);
     }
 
     @Override
     public void revoke(@Nonnull AbilityContext context, @Nonnull String abilityId) {
-        context.getComponents().removeComponent(context.getRef(), StaminaRegenComponent.getComponentType());
+        context.getComponents().tryRemoveComponent(context.getRef(), StaminaRegenComponent.getComponentType());
     }
 }

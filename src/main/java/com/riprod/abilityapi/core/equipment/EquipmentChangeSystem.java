@@ -41,15 +41,15 @@ public final class EquipmentChangeSystem extends EntityEventSystem<EntityStore, 
 
     private static boolean affectsEquipment(@Nonnull InventoryChangeEvent event) {
         ComponentType<EntityStore, ? extends InventoryComponent> type = event.getComponentType();
-        if (type == InventoryComponent.Armor.getComponentType()) return true;
+        return type == InventoryComponent.Armor.getComponentType();
 
-        if (type != InventoryComponent.Hotbar.getComponentType()
-                && type != InventoryComponent.Utility.getComponentType()
-                && type != InventoryComponent.Tool.getComponentType()) {
-            return false;
-        }
-        if (!(event.getInventory() instanceof ActiveSlotInventoryComponent active)) return false;
-        return event.getTransaction().wasSlotModified(active.getActiveSlot());
+        // if (type != InventoryComponent.Hotbar.getComponentType()
+        //         && type != InventoryComponent.Utility.getComponentType()
+        //         && type != InventoryComponent.Tool.getComponentType()) {
+        //     return false;
+        // }
+        // if (!(event.getInventory() instanceof ActiveSlotInventoryComponent active)) return false;
+        // return event.getTransaction().wasSlotModified(active.getActiveSlot());
     }
 
     @Nullable

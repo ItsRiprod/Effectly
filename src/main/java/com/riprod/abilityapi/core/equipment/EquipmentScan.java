@@ -38,9 +38,9 @@ public final class EquipmentScan {
 
         Map<String, Double> desired = new LinkedHashMap<>();
         collectArmor(store.getComponent(ref, InventoryComponent.Armor.getComponentType()), desired);
-        collectActive(store.getComponent(ref, InventoryComponent.Hotbar.getComponentType()), desired);
-        collectActive(store.getComponent(ref, InventoryComponent.Utility.getComponentType()), desired);
-        collectActive(store.getComponent(ref, InventoryComponent.Tool.getComponentType()), desired);
+        // collectActive(store.getComponent(ref, InventoryComponent.Hotbar.getComponentType()), desired);
+        // collectActive(store.getComponent(ref, InventoryComponent.Utility.getComponentType()), desired);
+        // collectActive(store.getComponent(ref, InventoryComponent.Tool.getComponentType()), desired);
 
         Map<String, Double> applied = component.getApplied();
         if (applied.equals(desired)) return;

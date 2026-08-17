@@ -32,15 +32,13 @@ public final class ItemMagnetHandler implements AbilityHandler {
     @Override
     public void grant(@Nonnull AbilityContext context, @Nonnull String abilityId, @Nonnull AbilityEntry entry) {
         ItemMagnetComponent component = context.getComponents().getComponent(context.getRef(), ItemMagnetComponent.getComponentType());
-        if (component == null) {
-            component = new ItemMagnetComponent();
-            context.getComponents().putComponent(context.getRef(), ItemMagnetComponent.getComponentType(), component);
-        }
+        if (component == null) component = new ItemMagnetComponent();
         component.bind(abilityId);
+        context.getComponents().putComponent(context.getRef(), ItemMagnetComponent.getComponentType(), component);
     }
 
     @Override
     public void revoke(@Nonnull AbilityContext context, @Nonnull String abilityId) {
-        context.getComponents().removeComponent(context.getRef(), ItemMagnetComponent.getComponentType());
+        context.getComponents().tryRemoveComponent(context.getRef(), ItemMagnetComponent.getComponentType());
     }
 }

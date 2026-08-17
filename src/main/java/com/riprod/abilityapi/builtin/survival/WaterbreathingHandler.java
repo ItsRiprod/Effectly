@@ -32,6 +32,6 @@ public final class WaterbreathingHandler implements AbilityHandler {
 
     @Override
     public void revoke(@Nonnull AbilityContext context, @Nonnull String abilityId) {
-        context.getComponents().removeComponent(context.getRef(), WaterbreathingComponent.getComponentType());
+        context.getComponents().tryRemoveComponent(context.getRef(), WaterbreathingComponent.getComponentType());
     }
 }

@@ -30,6 +30,6 @@ public final class PunchDamageHandler implements AbilityHandler {
 
     @Override
     public void revoke(@Nonnull AbilityContext context, @Nonnull String abilityId) {
-        context.getComponents().removeComponent(context.getRef(), PunchDamageComponent.getComponentType());
+        context.getComponents().tryRemoveComponent(context.getRef(), PunchDamageComponent.getComponentType());
     }
 }

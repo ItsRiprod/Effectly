@@ -33,12 +33,10 @@ public final class DarkVisionHandler implements AbilityHandler {
     @Override
     public void grant(@Nonnull AbilityContext context, @Nonnull String abilityId, @Nonnull AbilityEntry entry) {
         DarkVisionComponent state = context.getComponents().getComponent(context.getRef(), DarkVisionComponent.getComponentType());
-        if (state == null) {
-            state = new DarkVisionComponent();
-            context.getComponents().putComponent(context.getRef(), DarkVisionComponent.getComponentType(), state);
-        }
+        if (state == null) state = new DarkVisionComponent();
         state.bind(abilityId);
         state.requestApply();
+        context.getComponents().putComponent(context.getRef(), DarkVisionComponent.getComponentType(), state);
     }
 
     @Override
@@ -52,6 +50,6 @@ public final class DarkVisionHandler implements AbilityHandler {
 
     @Override
     public void revoke(@Nonnull AbilityContext context, @Nonnull String abilityId) {
-        context.getComponents().removeComponent(context.getRef(), DarkVisionComponent.getComponentType());
+        context.getComponents().tryRemoveComponent(context.getRef(), DarkVisionComponent.getComponentType());
     }
 }
