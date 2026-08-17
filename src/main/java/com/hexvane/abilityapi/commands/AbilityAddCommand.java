@@ -5,8 +5,7 @@ import com.hexvane.abilityapi.ability.AbilityConditionSpec;
 import com.hexvane.abilityapi.ability.AbilityDefinition;
 import com.hexvane.abilityapi.ability.AbilityRegistry;
 import com.hexvane.abilityapi.ability.AbilityType;
-import com.hexvane.abilityapi.data.PlayerAbilityStorage;
-import com.hexvane.abilityapi.systems.AbilityStatService;
+import com.hexvane.abilityapi.api.AbilityService;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.CommandSender;
@@ -98,14 +97,9 @@ public class AbilityAddCommand extends AbstractPlayerCommand {
         AbilityCommandTargets.ParsedSuffix suffix = AbilityCommandTargets.stripTrailingPlayerName(conditionRest);
         PlayerRef targetPlayerRef = suffix.target() != null ? suffix.target() : playerRef;
         List<AbilityConditionSpec> conditions = parseConditions(suffix.remainder());
-        PlayerAbilityStorage.setAbility(targetPlayerRef.getUuid(), abilityId, value);
-        PlayerAbilityStorage.setConditions(targetPlayerRef.getUuid(), abilityId, conditions != null ? conditions : List.of());
+        AbilityService.setAbility(targetPlayerRef.getUuid(), abilityId, value,
+                conditions != null ? conditions : List.of());
 
-        Ref<EntityStore> targetRef = targetPlayerRef.getReference();
-        if (targetRef != null && targetRef.isValid()) {
-            Store<EntityStore> targetStore = targetRef.getStore();
-            AbilityStatService.applyForPlayer(targetRef, targetStore, targetStore.getExternalData().getWorld());
-        }
         boolean hasConditions = conditions != null && !conditions.isEmpty();
         boolean other = !targetPlayerRef.getUuid().equals(playerRef.getUuid());
         String targetLabel = other ? " to " + targetPlayerRef.getUsername() : "";

@@ -1,0 +1,7 @@
+{
+  "Type": "Binary",
+  "Default": 1.0,
+  "Min": 0.0,
+  "Max": 1.0,
+  "Description": "Immune to fall damage"
+}

@@ -1,0 +1,8 @@
+{
+  "Handler": "resistance",
+  "Type": "Numeric",
+  "Default": 0.0,
+  "Min": -1.0,
+  "Max": 1.0,
+  "Description": "Fall damage resistance or weakness"
+}

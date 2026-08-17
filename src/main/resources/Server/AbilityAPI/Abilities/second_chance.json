@@ -1,0 +1,7 @@
+{
+  "Type": "Binary",
+  "Default": 1.0,
+  "Min": 0.0,
+  "Max": 1.0,
+  "Description": "Prevent death once; restore to 20% health; 5 min cooldown"
+}

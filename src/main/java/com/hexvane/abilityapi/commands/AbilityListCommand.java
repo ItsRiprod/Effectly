@@ -3,7 +3,7 @@ package com.hexvane.abilityapi.commands;
 import com.hexvane.abilityapi.AbilityAPIPlugin;
 import com.hexvane.abilityapi.ability.AbilityConditionSpec;
 import com.hexvane.abilityapi.ability.AbilityValue;
-import com.hexvane.abilityapi.data.PlayerAbilityStorage;
+import com.hexvane.abilityapi.core.AbilityRosters;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.CommandSender;
@@ -60,7 +60,7 @@ public class AbilityListCommand extends AbstractPlayerCommand {
             }
             targetPlayerRef = found;
         }
-        Map<String, AbilityValue> abilities = PlayerAbilityStorage.getAllAbilities(targetPlayerRef.getUuid());
+        Map<String, AbilityValue> abilities = AbilityRosters.readAll(targetPlayerRef.getUuid());
         if (abilities.isEmpty()) {
             boolean other = !targetPlayerRef.getUuid().equals(playerRef.getUuid());
             context.sendMessage(Message.raw(other ? targetPlayerRef.getUsername() + " has no abilities granted." : "No abilities granted."));
@@ -80,7 +80,7 @@ public class AbilityListCommand extends AbstractPlayerCommand {
             if (v != null && v.getRaw() instanceof Number n) {
                 sb.append("=").append(n);
             }
-            var conditions = PlayerAbilityStorage.getConditions(targetPlayerRef.getUuid(), e.getKey());
+            var conditions = AbilityRosters.readConditions(targetPlayerRef.getUuid(), e.getKey());
             if (conditions != null && !conditions.isEmpty()) {
                 sb.append(" (");
                 for (int i = 0; i < conditions.size(); i++) {

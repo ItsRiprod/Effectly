@@ -1,0 +1,7 @@
+{
+  "Type": "Numeric",
+  "Default": 1.0,
+  "Min": 1.0,
+  "Max": 5.0,
+  "Description": "Extra drops from mining configured blocks (e.g. ores); level = extra roll attempts"
+}

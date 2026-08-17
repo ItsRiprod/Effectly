@@ -18,13 +18,22 @@ This document explains:
   - **Hytale server 0.5.0 or newer** (AbilityAPI 1.2.0 declares `ServerVersion`: `^0.5.0`)
   - A Java version compatible with your Hytale tooling (AbilityAPI targets Java 25; Gradle handles the toolchain).
 
-On first run, AbilityAPI will create a data directory similar to:
+AbilityAPI stores nothing of its own on disk. Player abilities live on the player entity as an ECS
+component, so they are written into the engine's own player document at
+`run/universe/players/<uuid>.json` under `AbilityAPI:Roster`. That means they are universe-global,
+survive world transfers, and are preserved even if AbilityAPI is uninstalled and later reinstalled.
 
-- `Server/mods/hexvane_AbilityAPI/`
-  - `player_abilities.json` — all persisted player abilities
-  - `mining_fortune_blocks.json` — configuration for which blocks are affected by `mining_fortune`
+Two things are authored rather than generated:
 
-No manual configuration is required to get started; defaults are sensible.
+- `Server/Configs/AbilityAPI.json` — server-wide tuning (Configly). Ships with sensible defaults.
+- `Server/AbilityAPI/Abilities/*.json` — one file per ability, defining its type, range and handler.
+
+No manual configuration is required to get started.
+
+> **Breaking change in 1.3.0:** `player_abilities.json` and `mining_fortune_blocks.json` are no
+> longer read. Existing ability grants are not migrated and must be re-issued. The mining-fortune
+> block list moved to `MiningFortuneBlocks` in `Server/Configs/AbilityAPI.json`; AbilityAPI logs a
+> warning at startup if the old file is still present.
 
 ---
 
@@ -40,18 +49,31 @@ Each **ability** has:
   - **Numeric**: value is a number (double)
 - Optional **min/max** and a **description** (for help text and validation)
 
-The registry of all abilities is defined in `AbilityAPIPlugin.setup()` and is stable across servers so other mods can depend on the same IDs and behavior.
+Abilities are defined declaratively, one JSON file per ability, in `Server/AbilityAPI/Abilities/`.
+The IDs are stable across servers so other mods can depend on the same IDs and behavior. Setting
+`"Enabled": false` in an ability's file stops it being granted without removing the file.
+
+Server owners can retune an ability's `Min`, `Max` and `Default` there — the old hardcoded ranges are
+no longer baked into the jar.
 
 ### 2.2 Player ability storage
 
-Player state is stored centrally in:
+Every granted ability is one entry in a single persistent ECS component, `AbilityRoster`, attached to
+the player entity:
 
-- `PlayerAbilityStorage`
-  - Per‑player map: `UUID -> (abilityId -> value)`
-  - Per‑player map: `UUID -> (abilityId -> List<AbilityConditionSpec>)`
-  - Persisted to `player_abilities.json` in the plugin data directory
+- `abilityId -> { value, conditions }`
 
-Any change through commands or via another mod is saved and will survive server restarts.
+That component is the only thing AbilityAPI persists. The engine saves it with the rest of the player
+document (autosave every 10s, plus on disconnect and world shutdown), so changes survive restarts
+without AbilityAPI writing any file itself.
+
+Individual abilities may attach further *transient* components (for example `FlightState`) — those
+exist only while the ability is granted and are never written to disk. Having the component is what
+makes an ability tick; removing it is what stops it.
+
+If another mod grants or removes an ability for a player who is **offline**, the change is written
+straight into that player's saved document, so it survives a restart and is live the moment they next
+join. Offline writes are asynchronous — the call returns before the write completes.
 
 ### 2.3 Conditions
 
@@ -272,7 +294,14 @@ Key methods:
 ```java
 AbilityService.setAbility(playerUuid, "move_speed", 1.3);
 AbilityService.setAbility(playerUuid, "creative_flight", Boolean.TRUE);
+
+// value and conditions in one call, so the ability is never briefly live without its conditions
+AbilityService.setAbility(playerUuid, "stamina_regen", 1.5, conditions);
 ```
+
+Note that these calls are **applied on the next world tick**, not synchronously — mutating an entity
+has to be deferred onto the world thread. Reading state back in the same tick will still see the old
+value.
 
 - **Attach conditions:**
 
@@ -290,9 +319,10 @@ AbilityService.setConditions(playerUuid, "stamina_regen", conditions);
 AbilityService.removeAbility(playerUuid, "move_speed");
 ```
 
-- **Re‑apply stats and movement for a player:**
+- **Re‑apply everything for a player:**
 
-Call this after changing abilities so movement speed, oxygen, and stat modifiers are recalculated:
+Rarely needed now — `setAbility` and `removeAbility` apply their own effects, and abilities are
+re-applied automatically on login and world change. Use this only to force a full refresh:
 
 ```java
 AbilityService.applyForPlayer(ref, store, world);
@@ -328,8 +358,11 @@ For more detail, see:
 ### 7.1 Abilities not applying
 
 - Check `/ability list` to confirm the player actually has the ability.
-- Ensure your integration calls `AbilityService.applyForPlayer(...)` after changing abilities.
 - Verify that the ability ID is exactly one of the registered IDs from `/ability available`.
+- Check the ability's file in `Server/AbilityAPI/Abilities/` has not been set `"Enabled": false`.
+- For an offline player, check the log for the "Applied '<ability>' to the saved data of offline
+  player" line confirming the write landed.
+- Inspect `run/universe/players/<uuid>.json` — `AbilityAPI:Roster` is the source of truth.
 
 ### 7.2 Conditions not behaving as expected
 
@@ -344,6 +377,8 @@ For more detail, see:
 
 - Avoid spamming ability changes every tick. Grant/remove abilities on discrete events (login, species selection, equipment change) and let AbilityAPI handle the rest.
 - Use conditions rather than constantly toggling abilities for state‑based behavior.
+- Abilities cost nothing when nobody has them. Each one only ticks for players who actually hold it,
+  and abilities that react to events (resistances, mining, breathing) never tick at all.
 
 ---
 

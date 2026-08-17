@@ -2,7 +2,9 @@ package com.hexvane.abilityapi.systems;
 
 import com.hexvane.abilityapi.ability.AbilityConditionSpec;
 import com.hexvane.abilityapi.ability.AbilityValue;
-import com.hexvane.abilityapi.data.PlayerAbilityStorage;
+import com.hexvane.abilityapi.config.AbilityApiConfig;
+import com.hexvane.abilityapi.core.AbilityEntry;
+import com.hexvane.abilityapi.core.AbilityRoster;
 import com.hexvane.abilityapi.zone.ZoneResolver;
 import com.hypixel.hytale.component.ComponentAccessor;
 import com.hypixel.hytale.component.Ref;
@@ -10,7 +12,7 @@ import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
-import com.hypixel.hytale.server.core.modules.entitystats.asset.EntityStatType;
+import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
 import com.hypixel.hytale.server.core.modules.time.WorldTimeResource;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
@@ -82,11 +84,13 @@ public final class AbilityConditionService {
             @Nonnull java.util.UUID playerId,
             @Nonnull String abilityId,
             @Nullable Ref<EntityStore> targetRef) {
-        AbilityValue value = PlayerAbilityStorage.getAbility(playerId, abilityId);
-        if (value == null || !value.isPresent()) return null;
+        AbilityRoster roster = AbilityRoster.of(ref, store);
+        AbilityEntry entry = roster != null ? roster.get(abilityId) : null;
+        if (entry == null) return null;
 
-        List<AbilityConditionSpec> conditions = PlayerAbilityStorage.getConditions(playerId, abilityId);
-        if (conditions == null || conditions.isEmpty()) return value;
+        AbilityValue value = entry.toValue(abilityId);
+        List<AbilityConditionSpec> conditions = entry.getConditions();
+        if (conditions.isEmpty()) return value;
 
         LOGGER.at(Level.FINE).log("Evaluating %d condition(s) for ability '%s'", conditions.size(), abilityId);
         for (AbilityConditionSpec cond : conditions) {
@@ -127,11 +131,6 @@ public final class AbilityConditionService {
         return false;
     }
 
-    /** Min sunlight factor (0–1) for daytime; below this = night. */
-    private static final double MIN_SUNLIGHT_FACTOR = 0.2;
-    /** Min effective sunlight (skyLight * sunlightFactor) for "in sunlight"; 0–15 scale. */
-    private static final int MIN_EFFECTIVE_SUNLIGHT = 10;
-
     private static boolean evaluateInSunlight(
             @Nonnull Ref<EntityStore> ref,
             @Nonnull ComponentAccessor<EntityStore> store,
@@ -142,9 +141,10 @@ public final class AbilityConditionService {
             LOGGER.at(Level.FINE).log("  in_sunlight: no WorldTimeResource -> false");
             return false;
         }
-        if (worldTimeResource.getSunlightFactor() < MIN_SUNLIGHT_FACTOR) {
+        AbilityApiConfig config = AbilityApiConfig.get();
+        if (worldTimeResource.getSunlightFactor() < config.getSunlightMinFactor()) {
             LOGGER.at(Level.FINE).log("  in_sunlight: sunlightFactor=%.2f < %.2f (night) -> false",
-                    worldTimeResource.getSunlightFactor(), MIN_SUNLIGHT_FACTOR);
+                    worldTimeResource.getSunlightFactor(), config.getSunlightMinFactor());
             return false;
         }
         TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
@@ -164,7 +164,7 @@ public final class AbilityConditionService {
         BlockChunk blockChunk = chunk.getBlockChunk();
         byte skyLight = blockChunk.getSkyLight(blockX, blockY, blockZ);
         int effectiveSunlight = (int) (skyLight * worldTimeResource.getSunlightFactor());
-        boolean passed = effectiveSunlight >= MIN_EFFECTIVE_SUNLIGHT;
+        boolean passed = effectiveSunlight >= config.getSunlightMinEffective();
         LOGGER.at(Level.FINE).log("  in_sunlight: skyLight=%d, sunlightFactor=%.2f, effective=%d, passed=%s",
                 skyLight, worldTimeResource.getSunlightFactor(), effectiveSunlight, passed);
         return passed;
@@ -180,7 +180,7 @@ public final class AbilityConditionService {
             LOGGER.at(Level.FINE).log("  health_below(%d): no EntityStatMap -> false", thresholdPercent);
             return false;
         }
-        int healthIndex = EntityStatType.getAssetMap().getIndex("Health");
+        int healthIndex = DefaultEntityStatTypes.getHealth();
         if (healthIndex < 0 || healthIndex >= statMap.size()) {
             LOGGER.at(Level.FINE).log("  health_below(%d): no Health stat -> false", thresholdPercent);
             return false;
@@ -212,7 +212,7 @@ public final class AbilityConditionService {
             LOGGER.at(Level.FINE).log("  health_above(%d): no EntityStatMap -> false", thresholdPercent);
             return false;
         }
-        int healthIndex = EntityStatType.getAssetMap().getIndex("Health");
+        int healthIndex = DefaultEntityStatTypes.getHealth();
         if (healthIndex < 0 || healthIndex >= statMap.size()) {
             LOGGER.at(Level.FINE).log("  health_above(%d): no Health stat -> false", thresholdPercent);
             return false;
@@ -248,7 +248,7 @@ public final class AbilityConditionService {
             LOGGER.at(Level.FINE).log("  target_health_below(%d): no EntityStatMap -> false", thresholdPercent);
             return false;
         }
-        int healthIndex = EntityStatType.getAssetMap().getIndex("Health");
+        int healthIndex = DefaultEntityStatTypes.getHealth();
         if (healthIndex < 0 || healthIndex >= statMap.size()) {
             LOGGER.at(Level.FINE).log("  target_health_below(%d): no Health stat -> false", thresholdPercent);
             return false;
@@ -284,7 +284,7 @@ public final class AbilityConditionService {
             LOGGER.at(Level.FINE).log("  target_health_above(%d): no EntityStatMap -> false", thresholdPercent);
             return false;
         }
-        int healthIndex = EntityStatType.getAssetMap().getIndex("Health");
+        int healthIndex = DefaultEntityStatTypes.getHealth();
         if (healthIndex < 0 || healthIndex >= statMap.size()) {
             LOGGER.at(Level.FINE).log("  target_health_above(%d): no Health stat -> false", thresholdPercent);
             return false;

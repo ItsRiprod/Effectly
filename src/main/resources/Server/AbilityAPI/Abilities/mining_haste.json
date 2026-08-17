@@ -1,0 +1,7 @@
+{
+  "Type": "Numeric",
+  "Default": 1.0,
+  "Min": 1.0,
+  "Max": 5.0,
+  "Description": "Faster block breaking (level 1-5)"
+}

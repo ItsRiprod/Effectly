@@ -1,0 +1,7 @@
+{
+  "Type": "Numeric",
+  "Default": 0.5,
+  "Min": 0.1,
+  "Max": 5.0,
+  "Description": "Health regenerated per second when conditions met"
+}

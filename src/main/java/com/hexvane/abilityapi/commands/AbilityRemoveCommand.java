@@ -2,8 +2,7 @@ package com.hexvane.abilityapi.commands;
 
 import com.hexvane.abilityapi.AbilityAPIPlugin;
 import com.hexvane.abilityapi.ability.AbilityRegistry;
-import com.hexvane.abilityapi.data.PlayerAbilityStorage;
-import com.hexvane.abilityapi.systems.AbilityStatService;
+import com.hexvane.abilityapi.api.AbilityService;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.CommandSender;
@@ -75,12 +74,7 @@ public class AbilityRemoveCommand extends AbstractPlayerCommand {
             }
             targetPlayerRef = found;
         }
-        PlayerAbilityStorage.removeAbility(targetPlayerRef.getUuid(), abilityId);
-        Ref<EntityStore> targetRef = targetPlayerRef.getReference();
-        if (targetRef != null && targetRef.isValid()) {
-            Store<EntityStore> targetStore = targetRef.getStore();
-            AbilityStatService.applyForPlayer(targetRef, targetStore, targetStore.getExternalData().getWorld());
-        }
+        AbilityService.removeAbility(targetPlayerRef.getUuid(), abilityId);
         boolean other = !targetPlayerRef.getUuid().equals(playerRef.getUuid());
         String targetLabel = other ? " from " + targetPlayerRef.getUsername() : "";
         context.sendMessage(Message.raw("Removed " + abilityId + targetLabel));

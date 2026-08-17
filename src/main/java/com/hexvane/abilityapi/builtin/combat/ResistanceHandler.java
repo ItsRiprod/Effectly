@@ -1,0 +1,37 @@
+package com.hexvane.abilityapi.builtin.combat;
+
+import com.hexvane.abilityapi.core.AbilityContext;
+import com.hexvane.abilityapi.core.AbilityEntry;
+import com.hexvane.abilityapi.core.AbilityHandler;
+import com.hexvane.abilityapi.core.AbilityHandlerRegistry;
+import com.hypixel.hytale.component.ComponentRegistryProxy;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import javax.annotation.Nonnull;
+
+public final class ResistanceHandler implements AbilityHandler {
+
+    public static final String ID = "resistance";
+
+    @Nonnull
+    @Override
+    public String getId() {
+        return ID;
+    }
+
+    @Override
+    public void install(@Nonnull ComponentRegistryProxy<EntityStore> registry) {
+        ResistanceComponent.register(registry);
+        registry.registerSystem(new AbilityDamageResistanceSystem());
+    }
+
+    @Override
+    public void grant(@Nonnull AbilityContext context, @Nonnull String abilityId, @Nonnull AbilityEntry entry) {
+        context.getComponents().putComponent(context.getRef(), ResistanceComponent.getComponentType(), new ResistanceComponent());
+    }
+
+    @Override
+    public void revoke(@Nonnull AbilityContext context, @Nonnull String abilityId) {
+        if (AbilityHandlerRegistry.holdsAnyFor(context, this)) return;
+        context.getComponents().removeComponent(context.getRef(), ResistanceComponent.getComponentType());
+    }
+}

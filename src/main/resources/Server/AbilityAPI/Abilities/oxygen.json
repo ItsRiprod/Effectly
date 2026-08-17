@@ -1,0 +1,7 @@
+{
+  "Type": "Numeric",
+  "Default": 10.0,
+  "Min": 0.0,
+  "Max": 600.0,
+  "Description": "Extra seconds of breath underwater"
+}

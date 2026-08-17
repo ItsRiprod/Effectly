@@ -1,0 +1,7 @@
+{
+  "Type": "Numeric",
+  "Default": 1.0,
+  "Min": 0.5,
+  "Max": 3.0,
+  "Description": "Unarmed/melee damage multiplier"
+}

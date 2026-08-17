@@ -1,0 +1,37 @@
+package com.hexvane.abilityapi.builtin.survival;
+
+import com.hexvane.abilityapi.core.AbilityContext;
+import com.hexvane.abilityapi.core.AbilityEntry;
+import com.hexvane.abilityapi.core.AbilityHandler;
+import com.hypixel.hytale.component.ComponentRegistryProxy;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import javax.annotation.Nonnull;
+
+public final class WaterbreathingHandler implements AbilityHandler {
+
+    public static final String ID = "waterbreathing";
+
+    @Nonnull
+    @Override
+    public String getId() {
+        return ID;
+    }
+
+    @Override
+    public void install(@Nonnull ComponentRegistryProxy<EntityStore> registry) {
+        WaterbreathingComponent.register(registry);
+        registry.registerSystem(new WaterbreathingEventSystem());
+        registry.registerSystem(new WaterbreathingRecheckSystem());
+    }
+
+    @Override
+    public void grant(@Nonnull AbilityContext context, @Nonnull String abilityId, @Nonnull AbilityEntry entry) {
+        context.getComponents().putComponent(
+                context.getRef(), WaterbreathingComponent.getComponentType(), new WaterbreathingComponent());
+    }
+
+    @Override
+    public void revoke(@Nonnull AbilityContext context, @Nonnull String abilityId) {
+        context.getComponents().removeComponent(context.getRef(), WaterbreathingComponent.getComponentType());
+    }
+}
