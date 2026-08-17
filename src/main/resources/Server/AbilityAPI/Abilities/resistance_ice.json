@@ -1,5 +1,8 @@
 {
-  "Handler": "resistance",
+  "Handler": {
+    "Id": "resistance",
+    "DamageCause": "Ice"
+  },
   "Type": "Numeric",
   "Default": 0.0,
   "Min": -1.0,

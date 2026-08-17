@@ -25,8 +25,8 @@ survive world transfers, and are preserved even if AbilityAPI is uninstalled and
 
 Two things are authored rather than generated:
 
-- `Server/Configs/AbilityAPI.json` — server-wide tuning (Configly). Ships with sensible defaults.
-- `Server/AbilityAPI/Abilities/*.json` — one file per ability, defining its type, range and handler.
+- `Server/Configs/AbilityAPI.json` - server-wide tuning (Configly). Ships with sensible defaults.
+- `Server/AbilityAPI/Abilities/*.json` - one file per ability, defining its type, range and handler.
 
 No manual configuration is required to get started.
 
@@ -53,7 +53,7 @@ Abilities are defined declaratively, one JSON file per ability, in `Server/Abili
 The IDs are stable across servers so other mods can depend on the same IDs and behavior. Setting
 `"Enabled": false` in an ability's file stops it being granted without removing the file.
 
-Server owners can retune an ability's `Min`, `Max` and `Default` there — the old hardcoded ranges are
+Server owners can retune an ability's `Min`, `Max` and `Default` there - the old hardcoded ranges are
 no longer baked into the jar.
 
 ### 2.2 Player ability storage
@@ -67,13 +67,13 @@ That component is the only thing AbilityAPI persists. The engine saves it with t
 document (autosave every 10s, plus on disconnect and world shutdown), so changes survive restarts
 without AbilityAPI writing any file itself.
 
-Individual abilities may attach further *transient* components (for example `FlightState`) — those
+Individual abilities may attach further *transient* components (for example `FlightState`) - those
 exist only while the ability is granted and are never written to disk. Having the component is what
 makes an ability tick; removing it is what stops it.
 
 If another mod grants or removes an ability for a player who is **offline**, the change is written
 straight into that player's saved document, so it survives a restart and is live the moment they next
-join. Offline writes are asynchronous — the call returns before the write completes.
+join. Offline writes are asynchronous - the call returns before the write completes.
 
 ### 2.3 Conditions
 
@@ -86,12 +86,12 @@ Some abilities are only active when **conditions** are met. Conditions are repre
 
 Built‑in condition types:
 
-- `in_zone` — active when the player is in one of the configured zone IDs
-- `in_sunlight` — active when it is daytime and there is open sky above the player
-- `health_below` — active when player health % is below `param` (0–100)
-- `health_above` — active when player health % is at or above `param` (0–100)
-- `target_health_below` — active when the damage **target’s** health % is below `param`
-- `target_health_above` — active when the damage **target’s** health % is at or above `param`
+- `in_zone` - active when the player is in one of the configured zone IDs
+- `in_sunlight` - active when it is daytime and there is open sky above the player
+- `health_below` - active when player health % is below `param` (0–100)
+- `health_above` - active when player health % is at or above `param` (0–100)
+- `target_health_below` - active when the damage **target’s** health % is below `param`
+- `target_health_above` - active when the damage **target’s** health % is at or above `param`
 
 AbilityAPI’s internal systems (e.g. `AbilityConditionService`, `AbilityStatService`) evaluate these conditions on demand when applying stats or reacting to events.
 
@@ -194,7 +194,7 @@ Below is a brief summary of the most important built‑in abilities. See `PLAN.m
     - `0` = neutral
     - `<0` = weakness (take more damage)
     - `>0` = resistance (take less damage)
-  - Types are derived from Hytale’s `DamageCause` assets at startup; see `AbilityAPIPlugin.registerResistanceAbilitiesFromDamageCauses()`.
+  - The cause is declared per ability under `Handler.DamageCause` and covers causes derived from it (`resistance_elemental` reduces `Fire`). The most specific active resistance wins, including a `0`, which cancels a broader one.
 - `**invulnerability` (binary)**  
   - Negates all incoming entity damage (combat, environment, etc.). Does not affect block‑breaking speed (`DamageBlockEvent`).
 - `**second_chance` (binary)**  
@@ -260,25 +260,33 @@ dependencies {
 
 ```kotlin
 dependencies {
-    implementation(files("./libs/AbilityAPI-1.2.0.jar"))
+    implementation(files("./libs/AbilityAPI-1.3.0.jar"))
 }
 ```
 
 Make sure you **gate all runtime usage** behind the Hytale `PluginManager` so your mod can still run when AbilityAPI is missing:
 
 ```java
-PluginIdentifier abilityApiId = PluginIdentifier.fromString("hexvane:AbilityAPI");
+PluginIdentifier abilityApiId = PluginIdentifier.fromString("Riprod:AbilityAPI");
 PluginManager manager = PluginManager.get();
 boolean abilityApiPresent = manager != null && manager.getPlugin(abilityApiId) != null;
 ```
 
+Identifier casing matters - `PluginIdentifier` compares group and name exactly.
+
+> **Existing consumers need no changes.** AbilityAPI moved from Hexvane to Riprod in 1.3.0, but
+> `hexvane:AbilityAPI` is still a registered plugin identifier (it ships as a compatibility
+> sub-plugin), so the gate above continues to resolve with the old string. The
+> `com.hexvane.abilityapi.api.AbilityService` and `com.hexvane.abilityapi.ability.AbilityConditionSpec`
+> classes are likewise frozen in place and forward to their `com.riprod` equivalents.
+
 ### 6.2 Public API: `AbilityService`
 
-Use `com.hexvane.abilityapi.api.AbilityService` from your mod:
+Use `com.riprod.abilityapi.api.AbilityService` from your mod:
 
 ```java
-import com.hexvane.abilityapi.api.AbilityService;
-import com.hexvane.abilityapi.ability.AbilityConditionSpec;
+import com.riprod.abilityapi.api.AbilityService;
+import com.riprod.abilityapi.ability.AbilityConditionSpec;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.ComponentAccessor;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -299,7 +307,7 @@ AbilityService.setAbility(playerUuid, "creative_flight", Boolean.TRUE);
 AbilityService.setAbility(playerUuid, "stamina_regen", 1.5, conditions);
 ```
 
-Note that these calls are **applied on the next world tick**, not synchronously — mutating an entity
+Note that these calls are **applied on the next world tick**, not synchronously - mutating an entity
 has to be deferred onto the world thread. Reading state back in the same tick will still see the old
 value.
 
@@ -321,7 +329,7 @@ AbilityService.removeAbility(playerUuid, "move_speed");
 
 - **Re‑apply everything for a player:**
 
-Rarely needed now — `setAbility` and `removeAbility` apply their own effects, and abilities are
+Rarely needed now - `setAbility` and `removeAbility` apply their own effects, and abilities are
 re-applied automatically on login and world change. Use this only to force a full refresh:
 
 ```java
@@ -330,9 +338,9 @@ AbilityService.applyForPlayer(ref, store, world);
 
 Parameters:
 
-- `Ref<EntityStore> ref` — reference to the entity
-- `ComponentAccessor<EntityStore> store` — the store/accessor from your system/command context
-- `World world` — the world the player is in
+- `Ref<EntityStore> ref` - reference to the entity
+- `ComponentAccessor<EntityStore> store` - the store/accessor from your system/command context
+- `World world` - the world the player is in
 
 ### 6.3 Example: Species‑based abilities (Orbis Origins)
 
@@ -348,7 +356,7 @@ Orbis Origins is the primary consumer of AbilityAPI and serves as a practical re
 
 For more detail, see:
 
-- `OrbisOrigins/src/main/java/com/hexvane/orbisorigins/ability/AbilityApiBridge.java`
+- `OrbisOrigins/src/main/java/com/riprod/orbisorigins/ability/AbilityApiBridge.java`
 - `OrbisOrigins/src/main/resources/Species/*.json`
 
 ---
@@ -362,7 +370,7 @@ For more detail, see:
 - Check the ability's file in `Server/AbilityAPI/Abilities/` has not been set `"Enabled": false`.
 - For an offline player, check the log for the "Applied '<ability>' to the saved data of offline
   player" line confirming the write landed.
-- Inspect `run/universe/players/<uuid>.json` — `AbilityAPI:Roster` is the source of truth.
+- Inspect `run/universe/players/<uuid>.json` - `AbilityAPI:Roster` is the source of truth.
 
 ### 7.2 Conditions not behaving as expected
 

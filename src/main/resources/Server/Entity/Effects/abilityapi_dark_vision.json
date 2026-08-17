@@ -1,0 +1,11 @@
+{
+  "Id": "abilityapi_dark_vision",
+  "Name": "abilityapi.effect.dark_vision",
+  "ApplicationEffects": {
+    "ScreenEffect": "ScreenEffects/abilityapi_dark_vision.png"
+  },
+  "OverlapBehavior": "Overwrite",
+  "Duration": 3600,
+  "Infinite": false,
+  "Debuff": false
+}

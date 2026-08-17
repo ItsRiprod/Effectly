@@ -1,4 +1,8 @@
 {
+  "Handler": {
+    "Id": "health_regen",
+    "DelaySeconds": 5.0
+  },
   "Type": "Numeric",
   "Default": 0.5,
   "Min": 0.1,

@@ -48,11 +48,15 @@ Utility & mining:
 
 ### Mod integration
 
-- **Public API facade**: `com.hexvane.abilityapi.api.AbilityService`
+- **Public API facade**: `com.riprod.abilityapi.api.AbilityService`
   - `setAbility(UUID playerId, String abilityId, Object value)`
   - `setConditions(UUID playerId, String abilityId, List<AbilityConditionSpec> conditions)`
   - `removeAbility(UUID playerId, String abilityId)`
   - `applyForPlayer(Ref<EntityStore> ref, ComponentAccessor<EntityStore> store, World world)`
+- **Backwards compatibility**: mods built against the old `com.riprod.abilityapi` packages keep
+  working unchanged. `AbilityService` and `AbilityConditionSpec` remain at their original paths as a
+  frozen facade, and `riprod:AbilityAPI` is still a resolvable plugin identifier. See
+  [Docs/USAGE.md](Docs/USAGE.md) §6.
 - **Condition types** via `AbilityConditionSpec`:
   - `in_zone`, `in_sunlight`, `health_below`, `health_above`, `target_health_below`, `target_health_above`.
 - **Example consumer**: Orbis Origins uses AbilityAPI to grant species‑themed abilities (e.g. Kweebec “Photosynthesis”, Goblin “Item Magnet”, Tuluk/Fen Stalker water abilities, Trork/Saurian strength effects).
@@ -99,6 +103,13 @@ See `[Docs/USAGE.md](Docs/USAGE.md)` for full command semantics, condition types
 
 1. Place the JAR in your Hytale server `mods`/plugins directory
 2. Restart the server
+
+---
+
+## Credits
+
+AbilityAPI is maintained by **Riprod**. It began as a fork of **gchougland**’s original AbilityAPI
+(published under the Hexvane name), which is released under CC0 1.0 Universal.
 
 ---
 

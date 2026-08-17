@@ -1,4 +1,9 @@
 {
+  "Handler": {
+    "Id": "second_chance",
+    "RestorePercent": 0.2,
+    "CooldownSeconds": 300.0
+  },
   "Type": "Binary",
   "Default": 1.0,
   "Min": 0.0,

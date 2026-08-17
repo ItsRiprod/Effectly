@@ -1,11 +1,11 @@
 plugins {
     id 'java'
     id 'com.gradleup.shadow' version '9.4.2'
-    id 'com.azuredoom.hytale-tools' version '1.0.38'
+    id 'com.azuredoom.hytale-tools' version '1.0.48'
     id 'com.azuredoom.hytalepublisher' version '1.+'
 }
 
-group = "com.hexvane"
+group = "com.riprod"
 version = project.version
 
 repositories {
@@ -53,7 +53,13 @@ hytaleTools {
     debugSuspend = false
 
     requireDcevm = true
-} 
+
+    subPlugin([
+        Group: 'hexvane',
+        Name : 'AbilityAPI',
+        Main : 'com.hexvane.abilityapi.AbilityAPIPlugin'
+    ])
+}
 
 java {
     toolchain {

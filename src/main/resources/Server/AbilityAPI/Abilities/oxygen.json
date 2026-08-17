@@ -1,4 +1,8 @@
 {
+  "Handler": {
+    "Id": "oxygen",
+    "UnitsPerSecond": 6.0
+  },
   "Type": "Numeric",
   "Default": 10.0,
   "Min": 0.0,

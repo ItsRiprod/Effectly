@@ -1,32 +1,6 @@
 {
   "Type": "AbilityAPI",
-  "MiningFortuneBlocks": [
-    "Ore_Adamantite_Basalt", "Ore_Adamantite_Shale", "Ore_Adamantite_Slate", "Ore_Adamantite_Stone", "Ore_Adamantite_Volcanic",
-    "Ore_Cobalt_Basalt", "Ore_Cobalt_Sandstone", "Ore_Cobalt_Shale", "Ore_Cobalt_Slate", "Ore_Cobalt_Stone", "Ore_Cobalt_Volcanic",
-    "Ore_Copper_Basalt", "Ore_Copper_Sandstone", "Ore_Copper_Shale", "Ore_Copper_Stone", "Ore_Copper_Volcanic",
-    "Ore_Gold_Basalt", "Ore_Gold_Sandstone", "Ore_Gold_Shale", "Ore_Gold_Stone", "Ore_Gold_Volcanic",
-    "Ore_Iron_Basalt", "Ore_Iron_Sandstone", "Ore_Iron_Shale", "Ore_Iron_Slate", "Ore_Iron_Stone", "Ore_Iron_Volcanic",
-    "Ore_Mithril_Basalt", "Ore_Mithril_Magma", "Ore_Mithril_Slate", "Ore_Mithril_Stone", "Ore_Mithril_Volcanic",
-    "Ore_Onyxium_Basalt", "Ore_Onyxium_Sandstone", "Ore_Onyxium_Shale", "Ore_Onyxium_Stone", "Ore_Onyxium_Volcanic",
-    "Ore_Silver_Basalt", "Ore_Silver_Sandstone", "Ore_Silver_Shale", "Ore_Silver_Slate", "Ore_Silver_Stone", "Ore_Silver_Volcanic",
-    "Ore_Thorium_Basalt", "Ore_Thorium_Sandstone", "Ore_Thorium_Shale", "Ore_Thorium_Stone", "Ore_Thorium_Volcanic", "Ore_Thorium_Mud"
-  ],
-  "MiningHastePerLevel": 0.2,
-  "HealthRegenDelaySeconds": 5.0,
-  "OxygenUnitsPerSecond": 6.0,
-  "SecondChanceRestorePercent": 0.2,
-  "SecondChanceCooldownSeconds": 300.0,
-  "ItemMagnetBaseRange": 8.0,
-  "ItemMagnetLerpSpeed": 3.0,
-  "ItemMagnetPickupThreshold": 0.5,
-  "WallClimbProbeDistance": 0.6,
-  "WallClimbVelocity": 1.2,
-  "WallClimbVelocityUp": 0.2,
-  "WallClimbVelocityDown": 0.5,
-  "FlightReassertSeconds": 15.0,
   "StatReassertSeconds": 1.0,
-  "DarkVisionEffectId": "hexvane_abilityapi_dark_vision",
-  "DarkVisionCheckSeconds": 1.0,
   "SunlightMinFactor": 0.2,
   "SunlightMinEffective": 10
 }

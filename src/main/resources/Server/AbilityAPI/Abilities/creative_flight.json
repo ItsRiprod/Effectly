@@ -1,4 +1,8 @@
 {
+  "Handler": {
+    "Id": "creative_flight",
+    "ReassertSeconds": 15.0
+  },
   "Type": "Binary",
   "Default": 1.0,
   "Min": 0.0,

@@ -1,11 +1,14 @@
 {
-    "Group": "hexvane",
+    "Group": "Riprod",
     "Name": "AbilityAPI",
     "Version": "1.3.0",
     "Description": "AbilityAPI - Library mod for player abilities",
     "Authors": [
         {
-            "Name": "hexvane"
+            "Name": "Riprod"
+        },
+        {
+            "Name": "gchougland"
         }
     ],
     "Website": "https://modtale.net/mod/abilityapi",
@@ -18,8 +21,18 @@
     },
     "DisabledByDefault": false,
     "IncludesAssetPack": true,
-    "Main": "com.hexvane.abilityapi.AbilityAPIPlugin",
+    "Main": "com.riprod.abilityapi.AbilityAPIPlugin",
     "UpdateChecker": {
         "CurseForge": ""
-    }
+    },
+    "SubPlugins": [
+        {
+            "Group": "hexvane",
+            "Name": "AbilityAPI",
+            "Main": "com.hexvane.abilityapi.AbilityAPIPlugin",
+            "ServerVersion": ">=0.5.0 <0.7.0",
+            "DisabledByDefault": false,
+            "IncludesAssetPack": false
+        }
+    ]
 }

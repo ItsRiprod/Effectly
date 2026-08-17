@@ -1,4 +1,8 @@
 {
+  "Handler": {
+    "Id": "mining_haste",
+    "PerLevel": 0.2
+  },
   "Type": "Numeric",
   "Default": 1.0,
   "Min": 1.0,

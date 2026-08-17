@@ -1,4 +1,9 @@
 {
+  "Handler": {
+    "Id": "dark_vision",
+    "EffectId": "abilityapi_dark_vision",
+    "CheckSeconds": 1.0
+  },
   "Type": "Binary",
   "Default": 1.0,
   "Min": 0.0,

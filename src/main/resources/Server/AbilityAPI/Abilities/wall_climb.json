@@ -1,4 +1,11 @@
 {
+  "Handler": {
+    "Id": "wall_climb",
+    "ProbeDistance": 0.6,
+    "Velocity": 1.2,
+    "VelocityUp": 0.2,
+    "VelocityDown": 0.5
+  },
   "Type": "Binary",
   "Default": 1.0,
   "Min": 0.0,

@@ -1,4 +1,10 @@
 {
+  "Handler": {
+    "Id": "item_magnet",
+    "BaseRange": 8.0,
+    "LerpSpeed": 3.0,
+    "PickupThreshold": 0.5
+  },
   "Type": "Numeric",
   "Default": 1.5,
   "Min": 1.0,
