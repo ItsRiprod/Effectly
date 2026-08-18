@@ -1,118 +1,110 @@
 # Effectly
 
-Effectly is a **library mod for Hytale** that provides a shared set of player abilities (flight, waterbreathing, resistances, movement and combat modifiers, etc.) plus a clean API and command set to manage them.
+Complex Effects made **Simple** and **Universal**. 
 
-- **Server admins** can grant and remove abilities via `/ability` commands.
-- **Other mods** (e.g. Orbis Origins) can depend on Effectly to give players consistent, reusable gameplay perks without re‑implementing the logic.
+Effectly works as a centralized hub for all multiple mods to list, manage, utilize, or extend the same list of gameplay abilities. 
 
-For a full usage guide (commands, ability list, and integration examples), see:  
-➡️ `[Docs/USAGE.md](Docs/USAGE.md)`
+---
+Attribution:
+<div class="spoiler">
+Effectly was forked from the AbilityAPI by Hexvane. It functions as a more performant and extendable not-vibe-coded drop-in replacement. It is 100% backwards compatible with any mod that previously required AbilityAPI
+</div>
+
+# Features
+- Enchantable Armor - Add Conditional Effects to armor pieces to give them another level of flair
+- Asset-Driven - Making new effects or conditions can be done entirely via the asset editor! Tweaking existing ones can be done just as easily
+- Performant - You only pay for what is active. 400 unused effects will have the same performance hit as 1 on your server.
+
+# Abilities
+1. Creative Flight
+2. Dark Vision
+3. Fall Damage Immunity
+4. Health Regen
+5. Invulnerability
+6. Item Magnet
+7. Mining Fortune
+8. Mining Haste
+9. Move Speed
+10. Oxygen
+11. Unarmed Punch Damage
+12. Waterbreathing
+13. Second Change
+14. Stamina Regen
+15. Strength
+16. Swim Speed
+17. Wall Climb
+18. Resistance
+- Commands
+- Drowning
+- Elements
+- Environments / Environmental
+- Fall
+- Fire
+- Ice
+- Void
+- Physical
+- Poison
+- Projectile
+- Slashing
+- Suffocation
+
+And these are just the defaults! Third-party mods can add more as they need
+
+# Enchanting Armor
+
+There are two ways to enchant armor - and for players, no, this is not accessible in survival. This is for mod owners looking to integrate!
+
+## #1- Predefined in the Tags
+```json
+{
+  "Tags": {
+    "Effectly:Ability": [
+      "mining_haste:3:sunlight", // conditionally adds haste 3 when in sunlight
+      "flight" // adds flight
+    ],
+    "Effectly:Condition": [
+      "zone 3" // gates the entire ability behind being in zone 3
+    ]
+  }
+}
+```
+This can be done on your item's actual Item JSON file
+
+Or, you can add it via the Asset Editor
+![image](https://media.forgecdn.net/attachments/description/null/description_30edd724-a60c-4c65-8ad9-e982c54e1425.png)
+
+It is also recommended to install **Patchly** if you are planning on editing existing items.
+
+## #2 Item Metadata
+
+Add the object MetaData (i.e. crafting, via code, dynamic per-item abilities for if you want individuality)
+
+```json
+  "PrimaryOutput": {
+        "ItemId": "Armor_Iron_Chest",
+        "Quantity": 1,
+        "Metadata": {
+          "Effectly:Abilities": {
+            "creative_flight": 1.0,
+            "move_speed": 1.5
+          },
+          "Effectly:Conditions": ["zone 3"]
+        }
+      },
+```
+
+# Enchanting Weapons
+*Currently disabled for the time being due to performance reasons*
+
+While I have the code, I was not happy with the implementation. Waiting on some Hexcode abilities to land before I finish out this implementation because I want to do it right.
+
+# Creating/Configuring Abilities or Conditions
+
+New abilities can be configured via the asset editor (or raw json mutation)
+![image](https://media.forgecdn.net/attachments/description/null/description_112c9d0d-485e-4fcd-82ac-db2b7fc647b9.png)
+
+Allowing you full control over what an ability does, how it is configured, and how it behaves. For server owners, this lets you force-disable unwanted abilities, configure power levels, and balance abilities to fit best within your server.
 
 ---
 
-## Features
-
-### Core systems
-
-- **Ability registry** – central list of all ability IDs, types, default values, min/max, and descriptions.
-- **Persistent player storage** – per‑player ability state is saved to `player_abilities.json` and automatically re‑applied on login/server restart.
-- **Condition system** – supports context‑sensitive abilities via `AbilityConditionSpec` (e.g. `in_zone`, `in_sunlight`, `health_below`, `target_health_below`, and their `*_above` variants).
-- **ECS‑based handlers** – movement, stats, combat, and damage effects are implemented as Hytale entity systems (e.g. `CreativeFlightSystem`, `WaterbreathingEventSystem`, `AbilityStrengthSystem`, `AbilityDamageResistanceSystem`, `AbilityStatService`).
-
-### Built‑in abilities (high level)
-
-Movement & survival:
-
-- `creative_flight` (binary) – creative‑style flight.
-- `waterbreathing` (binary) – breathe underwater (via `BreathingCheckEvent` on Hytale 0.5+).
-- `oxygen` (numeric) – extra underwater breath (seconds scaled internally).
-- `fall_damage_immunity` (binary) – immune to fall damage.
-- `invulnerability` (binary) – immune to all incoming entity damage (not block mining).
-- `move_speed` (numeric multiplier) – modifies base walk speed.
-- `swim_speed` (numeric multiplier) – modifies swim speed.
-- `wall_climb` (binary) – climb solid surfaces.
-
-Combat & damage:
-
-- `punch_damage` (numeric multiplier) – unarmed/melee damage multiplier.
-- `strength` (numeric multiplier) – global damage dealt multiplier (applies via `AbilityStrengthSystem`).
-- `resistance_<type>` (numeric, ‑1 to 1) – per‑damage‑type resistance/weakness (0 = neutral, >0 = resistance, <0 = weakness).
-- `second_chance` (binary) – prevent death once; restore to low health with cooldown.
-
-Utility & mining:
-
-- `dark_vision` (binary) – improved visibility in darkness (visual effect).
-- `mining_haste` (numeric level) – faster block breaking (levels 1–5).
-- `mining_fortune` (numeric level) – extra drops from configured blocks (e.g. ores) based on `mining_fortune_blocks.json`.
-- `item_magnet` (numeric multiplier) – pulls dropped items from further away.
-
-### Mod integration
-
-- **Public API facade**: `com.riprod.effectly.api.AbilityService`
-  - `setAbility(UUID playerId, String abilityId, Object value)`
-  - `setConditions(UUID playerId, String abilityId, List<AbilityConditionSpec> conditions)`
-  - `removeAbility(UUID playerId, String abilityId)`
-  - `applyForPlayer(Ref<EntityStore> ref, ComponentAccessor<EntityStore> store, World world)`
-- **Backwards compatibility**: mods built against the old `com.riprod.abilityapi` packages keep
-  working unchanged. `AbilityService` and `AbilityConditionSpec` remain at their original paths as a
-  frozen facade, and `Riprod:Effectly` is still a resolvable plugin identifier. See
-  [Docs/USAGE.md](Docs/USAGE.md) §6.
-- **Condition types** via `AbilityConditionSpec`:
-  - `in_zone`, `in_sunlight`, `health_below`, `health_above`, `target_health_below`, `target_health_above`.
-- **Example consumer**: Orbis Origins uses AbilityAPI to grant species‑themed abilities (e.g. Kweebec “Photosynthesis”, Goblin “Item Magnet”, Tuluk/Fen Stalker water abilities, Trork/Saurian strength effects).
-
-See `[Docs/USAGE.md](Docs/USAGE.md)` for detailed examples and code snippets.
-
----
-
-## Commands
-
-All commands are registered under `/ability`:
-
-- `/ability add <ability_id> [value] [extra args…]`  
-  - Grant a binary or numeric ability to yourself (or another player when run as them) and optionally attach **conditions** via extra arguments parsed by `AbilityAddCommand`.  
-  - Basic examples:
-    - `/ability add creative_flight`
-    - `/ability add oxygen 10`
-    - `/ability add move_speed 1.5`
-- `/ability remove <ability_id>`  
-  - Remove an ability from yourself.
-- `/ability list`  
-  - List your current abilities (and values).
-- `/ability available`  
-  - List all registered ability IDs and their descriptions.
-
-### Example: zone‑based stamina regen
-
-To grant **stamina_regen** that only applies in specific zones, you can attach an `in_zone` condition via the `zone` keyword and a list of zone IDs:
-
-- `/ability add stamina_regen 2.0 zone 12 13 14 15 16 17 18 19 20`  
-  → sets `stamina_regen = 2.0` and adds an `in_zone` condition restricting it to zones 12–20.
-
-Other supported condition arguments:
-
-- `sunlight` / `in_sunlight` – add an `in_sunlight` condition.
-- `health_below <percent>` / `health_above <percent>` – player health % threshold.
-- `target_health_below <percent>` / `target_health_above <percent>` – target’s health % threshold for damage‑based abilities.
-
-See `[Docs/USAGE.md](Docs/USAGE.md)` for full command semantics, condition types, and integration examples.
-
----
-
-## Installation
-
-1. Place the JAR in your Hytale server `mods`/plugins directory
-2. Restart the server
-
----
-
-## Credits
-
-Effectly is maintained by **Riprod**. It began as a fork of **gchougland**’s original AbilityAPI
-(published under the Hexvane name), which is released under CC0 1.0 Universal.
-
----
-
-## Support
-
-If you need more help, have feature requests, or want to share integrations, you can join the Effectly support Discord (see the mod’s download page for an invite link).
+*All in all, this was just a fun weekend project! It was sparked from the vibecoded app having performance issues on another server. The Github at the time was licensed CC0 - so I took the liberty of actually doing this idea justice. Please, feel free to reach out to `Riprod` on discord! I'm most places hytale is.*
