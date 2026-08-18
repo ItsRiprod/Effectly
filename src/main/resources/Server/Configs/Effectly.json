@@ -1,0 +1,5 @@
+{
+  "Type": "EffectlyAPI",
+  "SunlightMinFactor": 0.2,
+  "SunlightMinEffective": 10
+}

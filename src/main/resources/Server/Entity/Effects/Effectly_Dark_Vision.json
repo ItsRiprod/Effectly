@@ -1,0 +1,11 @@
+{
+  "Id": "Effectly_Dark_Vision",
+  "Name": "effectly.effect.dark_vision",
+  "ApplicationEffects": {
+    "ScreenEffect": "ScreenEffects/Effectly_Dark_Vision.png"
+  },
+  "OverlapBehavior": "Overwrite",
+  "Duration": 3600,
+  "Infinite": false,
+  "Debuff": false
+}

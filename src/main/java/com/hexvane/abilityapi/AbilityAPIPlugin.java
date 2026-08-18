@@ -14,6 +14,6 @@ public class AbilityAPIPlugin extends JavaPlugin {
     @Override
     protected void setup() {
         LOGGER.atInfo().log("AbilityAPI compatibility shim active - 'hexvane:AbilityAPI' resolves to "
-                + "Riprod:AbilityAPI. Integrators should migrate to com.riprod.abilityapi.");
+                + "Riprod:Effectly. Integrators should migrate to com.riprod.abilityapi.");
     }
 }

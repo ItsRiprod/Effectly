@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to **AbilityAPI** are documented in this file.
+All notable changes to **Effectly** are documented in this file.
 
 ## [1.3.0] - 2026-08-15
 
@@ -9,15 +9,15 @@ All notable changes to **AbilityAPI** are documented in this file.
 - **Migrated ownership of files to the Riprod namespace.** `hexvane:AbilityAPI` and the
   `com.hexvane.abilityapi` API classes are kept as a compatibility layer, so existing integrations do
   not need rebuilding. Remove any older AbilityAPI jar before installing, and note that command
-  permission nodes are now `riprod.abilityapi.command.ability.*`.
+  permission nodes are now `riprod.effectly.command.ability.*`.
 
 - **`player_abilities.json` is gone.** Player abilities are now a persistent ECS component on the
-  player entity (`AbilityAPI:Roster`), written into the engine's own player document at
+  player entity (`Effectly:Roster`), written into the engine's own player document at
   `run/universe/players/<uuid>.json`. Existing grants are **not** migrated and must be re-issued.
   In exchange, ability data is universe-global, survives world transfers, and is preserved if
-  AbilityAPI is uninstalled and later reinstalled.
+  Effectly is uninstalled and later reinstalled.
 - **`mining_fortune_blocks.json` is no longer read.** The block list moved to `MiningFortuneBlocks`
-  in `Server/Configs/AbilityAPI.json`. A warning is logged at startup if the old file is still present.
+  in `Server/Configs/Effectly.json`. A warning is logged at startup if the old file is still present.
 - **`AbilityService.setAbility` / `removeAbility` are applied on the next world tick**, not
   synchronously. Reading state back within the same tick will still see the old value.
 - **`second_chance` cooldown no longer counts down while the player is offline.** It is now a
@@ -32,12 +32,12 @@ All notable changes to **AbilityAPI** are documented in this file.
   reduces `Fire` and `resistance_physical` reduces `Slashing`. The most specific active resistance
   wins rather than stacking; a value of `0` counts as active and cancels a broader one.
 
-- **Configly configuration** at `Server/Configs/AbilityAPI.json` - 19 documented, hot-reloadable
+- **Configly configuration** at `Server/Configs/Effectly.json` - 19 documented, hot-reloadable
   settings that were previously hardcoded constants: the mining-fortune block list, mining haste per
   level, health-regen delay, stamina base rate, oxygen units, second-chance restore/cooldown,
   item-magnet range/speed/threshold, wall-climb probe and velocities, dark-vision effect and check
   interval, flight re-assert interval, and the two sunlight thresholds. Patchly can target it.
-- **Declarative abilities** at `Server/AbilityAPI/Abilities/*.json` - one file per ability defining
+- **Declarative abilities** at `Server/Effectly/Abilities/*.json` - one file per ability defining
   its type, default, min, max, description and handler. Server owners can retune ranges or set
   `"Enabled": false` without a code change. Other mods can ship their own ability JSONs.
 - **Ability handler registry** - `AbilityHandler` plus `AbilityHandlerRegistry.register(...)`, the
@@ -58,7 +58,7 @@ All notable changes to **AbilityAPI** are documented in this file.
   `static` counter shared across every world on the server.
 - **`creative_flight` stomped other mods' movement settings.** Its "no ability" branch called
   `refreshDefaultSettings()` + `applyDefaultSettings()`, replacing all 66 fields of `MovementSettings`
-  every 20 ticks - and fighting AbilityAPI's own movement-speed writes. It now touches only `canFly`,
+  every 20 ticks - and fighting Effectly's own movement-speed writes. It now touches only `canFly`,
   and its periodic check is constructive: it re-enables flight but never disables it, so a second mod
   granting flight is never overridden.
 - **Per-damage-type resistances never matched the game's real damage types.** They were enumerated
@@ -79,7 +79,7 @@ All notable changes to **AbilityAPI** are documented in this file.
   worlds; the second-chance cooldown additionally used wall-clock time that ignored pause.
 - `AbilityInitSystem` (poll-based login detection, replaced by a `RefSystem` hook),
   `MovementAbilitiesReapplySystem` (replaced by a swim-state-change check), and
-  `ConditionZoneCheckSystem` (its only output was a log line; use `/log AbilityAPI FINE`).
+  `ConditionZoneCheckSystem` (its only output was a log line; use `/log Effectly FINE`).
 
 ### Performance
 
@@ -126,4 +126,4 @@ All notable changes to **AbilityAPI** are documented in this file.
 
 - **Hytale API compatibility** - Updated for the latest Hytale server release.
 - **Stat modifiers** - `AbilityStatService` now triggers stat recalculation via `EntityStatMap.getStatModifiersManager().scheduleRecalculate()` instead of the removed `Player.getStatModifiersManager().setRecalculate(...)` API.
-- **Imports** - Removed unused `LivingEntityInventoryChangeEvent` import from `AbilityAPIPlugin` (class no longer exists in the current API). Inventory-related events now use `com.hypixel.hytale.server.core.inventory.InventoryChangeEvent` if you extend the mod with inventory listeners.
+- **Imports** - Removed unused `LivingEntityInventoryChangeEvent` import from `EffectlyPlugin` (class no longer exists in the current API). Inventory-related events now use `com.hypixel.hytale.server.core.inventory.InventoryChangeEvent` if you extend the mod with inventory listeners.

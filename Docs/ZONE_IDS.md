@@ -1,6 +1,6 @@
 # Zone IDs and Ability Conditions
 
-AbilityAPI’s **in_zone** condition uses the **numeric zone id** returned by Hytale’s worldgen at the player’s position. One “logical” zone (e.g. Zone 3 / Borea) can be made up of **multiple zone ids** (e.g. 7, 19, 20), so you can list several ids for one condition.
+Effectly’s **in_zone** condition uses the **numeric zone id** returned by Hytale’s worldgen at the player’s position. One “logical” zone (e.g. Zone 3 / Borea) can be made up of **multiple zone ids** (e.g. 7, 19, 20), so you can list several ids for one condition.
 
 ## Where zone IDs come from
 
@@ -8,9 +8,9 @@ The numeric zone id returned at runtime is the **position (index) in the `MaskMa
 
 - **Source file (default world):** `Assets/Server/World/Default/Zones.json`
 - **`MaskMapping`** is an object mapping hex colors to zone name(s). The **order of keys** in that object defines the zone id: first key = id 0, second = id 1, and so on. So the id is the index of that entry in `MaskMapping`, not a value stored in the JSON.
-- **At runtime**: the game uses the world’s **ChunkGenerator** and **ZoneBiomeResult** at the player’s block position to resolve which mask/color applies; that maps to the same index, which AbilityAPI logs as **currentZone**.
+- **At runtime**: the game uses the world’s **ChunkGenerator** and **ZoneBiomeResult** at the player’s block position to resolve which mask/color applies; that maps to the same index, which Effectly logs as **currentZone**.
 
-So to know which ids belong to “Zone 3”, you can either (1) count the position of the relevant entries in `Zones.json`’s `MaskMapping`, or (2) use the **currentZone** values printed in AbilityAPI’s logs as you walk the area and list those ids in the condition.
+So to know which ids belong to “Zone 3”, you can either (1) count the position of the relevant entries in `Zones.json`’s `MaskMapping`, or (2) use the **currentZone** values printed in Effectly’s logs as you walk the area and list those ids in the condition.
 
 ## Using multiple zone IDs
 

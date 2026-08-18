@@ -1,39 +1,34 @@
-# AbilityAPI – User & Modder Guide
+# Effectly – User & Modder Guide
 
-AbilityAPI is a **library mod** that adds a shared set of player abilities (flight, waterbreathing, resistances, movement modifiers, etc.) and a clean way for **server admins** and **other mods** to grant and manage them.
+Effectly is a **library mod** that adds a shared set of player abilities (flight, waterbreathing, resistances, movement modifiers, etc.) and a clean way for **server admins** and **other mods** to grant and manage them.
 
 This document explains:
 
 - How to install and configure the mod as a **server admin**
 - How to use the **commands** to grant and inspect abilities
 - What the **built‑in abilities** do
-- How other mods (like **Orbis Origins**) can **integrate** with AbilityAPI
+- How other mods (like **Orbis Origins**) can **integrate** with Effectly
 
 ---
 
 ## 1. Installation & Requirements
 
-- Drop the **AbilityAPI** JAR into your Hytale server’s `mods` folder.
+- Drop the **Effectly** JAR into your Hytale server’s `mods` folder.
 - Make sure you are using:
-  - **Hytale server 0.5.0 or newer** (AbilityAPI 1.2.0 declares `ServerVersion`: `^0.5.0`)
-  - A Java version compatible with your Hytale tooling (AbilityAPI targets Java 25; Gradle handles the toolchain).
+  - **Hytale server 0.5.0 or newer** (Effectly 1.2.0 declares `ServerVersion`: `^0.5.0`)
+  - A Java version compatible with your Hytale tooling (Effectly targets Java 25; Gradle handles the toolchain).
 
-AbilityAPI stores nothing of its own on disk. Player abilities live on the player entity as an ECS
+Effectly stores nothing of its own on disk. Player abilities live on the player entity as an ECS
 component, so they are written into the engine's own player document at
-`run/universe/players/<uuid>.json` under `AbilityAPI:Roster`. That means they are universe-global,
-survive world transfers, and are preserved even if AbilityAPI is uninstalled and later reinstalled.
+`run/universe/players/<uuid>.json` under `Effectly:Roster`. That means they are universe-global,
+survive world transfers, and are preserved even if Effectly is uninstalled and later reinstalled.
 
 Two things are authored rather than generated:
 
-- `Server/Configs/AbilityAPI.json` - server-wide tuning (Configly). Ships with sensible defaults.
-- `Server/AbilityAPI/Abilities/*.json` - one file per ability, defining its type, range and handler.
+- `Server/Configs/Effectly.json` - server-wide tuning (Configly). Ships with sensible defaults.
+- `Server/Effectly/Abilities/*.json` - one file per ability, defining its type, range and handler.
 
 No manual configuration is required to get started.
-
-> **Breaking change in 1.3.0:** `player_abilities.json` and `mining_fortune_blocks.json` are no
-> longer read. Existing ability grants are not migrated and must be re-issued. The mining-fortune
-> block list moved to `MiningFortuneBlocks` in `Server/Configs/AbilityAPI.json`; AbilityAPI logs a
-> warning at startup if the old file is still present.
 
 ---
 
@@ -49,7 +44,7 @@ Each **ability** has:
   - **Numeric**: value is a number (double)
 - Optional **min/max** and a **description** (for help text and validation)
 
-Abilities are defined declaratively, one JSON file per ability, in `Server/AbilityAPI/Abilities/`.
+Abilities are defined declaratively, one JSON file per ability, in `Server/Effectly/Abilities/`.
 The IDs are stable across servers so other mods can depend on the same IDs and behavior. Setting
 `"Enabled": false` in an ability's file stops it being granted without removing the file.
 
@@ -63,9 +58,9 @@ the player entity:
 
 - `abilityId -> { value, conditions }`
 
-That component is the only thing AbilityAPI persists. The engine saves it with the rest of the player
+That component is the only thing Effectly persists. The engine saves it with the rest of the player
 document (autosave every 10s, plus on disconnect and world shutdown), so changes survive restarts
-without AbilityAPI writing any file itself.
+without Effectly writing any file itself.
 
 Individual abilities may attach further *transient* components (for example `FlightState`) - those
 exist only while the ability is granted and are never written to disk. Having the component is what
@@ -93,7 +88,7 @@ Built‑in condition types:
 - `target_health_below` - active when the damage **target’s** health % is below `param`
 - `target_health_above` - active when the damage **target’s** health % is at or above `param`
 
-AbilityAPI’s internal systems (e.g. `AbilityConditionService`, `AbilityStatService`) evaluate these conditions on demand when applying stats or reacting to events.
+Effectly’s internal systems (e.g. `AbilityConditionService`, `AbilityStatService`) evaluate these conditions on demand when applying stats or reacting to events.
 
 ---
 
@@ -240,19 +235,19 @@ Conditions are created programmatically by other mods using `AbilityConditionSpe
 
 ---
 
-## 6. Integrating AbilityAPI from Other Mods
+## 6. Integrating Effectly from Other Mods
 
-AbilityAPI is designed to be **consumed by other mods** as a library. The recommended integration layer is the public `AbilityService` facade.
+Effectly is designed to be **consumed by other mods** as a library. The recommended integration layer is the public `AbilityService` facade.
 
 ### 6.1 Dependency setup
 
 In your consuming mod’s `build.gradle.kts`:
 
-- If AbilityAPI is a sibling project:
+- If Effectly is a sibling project:
 
 ```kotlin
 dependencies {
-    implementation(project(":AbilityAPI"))
+    implementation(project(":Effectly"))
 }
 ```
 
@@ -260,21 +255,21 @@ dependencies {
 
 ```kotlin
 dependencies {
-    implementation(files("./libs/AbilityAPI-1.3.0.jar"))
+    implementation(files("./libs/Effectly-1.3.0.jar"))
 }
 ```
 
-Make sure you **gate all runtime usage** behind the Hytale `PluginManager` so your mod can still run when AbilityAPI is missing:
+Make sure you **gate all runtime usage** behind the Hytale `PluginManager` so your mod can still run when Effectly is missing:
 
 ```java
-PluginIdentifier abilityApiId = PluginIdentifier.fromString("Riprod:AbilityAPI");
+PluginIdentifier abilityApiId = PluginIdentifier.fromString("Riprod:Effectly");
 PluginManager manager = PluginManager.get();
 boolean abilityApiPresent = manager != null && manager.getPlugin(abilityApiId) != null;
 ```
 
 Identifier casing matters - `PluginIdentifier` compares group and name exactly.
 
-> **Existing consumers need no changes.** AbilityAPI moved from Hexvane to Riprod in 1.3.0, but
+> **Existing consumers need no changes.** Effectly moved from Hexvane to Riprod in 1.3.0, but
 > `hexvane:AbilityAPI` is still a registered plugin identifier (it ships as a compatibility
 > sub-plugin), so the gate above continues to resolve with the old string. The
 > `com.hexvane.abilityapi.api.AbilityService` and `com.hexvane.abilityapi.ability.AbilityConditionSpec`
@@ -344,7 +339,7 @@ Parameters:
 
 ### 6.3 Example: Species‑based abilities (Orbis Origins)
 
-Orbis Origins is the primary consumer of AbilityAPI and serves as a practical reference:
+Orbis Origins is the primary consumer of Effectly and serves as a practical reference:
 
 - Each species JSON defines an `abilities` array with:
   - `id`, `value`, `condition`, `metadata`, `name`, `description`
@@ -367,10 +362,10 @@ For more detail, see:
 
 - Check `/ability list` to confirm the player actually has the ability.
 - Verify that the ability ID is exactly one of the registered IDs from `/ability available`.
-- Check the ability's file in `Server/AbilityAPI/Abilities/` has not been set `"Enabled": false`.
+- Check the ability's file in `Server/Effectly/Abilities/` has not been set `"Enabled": false`.
 - For an offline player, check the log for the "Applied '<ability>' to the saved data of offline
   player" line confirming the write landed.
-- Inspect `run/universe/players/<uuid>.json` - `AbilityAPI:Roster` is the source of truth.
+- Inspect `run/universe/players/<uuid>.json` - `Effectly:Roster` is the source of truth.
 
 ### 7.2 Conditions not behaving as expected
 
@@ -383,7 +378,7 @@ For more detail, see:
 
 ### 7.3 Performance considerations
 
-- Avoid spamming ability changes every tick. Grant/remove abilities on discrete events (login, species selection, equipment change) and let AbilityAPI handle the rest.
+- Avoid spamming ability changes every tick. Grant/remove abilities on discrete events (login, species selection, equipment change) and let Effectly handle the rest.
 - Use conditions rather than constantly toggling abilities for state‑based behavior.
 - Abilities cost nothing when nobody has them. Each one only ticks for players who actually hold it,
   and abilities that react to events (resistances, mining, breathing) never tick at all.
@@ -394,11 +389,11 @@ For more detail, see:
 
 - **For server admins:**
   - Experiment with `/ability add` and `/ability remove` to give yourself movement or combat perks.
-  - Combine AbilityAPI with Orbis Origins to give species‑themed powers.
+  - Combine Effectly with Orbis Origins to give species‑themed powers.
 - **For mod authors:**
   - Use `AbilityService` to centralize any perk/bonus logic instead of re‑implementing movement/health/damage tweaks.
   - Use condition specs to keep your logic data‑driven.
 
-If you extend AbilityAPI or build a mod that uses it, consider mirroring the patterns in Orbis Origins so players get a consistent experience across mods.
+If you extend Effectly or build a mod that uses it, consider mirroring the patterns in Orbis Origins so players get a consistent experience across mods.
 
-If you need more help, have feature requests, or want to share integrations, you can join the AbilityAPI support Discord (see the mod’s download page for an invite link).
+If you need more help, have feature requests, or want to share integrations, you can join the Effectly support Discord (see the mod’s download page for an invite link).

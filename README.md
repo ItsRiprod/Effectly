@@ -1,9 +1,9 @@
-# AbilityAPI
+# Effectly
 
-AbilityAPI is a **library mod for Hytale** that provides a shared set of player abilities (flight, waterbreathing, resistances, movement and combat modifiers, etc.) plus a clean API and command set to manage them.
+Effectly is a **library mod for Hytale** that provides a shared set of player abilities (flight, waterbreathing, resistances, movement and combat modifiers, etc.) plus a clean API and command set to manage them.
 
 - **Server admins** can grant and remove abilities via `/ability` commands.
-- **Other mods** (e.g. Orbis Origins) can depend on AbilityAPI to give players consistent, reusable gameplay perks without re‑implementing the logic.
+- **Other mods** (e.g. Orbis Origins) can depend on Effectly to give players consistent, reusable gameplay perks without re‑implementing the logic.
 
 For a full usage guide (commands, ability list, and integration examples), see:  
 ➡️ `[Docs/USAGE.md](Docs/USAGE.md)`
@@ -48,14 +48,14 @@ Utility & mining:
 
 ### Mod integration
 
-- **Public API facade**: `com.riprod.abilityapi.api.AbilityService`
+- **Public API facade**: `com.riprod.effectly.api.AbilityService`
   - `setAbility(UUID playerId, String abilityId, Object value)`
   - `setConditions(UUID playerId, String abilityId, List<AbilityConditionSpec> conditions)`
   - `removeAbility(UUID playerId, String abilityId)`
   - `applyForPlayer(Ref<EntityStore> ref, ComponentAccessor<EntityStore> store, World world)`
 - **Backwards compatibility**: mods built against the old `com.riprod.abilityapi` packages keep
   working unchanged. `AbilityService` and `AbilityConditionSpec` remain at their original paths as a
-  frozen facade, and `riprod:AbilityAPI` is still a resolvable plugin identifier. See
+  frozen facade, and `Riprod:Effectly` is still a resolvable plugin identifier. See
   [Docs/USAGE.md](Docs/USAGE.md) §6.
 - **Condition types** via `AbilityConditionSpec`:
   - `in_zone`, `in_sunlight`, `health_below`, `health_above`, `target_health_below`, `target_health_above`.
@@ -108,11 +108,11 @@ See `[Docs/USAGE.md](Docs/USAGE.md)` for full command semantics, condition types
 
 ## Credits
 
-AbilityAPI is maintained by **Riprod**. It began as a fork of **gchougland**’s original AbilityAPI
+Effectly is maintained by **Riprod**. It began as a fork of **gchougland**’s original AbilityAPI
 (published under the Hexvane name), which is released under CC0 1.0 Universal.
 
 ---
 
 ## Support
 
-If you need more help, have feature requests, or want to share integrations, you can join the AbilityAPI support Discord (see the mod’s download page for an invite link).
+If you need more help, have feature requests, or want to share integrations, you can join the Effectly support Discord (see the mod’s download page for an invite link).

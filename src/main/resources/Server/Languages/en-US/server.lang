@@ -1,4 +1,4 @@
-# AbilityAPI command and ability strings
+# Effectly command and ability strings
 ability.command.description=Ability management commands
 ability.command.add.description=Grant an ability
 ability.command.remove.description=Remove an ability
@@ -16,4 +16,4 @@ ability.dark_vision=Dark-vision
 ability.item_magnet=Item Magnet
 
 # Entity effect display names
-abilityapi.effect.dark_vision=Dark-vision
+effectly.effect.dark_vision=Dark-vision
