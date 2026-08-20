@@ -61,6 +61,32 @@ hytaleTools {
     ])
 }
 
+hytalePublisher {
+    version       = project.version
+    changelogFile = "changelog.md"
+    gameVersion   = project.hytale_version.toString()
+
+    modtale {
+        enabled   = true
+        projectId = project.modtale_uuid
+        patchline = project.patchline.toString()
+    }
+
+    curseforge {
+        enabled   = true
+        projectId = project.curseforgeID
+
+        embeddedLibrary "configly"
+    }
+
+    modifold {
+        enabled   = true
+        projectId = project.modifold_id
+
+        embedded "configly"
+    }
+}
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of((project.java_version as String).toInteger())

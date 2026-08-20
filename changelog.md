@@ -1,7 +1,5 @@
 # Changelog
 
-All notable changes to **Effectly** are documented in this file.
-
 ## [1.3.0] - 2026-08-15
 
 ### Breaking
