@@ -1,7 +1,7 @@
 {
     "Group": "Riprod",
     "Name": "Effectly",
-    "Version": "1.3.0",
+    "Version": "1.4.0",
     "Description": "Effectly - Library mod for player effects",
     "Authors": [
         {
@@ -23,7 +23,7 @@
     "IncludesAssetPack": true,
     "Main": "com.riprod.effectly.EffectlyPlugin",
     "UpdateChecker": {
-        "CurseForge": ""
+        "CurseForge": "1657477"
     },
     "SubPlugins": [
         {
