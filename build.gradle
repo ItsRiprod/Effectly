@@ -85,6 +85,15 @@ hytalePublisher {
 
         embedded "configly"
     }
+
+        github {
+        enabled = true
+
+        generateReleaseNotes = true
+        includeJar        = true
+        includeSourcesJar = true
+        includeJavadocJar = true    
+    }
 }
 
 java {
