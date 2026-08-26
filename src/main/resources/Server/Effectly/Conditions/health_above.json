@@ -1,0 +1,9 @@
+{
+  "Handler": {
+    "Id": "health",
+    "Target": "Self",
+    "Comparison": "AtOrAbove",
+    "Threshold": 50
+  },
+  "Description": "your health at or above %"
+}

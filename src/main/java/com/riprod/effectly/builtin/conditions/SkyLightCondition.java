@@ -5,16 +5,16 @@ import com.hypixel.hytale.server.core.modules.entity.component.TransformComponen
 import com.hypixel.hytale.server.core.modules.time.WorldTimeResource;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.riprod.effectly.ability.AbilityConditionSpec;
-import com.riprod.effectly.config.EffectlyConfig;
 import com.riprod.effectly.core.condition.AbilityCondition;
 import com.riprod.effectly.core.condition.AbilityConditionContext;
+import com.riprod.effectly.core.condition.asset.AbilityConditionAsset;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public final class InSunlightCondition implements AbilityCondition {
+public final class SkyLightCondition implements AbilityCondition {
 
-    public static final String ID = AbilityConditionSpec.TYPE_IN_SUNLIGHT;
+    public static final String ID = "sky_light";
 
     @Nonnull
     @Override
@@ -22,13 +22,26 @@ public final class InSunlightCondition implements AbilityCondition {
         return ID;
     }
 
+    @Nonnull
     @Override
-    public boolean test(@Nonnull AbilityConditionContext context, @Nonnull AbilityConditionSpec spec) {
+    public ConfigBinding<SkyLightConditionConfig> getConfigBinding() {
+        return ConfigBinding.of(SkyLightConditionConfig.class, SkyLightConditionConfig.CODEC);
+    }
+
+    @Override
+    public boolean test(
+            @Nonnull AbilityConditionContext context,
+            @Nonnull AbilityConditionAsset asset,
+            @Nonnull AbilityConditionSpec spec) {
         WorldTimeResource worldTime = context.getComponents().getResource(WorldTimeResource.getResourceType());
         if (worldTime == null) return false;
 
-        EffectlyConfig config = EffectlyConfig.get();
-        if (worldTime.getSunlightFactor() < config.getSunlightMinFactor()) return false;
+        SkyLightConditionConfig config =
+                asset.configOrDefault(SkyLightConditionConfig.class, SkyLightConditionConfig.DEFAULTS);
+
+        double sunlightFactor = worldTime.getSunlightFactor();
+        if (sunlightFactor < config.getMinSunlightFactor()) return false;
+        if (sunlightFactor > config.getMaxSunlightFactor()) return false;
 
         TransformComponent transform = context.getComponents()
                 .getComponent(context.getRef(), TransformComponent.getComponentType());
@@ -43,37 +56,16 @@ public final class InSunlightCondition implements AbilityCondition {
         if (chunk == null) return false;
 
         byte skyLight = chunk.getBlockChunk().getSkyLight(blockX, blockY, blockZ);
-        int effective = (int) (skyLight * worldTime.getSunlightFactor());
-        return effective >= config.getSunlightMinEffective();
-    }
+        if (skyLight < config.getMinSkyLight()) return false;
+        if (skyLight > config.getMaxSkyLight()) return false;
 
-    @Nonnull
-    @Override
-    public String keyword() {
-        return "sunlight";
+        int effective = (int) (skyLight * sunlightFactor);
+        return effective >= config.getMinEffectiveLight();
     }
 
     @Nullable
     @Override
-    public Parsed parse(@Nonnull String[] remaining) {
-        return new Parsed(new AbilityConditionSpec(ID, 0), 0);
-    }
-
-    @Nonnull
-    @Override
-    public String describe(@Nonnull AbilityConditionSpec spec) {
-        return "sunlight";
-    }
-
-    @Nonnull
-    @Override
-    public String usage() {
-        return "sunlight";
-    }
-
-    @Nonnull
-    @Override
-    public String description() {
-        return "active in open sunlight during daytime";
+    public Parsed parse(@Nonnull AbilityConditionAsset asset, @Nonnull String[] remaining) {
+        return new Parsed(new AbilityConditionSpec(asset.getId()), 0);
     }
 }

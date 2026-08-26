@@ -1,0 +1,9 @@
+{
+  "Handler": {
+    "Id": "sky_light",
+    "MinSunlightFactor": 0.2,
+    "MinEffectiveLight": 10
+  },
+  "Keyword": "sunlight",
+  "Description": "active in open sunlight during daytime"
+}

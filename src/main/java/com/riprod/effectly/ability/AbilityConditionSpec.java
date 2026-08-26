@@ -4,7 +4,6 @@ import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
@@ -24,38 +23,44 @@ public final class AbilityConditionSpec {
             .append(new KeyedCodec<>("Type", Codec.STRING),
                     (spec, v) -> spec.type = v,
                     spec -> spec.type)
-            .documentation("Condition type: in_zone, in_sunlight, health_below, health_above, "
-                    + "target_health_below or target_health_above")
+            .documentation("Condition asset id, from Effectly/Conditions")
             .add()
             .append(new KeyedCodec<>("Param", Codec.INTEGER),
                     (spec, v) -> spec.param = v,
                     spec -> spec.param)
-            .documentation("Single numeric parameter: a health percentage (0-100), or the sole zone id "
-                    + "when ZoneIds is absent")
+            .documentation("Optional numeric override for the condition asset's configured value: a "
+                    + "health percentage (0-100), or the sole zone id when ZoneIds is absent. When "
+                    + "omitted the asset's own configuration is used")
             .add()
             .append(new KeyedCodec<>("ZoneIds", Codec.INT_ARRAY),
                     (spec, v) -> spec.zoneIds = toList(v),
                     spec -> toArray(spec.zoneIds))
-            .documentation("Additional allowed zone ids for in_zone; when absent, Param is the only allowed zone")
+            .documentation("Optional zone id override for in_zone; when absent, Param is the only "
+                    + "allowed zone, and when both are absent the asset's configured zones are used")
             .add()
             .build();
 
     private String type;
-    private int param;
+    @Nullable
+    private Integer param;
     @Nullable
     private List<Integer> zoneIds;
 
     private AbilityConditionSpec() {
     }
 
-    public AbilityConditionSpec(@Nonnull String type, int param, @Nullable List<Integer> zoneIds) {
+    public AbilityConditionSpec(@Nonnull String type, @Nullable Integer param, @Nullable List<Integer> zoneIds) {
         this.type = type;
         this.param = param;
         this.zoneIds = zoneIds;
     }
 
     public AbilityConditionSpec(@Nonnull String type, int param) {
-        this(type, param, null);
+        this(type, Integer.valueOf(param), null);
+    }
+
+    public AbilityConditionSpec(@Nonnull String type) {
+        this(type, null, null);
     }
 
     @Nonnull
@@ -64,7 +69,15 @@ public final class AbilityConditionSpec {
     }
 
     public int param() {
-        return param;
+        return param == null ? 0 : param;
+    }
+
+    public boolean hasParam() {
+        return param != null;
+    }
+
+    public int paramOrDefault(int fallback) {
+        return param == null ? fallback : param;
     }
 
     @Nullable
@@ -75,14 +88,16 @@ public final class AbilityConditionSpec {
     @Nonnull
     public List<Integer> allowedZoneIds() {
         if (zoneIds != null && !zoneIds.isEmpty()) return zoneIds;
-        return Collections.singletonList(param);
+        return param == null ? List.of() : List.of(param);
     }
 
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
         if (!(other instanceof AbilityConditionSpec spec)) return false;
-        return param == spec.param && Objects.equals(type, spec.type) && Objects.equals(zoneIds, spec.zoneIds);
+        return Objects.equals(param, spec.param)
+                && Objects.equals(type, spec.type)
+                && Objects.equals(zoneIds, spec.zoneIds);
     }
 
     @Override

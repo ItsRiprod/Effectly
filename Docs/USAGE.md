@@ -26,7 +26,7 @@ survive world transfers, and are preserved even if Effectly is uninstalled and l
 Two things are authored rather than generated:
 
 - `Server/Configs/Effectly.json` - server-wide tuning (Configly). Ships with sensible defaults.
-- `Server/Effectly/Abilities/*.json` - one file per ability, defining its type, range and handler.
+- `Server/Effectly/Effects/*.json` - one file per ability, defining its type, range and handler.
 
 No manual configuration is required to get started.
 
@@ -44,7 +44,7 @@ Each **ability** has:
   - **Numeric**: value is a number (double)
 - Optional **min/max** and a **description** (for help text and validation)
 
-Abilities are defined declaratively, one JSON file per ability, in `Server/Effectly/Abilities/`.
+Abilities are defined declaratively, one JSON file per ability, in `Server/Effectly/Effects/`.
 The IDs are stable across servers so other mods can depend on the same IDs and behavior. Setting
 `"Enabled": false` in an ability's file stops it being granted without removing the file.
 
@@ -72,21 +72,34 @@ join. Offline writes are asynchronous - the call returns before the write comple
 
 ### 2.3 Conditions
 
-Some abilities are only active when **conditions** are met. Conditions are represented by:
+Some abilities are only active when **conditions** are met.
 
-- `AbilityConditionSpec`:
-  - `type` (string): one of the predefined constants
-  - `param` (int): simple numeric parameter (e.g. health threshold)
-  - `zoneIds` (optional list): extra zone IDs for `in_zone`
+Conditions are declared as assets, one JSON file per condition, in `Server/Effectly/Conditions/`.
+Each names a `Handler.Id` that implements it plus that handler's tuning, exactly like abilities do -
+so several conditions may share one handler with different configuration. Setting `"Enabled": false`
+stops a condition being evaluated without removing the file; a grant referencing a disabled or
+missing condition never activates.
 
-Built‑in condition types:
+Ships with three handlers:
 
-- `in_zone` - active when the player is in one of the configured zone IDs
+- `zone` - active in the configured world zone ids
+- `sky_light` - active within a sunlight-factor and sky-light range
+- `health` - compares health % against a threshold, for either the ability holder or the damage target
+
+and seven conditions built on them:
+
+- `in_zone` - active when the player is in one of the given zone IDs
 - `in_sunlight` - active when it is daytime and there is open sky above the player
-- `health_below` - active when player health % is below `param` (0–100)
-- `health_above` - active when player health % is at or above `param` (0–100)
-- `target_health_below` - active when the damage **target’s** health % is below `param`
-- `target_health_above` - active when the damage **target’s** health % is at or above `param`
+- `Moonlight` - active at night under open sky
+- `health_below` / `health_above` - player health % below, or at or above, the threshold
+- `target_health_below` / `target_health_above` - same, for the damage **target**
+
+A grant carries an `AbilityConditionSpec` referencing one of those conditions:
+
+- `Type` (string): the condition asset id
+- `Param` (optional int): overrides the condition's configured value - a health percentage (0-100),
+  or the sole zone id. When omitted the asset's own configuration applies
+- `ZoneIds` (optional list): overrides the zone ids for `in_zone`
 
 Effectly’s internal systems (e.g. `AbilityConditionService`, `AbilityStatService`) evaluate these conditions on demand when applying stats or reacting to events.
 
@@ -362,19 +375,22 @@ For more detail, see:
 
 - Check `/ability list` to confirm the player actually has the ability.
 - Verify that the ability ID is exactly one of the registered IDs from `/ability available`.
-- Check the ability's file in `Server/Effectly/Abilities/` has not been set `"Enabled": false`.
+- Check the ability's file in `Server/Effectly/Effects/` has not been set `"Enabled": false`.
 - For an offline player, check the log for the "Applied '<ability>' to the saved data of offline
   player" line confirming the write landed.
 - Inspect `run/universe/players/<uuid>.json` - `Effectly:Roster` is the source of truth.
 
 ### 7.2 Conditions not behaving as expected
 
-- Confirm the **condition type string** matches one of:
-- `in_zone`, `in_sunlight`, `health_below`, `health_above`, `target_health_below`, `target_health_above`
-- Check that metadata keys are spelled correctly:
-  - `zones` for `in_zone`
-  - `healthThreshold` (0.0–1.0) for `health_below`
-  - `enemyHealthThreshold` (0.0–1.0) for `target_health_below`
+- Confirm the spec's `Type` names a file that exists in `Server/Effectly/Conditions/`, and that the
+  file is not `"Enabled": false`. A grant pointing at a missing or disabled condition never
+  activates, so the ability appears granted in `/ability list` but never takes effect.
+- Confirm the condition's `Handler.Id` names a registered handler (`zone`, `sky_light`, `health`).
+  A wrong id fails asset load with the registered ids listed.
+- `target_health_*` conditions only pass inside a damage context, where a target entity exists.
+  Anywhere else they fail closed.
+- Set this class's log level to FINE to see each condition evaluated and whether it passed:
+  `com.riprod.effectly.systems.AbilityConditionService`.
 
 ### 7.3 Performance considerations
 

@@ -1,0 +1,9 @@
+{
+  "Handler": {
+    "Id": "sky_light",
+    "MaxSunlightFactor": 0.2,
+    "MinSkyLight": 10
+  },
+  "Keyword": "moonlight",
+  "Description": "active under open night sky"
+}

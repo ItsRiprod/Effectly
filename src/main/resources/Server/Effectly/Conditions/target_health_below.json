@@ -1,0 +1,9 @@
+{
+  "Handler": {
+    "Id": "health",
+    "Target": "DamageTarget",
+    "Comparison": "Below",
+    "Threshold": 50
+  },
+  "Description": "damage target health below %"
+}

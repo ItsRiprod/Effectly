@@ -1,37 +1,51 @@
 package com.riprod.effectly.core.condition;
 
+import com.hypixel.hytale.codec.builder.BuilderCodec;
+import com.riprod.effectly.ability.AbilityConditionSpec;
+import com.riprod.effectly.core.condition.asset.AbilityConditionAsset;
+import com.riprod.effectly.core.condition.asset.AbilityConditionConfig;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import com.riprod.effectly.ability.AbilityConditionSpec;
 
 public interface AbilityCondition {
 
     @Nonnull
     String getId();
 
-    boolean test(@Nonnull AbilityConditionContext context, @Nonnull AbilityConditionSpec spec);
-
-    @Nonnull
-    default String keyword() {
-        return getId();
+    @Nullable
+    default ConfigBinding<? extends AbilityConditionConfig> getConfigBinding() {
+        return null;
     }
 
+    boolean test(
+            @Nonnull AbilityConditionContext context,
+            @Nonnull AbilityConditionAsset asset,
+            @Nonnull AbilityConditionSpec spec);
+
     @Nullable
-    default Parsed parse(@Nonnull String[] remaining) {
+    default Parsed parse(@Nonnull AbilityConditionAsset asset, @Nonnull String[] remaining) {
         return null;
     }
 
     @Nonnull
-    default String describe(@Nonnull AbilityConditionSpec spec) {
-        return getId();
+    default String describe(@Nonnull AbilityConditionAsset asset, @Nonnull AbilityConditionSpec spec) {
+        return asset.getKeyword();
     }
 
     @Nonnull
-    String usage();
+    default String argumentUsage() {
+        return "";
+    }
 
-    @Nonnull
-    String description();
+    record ConfigBinding<T extends AbilityConditionConfig>(
+            @Nonnull Class<T> type, @Nonnull BuilderCodec<T> codec) {
+        @Nonnull
+        public static <T extends AbilityConditionConfig> ConfigBinding<T> of(
+                @Nonnull Class<T> type, @Nonnull BuilderCodec<T> codec) {
+            return new ConfigBinding<>(type, codec);
+        }
+    }
 
     record Parsed(@Nonnull AbilityConditionSpec spec, int consumed) {}
 }

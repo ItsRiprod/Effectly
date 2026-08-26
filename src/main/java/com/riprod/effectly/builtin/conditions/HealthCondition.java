@@ -5,65 +5,74 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.riprod.effectly.ability.AbilityConditionSpec;
 import com.riprod.effectly.core.condition.AbilityCondition;
 import com.riprod.effectly.core.condition.AbilityConditionContext;
+import com.riprod.effectly.core.condition.asset.AbilityConditionAsset;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public final class HealthCondition implements AbilityCondition {
 
-    private final String id;
-    private final boolean useTarget;
-    private final boolean below;
-
-    public HealthCondition(@Nonnull String id, boolean useTarget, boolean below) {
-        this.id = id;
-        this.useTarget = useTarget;
-        this.below = below;
-    }
+    public static final String ID = "health";
 
     @Nonnull
     @Override
     public String getId() {
-        return id;
+        return ID;
+    }
+
+    @Nonnull
+    @Override
+    public ConfigBinding<HealthConditionConfig> getConfigBinding() {
+        return ConfigBinding.of(HealthConditionConfig.class, HealthConditionConfig.CODEC);
     }
 
     @Override
-    public boolean test(@Nonnull AbilityConditionContext context, @Nonnull AbilityConditionSpec spec) {
-        Ref<EntityStore> ref = useTarget ? context.getTargetRef() : context.getRef();
+    public boolean test(
+            @Nonnull AbilityConditionContext context,
+            @Nonnull AbilityConditionAsset asset,
+            @Nonnull AbilityConditionSpec spec) {
+        HealthConditionConfig config =
+                asset.configOrDefault(HealthConditionConfig.class, HealthConditionConfig.DEFAULTS);
+
+        Ref<EntityStore> ref = config.getTarget() == HealthConditionConfig.Target.DAMAGE_TARGET
+                ? context.getTargetRef()
+                : context.getRef();
+
         float percent = HealthPercent.of(ref, context.getComponents());
         if (!HealthPercent.isKnown(percent)) return false;
-        return below ? percent < spec.param() : percent >= spec.param();
+
+        int threshold = spec.paramOrDefault(config.getThreshold());
+        return config.getComparison() == HealthConditionConfig.Comparison.BELOW
+                ? percent < threshold
+                : percent >= threshold;
     }
 
     @Nullable
     @Override
-    public Parsed parse(@Nonnull String[] remaining) {
-        if (remaining.length < 1) return null;
+    public Parsed parse(@Nonnull AbilityConditionAsset asset, @Nonnull String[] remaining) {
+        if (remaining.length < 1) {
+            return new Parsed(new AbilityConditionSpec(asset.getId()), 0);
+        }
         try {
             int percent = Integer.parseInt(remaining[0]);
             if (percent < 0 || percent > 100) return null;
-            return new Parsed(new AbilityConditionSpec(id, percent), 1);
+            return new Parsed(new AbilityConditionSpec(asset.getId(), percent), 1);
         } catch (NumberFormatException e) {
-            return null;
+            return new Parsed(new AbilityConditionSpec(asset.getId()), 0);
         }
     }
 
     @Nonnull
     @Override
-    public String describe(@Nonnull AbilityConditionSpec spec) {
-        return id + "=" + spec.param();
+    public String describe(@Nonnull AbilityConditionAsset asset, @Nonnull AbilityConditionSpec spec) {
+        HealthConditionConfig config =
+                asset.configOrDefault(HealthConditionConfig.class, HealthConditionConfig.DEFAULTS);
+        return asset.getKeyword() + "=" + spec.paramOrDefault(config.getThreshold());
     }
 
     @Nonnull
     @Override
-    public String usage() {
-        return id + " <percent 0-100>";
-    }
-
-    @Nonnull
-    @Override
-    public String description() {
-        String who = useTarget ? "damage target" : "your";
-        return who + " health " + (below ? "below" : "at or above") + " %";
+    public String argumentUsage() {
+        return "[percent 0-100]";
     }
 }

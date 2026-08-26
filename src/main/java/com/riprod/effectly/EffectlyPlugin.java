@@ -4,10 +4,9 @@ import com.hypixel.hytale.assetstore.AssetRegistry;
 import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
 import com.hypixel.hytale.server.core.asset.HytaleAssetStore;
 import com.riprod.configly.Configly;
-import com.riprod.effectly.ability.AbilityConditionSpec;
 import com.riprod.effectly.builtin.conditions.HealthCondition;
-import com.riprod.effectly.builtin.conditions.InSunlightCondition;
-import com.riprod.effectly.builtin.conditions.InZoneCondition;
+import com.riprod.effectly.builtin.conditions.SkyLightCondition;
+import com.riprod.effectly.builtin.conditions.ZoneCondition;
 import com.riprod.effectly.builtin.effects.combat.PunchDamageHandler;
 import com.riprod.effectly.builtin.effects.combat.ResistanceHandler;
 import com.riprod.effectly.builtin.effects.combat.StrengthHandler;
@@ -33,6 +32,8 @@ import com.riprod.effectly.core.AbilityRoster;
 import com.riprod.effectly.core.asset.AbilityAsset;
 import com.riprod.effectly.core.asset.DefaultAbilityHandlerConfig;
 import com.riprod.effectly.core.condition.AbilityConditions;
+import com.riprod.effectly.core.condition.asset.AbilityConditionAsset;
+import com.riprod.effectly.core.condition.asset.DefaultAbilityConditionConfig;
 import com.riprod.effectly.core.equipment.EquipmentAbilityComponent;
 import com.riprod.effectly.core.equipment.EquipmentAttachSystem;
 import com.riprod.effectly.core.equipment.EquipmentChangeSystem;
@@ -58,14 +59,20 @@ public class EffectlyPlugin extends JavaPlugin {
         AbilityHandlerRegistry.reset();
         AbilityConditions.reset();
 
-        AbilityConditions.register(new InZoneCondition());
-        AbilityConditions.register(new InSunlightCondition());
-        AbilityConditions.register(new HealthCondition(AbilityConditionSpec.TYPE_HEALTH_BELOW, false, true));
-        AbilityConditions.register(new HealthCondition(AbilityConditionSpec.TYPE_HEALTH_ABOVE, false, false));
-        AbilityConditions.register(new HealthCondition(AbilityConditionSpec.TYPE_TARGET_HEALTH_BELOW, true, true));
-        AbilityConditions.register(new HealthCondition(AbilityConditionSpec.TYPE_TARGET_HEALTH_ABOVE, true, false));
+        DefaultAbilityConditionConfig.register();
+
+        AbilityConditions.register(new ZoneCondition());
+        AbilityConditions.register(new SkyLightCondition());
+        AbilityConditions.register(new HealthCondition());
 
         Configly.register(EffectlyConfig.TYPE, EffectlyConfig.class, EffectlyConfig.CODEC);
+
+        AssetRegistry.register(HytaleAssetStore
+                .builder(AbilityConditionAsset.class, new DefaultAssetMap<String, AbilityConditionAsset>())
+                .setPath(AbilityConditionAsset.ASSET_PATH)
+                .setCodec(AbilityConditionAsset.CODEC)
+                .setKeyFunction(AbilityConditionAsset::getId)
+                .build());
 
         AssetRegistry.register(HytaleAssetStore
                 .builder(AbilityAsset.class, new DefaultAssetMap<String, AbilityAsset>())

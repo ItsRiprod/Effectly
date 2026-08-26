@@ -1,0 +1,7 @@
+{
+  "Handler": {
+    "Id": "zone"
+  },
+  "Keyword": "zone",
+  "Description": "active in world zone(s)"
+}

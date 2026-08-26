@@ -112,10 +112,6 @@ public class AbilityAddCommand extends AbstractPlayerCommand {
         }
     }
 
-    /**
-     * Parses optional condition key-value pairs from the remainder of the command.
-     * Supported: "zone &lt;id&gt; [id...]" -> in_zone; "sunlight" / "in_sunlight" (no value); "health_below" / "health_above" / "target_health_below" / "target_health_above" &lt;percent&gt; (0-100).
-     */
     @Nonnull
     private static List<AbilityConditionSpec> parseConditions(String rest) {
         if (rest == null || rest.isBlank()) return List.of();
