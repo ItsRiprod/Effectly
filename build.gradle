@@ -11,7 +11,7 @@ version = project.version
 repositories {
     mavenCentral()
     gradlePluginPortal()
-    maven { url "https://www.cursemaven.com" }
+    maven { url = uri("https://www.cursemaven.com") }
 }
 
 configurations {
@@ -24,7 +24,7 @@ dependencies {
     compileOnly libs.jspecify
     compileOnly libs.nimbus.jose.jwt
 
-    shadowBundle 'curse.maven:configly-1640076:8580658'
+    shadowBundle 'com.riprod:configly:1.+'
 }
 
 shadowJar {

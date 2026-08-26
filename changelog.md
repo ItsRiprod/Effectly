@@ -1,6 +1,9 @@
 # Changelog
 
-## [1.3.0] - 2026-08-15
+# [1.4.0-Patch-1]
+Dropped Java version from 26 to 25 for compatibility
+
+## [1.4.0] - 2026-08-15
 
 ### Breaking
 
