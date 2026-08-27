@@ -22,8 +22,8 @@ import com.hypixel.hytale.server.core.modules.entity.system.ItemSpatialSystem;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.ability.AbilityValue;
-import com.riprod.effectly.systems.AbilityConditionService;
+import com.riprod.effectly.core.effects.components.AbilityValue;
+import com.riprod.effectly.core.utils.AbilityConditionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +74,7 @@ public class ItemMagnetSystem extends EntityTickingSystem<EntityStore> {
         ItemMagnetComponent component = archetypeChunk.getComponent(index, ItemMagnetComponent.getComponentType());
         if (component == null || component.getAbilityId() == null) return;
 
-        AbilityValue abilityValue = AbilityConditionService.getActiveAbilityValue(
+        AbilityValue abilityValue = AbilityConditionUtils.getActiveAbilityValue(
                 playerRef, store, world, playerRefComponent.getUuid(), component.getAbilityId());
         if (abilityValue == null || !abilityValue.isPresent() || !(abilityValue.getRaw() instanceof Number n)) return;
 

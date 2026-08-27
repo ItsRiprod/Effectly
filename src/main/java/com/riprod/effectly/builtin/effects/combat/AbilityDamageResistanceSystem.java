@@ -16,9 +16,9 @@ import com.hypixel.hytale.server.core.modules.entity.damage.DamageModule;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.core.AbilityRoster;
-import com.riprod.effectly.core.asset.AbilityAsset;
-import com.riprod.effectly.systems.AbilityConditionService;
+import com.riprod.effectly.core.abilities.component.AbilityComponent;
+import com.riprod.effectly.core.effects.registry.EffectAsset;
+import com.riprod.effectly.core.utils.AbilityConditionUtils;
 
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -98,7 +98,7 @@ public class AbilityDamageResistanceSystem extends DamageEventSystem {
             @Nonnull World world,
             @Nonnull java.util.UUID playerId,
             @Nonnull DamageCause cause) {
-        AbilityRoster roster = AbilityRoster.of(ref, store);
+        AbilityComponent roster = AbilityComponent.of(ref, store);
         if (roster == null || roster.isEmpty()) return null;
 
         DamageCause current = cause;
@@ -122,16 +122,16 @@ public class AbilityDamageResistanceSystem extends DamageEventSystem {
             @Nonnull ComponentAccessor<EntityStore> store,
             @Nonnull World world,
             @Nonnull java.util.UUID playerId,
-            @Nonnull AbilityRoster roster,
+            @Nonnull AbilityComponent roster,
             @Nonnull String causeId) {
         Double best = null;
         for (String abilityId : roster.getAbilities().keySet()) {
-            AbilityAsset asset = AbilityAsset.getAssetMap().getAsset(abilityId);
+            EffectAsset asset = EffectAsset.getAssetMap().getAsset(abilityId);
             if (asset == null || !asset.isEnabled()) continue;
             if (!(asset.getHandlerConfig() instanceof ResistanceConfig config)) continue;
             if (!causeId.equalsIgnoreCase(config.getDamageCause())) continue;
 
-            var abilityValue = AbilityConditionService.getActiveAbilityValue(ref, store, world, playerId, abilityId);
+            var abilityValue = AbilityConditionUtils.getActiveAbilityValue(ref, store, world, playerId, abilityId);
             if (abilityValue == null || !abilityValue.isPresent()) continue;
             if (!(abilityValue.getRaw() instanceof Number n)) continue;
 

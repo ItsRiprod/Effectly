@@ -11,12 +11,12 @@ import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.core.AbilityContext;
-import com.riprod.effectly.core.AbilityEntry;
-import com.riprod.effectly.core.AbilityGrant;
-import com.riprod.effectly.core.AbilityMutations;
-import com.riprod.effectly.core.AbilityRoster;
-import com.riprod.effectly.core.AbilitySources;
+import com.riprod.effectly.core.abilities.component.AbilityComponent;
+import com.riprod.effectly.core.abilities.component.AbilityEntry;
+import com.riprod.effectly.core.abilities.component.AbilityGrant;
+import com.riprod.effectly.core.abilities.registry.AbilityContext;
+import com.riprod.effectly.core.abilities.utils.AbilitySourcesUtils;
+import com.riprod.effectly.core.utils.AbilityMutationUtils;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -53,7 +53,7 @@ public final class EquipmentScan {
             for (Map.Entry<String, EquipmentGrant> granted : source.getValue().entrySet()) {
                 EquipmentGrant previous = before == null ? null : before.get(granted.getKey());
                 if (granted.getValue().equals(previous)) continue;
-                AbilityMutations.grantIn(context, granted.getKey(), source.getKey(),
+                AbilityMutationUtils.grantIn(context, granted.getKey(), source.getKey(),
                         granted.getValue().value(), granted.getValue().conditions(), false);
             }
         }
@@ -61,7 +61,7 @@ public final class EquipmentScan {
             Map<String, EquipmentGrant> now = desired.get(source.getKey());
             for (String abilityId : source.getValue().keySet()) {
                 if (now != null && now.containsKey(abilityId)) continue;
-                AbilityMutations.revokeIn(context, abilityId, source.getKey());
+                AbilityMutationUtils.revokeIn(context, abilityId, source.getKey());
             }
         }
         component.setApplied(desired);
@@ -72,12 +72,12 @@ public final class EquipmentScan {
             @Nonnull Ref<EntityStore> ref,
             @Nonnull Store<EntityStore> store) {
         Map<String, Map<String, EquipmentGrant>> existing = new LinkedHashMap<>();
-        AbilityRoster roster = AbilityRoster.of(ref, store);
+        AbilityComponent roster = AbilityComponent.of(ref, store);
         if (roster == null || roster.isEmpty()) return existing;
 
         for (Map.Entry<String, AbilityEntry> ability : roster.getAbilities().entrySet()) {
             for (Map.Entry<String, AbilityGrant> granted : ability.getValue().getGrants().entrySet()) {
-                if (!AbilitySources.isEquipment(granted.getKey())) continue;
+                if (!AbilitySourcesUtils.isEquipment(granted.getKey())) continue;
                 AbilityGrant grant = granted.getValue();
                 existing.computeIfAbsent(granted.getKey(), id -> new LinkedHashMap<>())
                         .put(ability.getKey(), new EquipmentGrant(grant.getValue(), grant.getConditions()));
@@ -111,6 +111,6 @@ public final class EquipmentScan {
             @Nonnull Map<String, Map<String, EquipmentGrant>> out) {
         Map<String, EquipmentGrant> grants = new LinkedHashMap<>();
         EquipmentAbilitySource.collect(stack, grants);
-        if (!grants.isEmpty()) out.put(AbilitySources.equipment(slot), grants);
+        if (!grants.isEmpty()) out.put(AbilitySourcesUtils.equipment(slot), grants);
     }
 }

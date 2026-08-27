@@ -3,8 +3,8 @@ package com.riprod.effectly.commands;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.AbstractCommand;
 import com.hypixel.hytale.server.core.command.system.CommandSender;
-import com.riprod.effectly.core.condition.AbilityConditions;
-import com.riprod.effectly.core.condition.asset.AbilityConditionAsset;
+import com.riprod.effectly.core.conditions.registry.ConditionAsset;
+import com.riprod.effectly.core.conditions.registry.ConditionRegistery;
 
 import javax.annotation.Nonnull;
 
@@ -121,9 +121,9 @@ public final class AbilityCommandHelp {
     @Nonnull
     private static Message conditionLines() {
         Message out = Message.raw("");
-        for (AbilityConditionAsset asset : AbilityConditions.assets()) {
+        for (ConditionAsset asset : ConditionRegistery.assets()) {
             out = out.insert("  ")
-                    .insert(Message.raw(AbilityConditions.usage(asset)).color(OPTIONAL))
+                    .insert(Message.raw(ConditionRegistery.usage(asset)).color(OPTIONAL))
                     .insert(" - " + (asset.getDescription() == null ? asset.getId() : asset.getDescription()) + "\n");
         }
         return out;

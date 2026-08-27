@@ -4,18 +4,18 @@ import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.validation.Validators;
-import com.riprod.effectly.core.asset.AbilityHandlerConfig;
+import com.riprod.effectly.core.effects.registry.EffectHandlerConfig;
 
 import javax.annotation.Nonnull;
 
-public final class FlightConfig extends AbilityHandlerConfig {
+public final class FlightConfig extends EffectHandlerConfig {
 
     @Nonnull
     public static final FlightConfig DEFAULTS = new FlightConfig();
 
     @Nonnull
     public static final BuilderCodec<FlightConfig> CODEC = BuilderCodec
-            .builder(FlightConfig.class, FlightConfig::new, AbilityHandlerConfig.BASE_CODEC)
+            .builder(FlightConfig.class, FlightConfig::new, EffectHandlerConfig.BASE_CODEC)
             .append(new KeyedCodec<>("ReassertSeconds", Codec.FLOAT),
                     (config, v) -> config.reassertSeconds = v,
                     config -> config.reassertSeconds)

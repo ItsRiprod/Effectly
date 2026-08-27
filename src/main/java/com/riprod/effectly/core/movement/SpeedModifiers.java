@@ -2,7 +2,7 @@ package com.riprod.effectly.core.movement;
 
 import com.hypixel.hytale.server.core.entity.entities.player.movement.MovementManager;
 import com.hypixel.hytale.server.core.modules.entity.EntityModule;
-import com.riprod.effectly.core.AbilityContext;
+import com.riprod.effectly.core.abilities.registry.AbilityContext;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

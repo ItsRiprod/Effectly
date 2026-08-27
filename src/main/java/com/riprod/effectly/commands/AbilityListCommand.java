@@ -11,11 +11,11 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.riprod.effectly.EffectlyPlugin;
-import com.riprod.effectly.ability.AbilityConditionSpec;
-import com.riprod.effectly.ability.AbilityValue;
-import com.riprod.effectly.core.AbilityGrant;
-import com.riprod.effectly.core.AbilityRosters;
-import com.riprod.effectly.core.condition.AbilityConditions;
+import com.riprod.effectly.core.abilities.component.AbilityGrant;
+import com.riprod.effectly.core.conditions.AbilityConditionSpec;
+import com.riprod.effectly.core.conditions.registry.ConditionRegistery;
+import com.riprod.effectly.core.effects.components.AbilityValue;
+import com.riprod.effectly.core.utils.AbilityUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -65,13 +65,13 @@ public class AbilityListCommand extends AbstractPlayerCommand {
             }
             targetPlayerRef = found;
         }
-        Map<String, AbilityValue> abilities = AbilityRosters.readAll(targetPlayerRef.getUuid());
+        Map<String, AbilityValue> abilities = AbilityUtils.readAll(targetPlayerRef.getUuid());
         boolean other = !targetPlayerRef.getUuid().equals(playerRef.getUuid());
         if (abilities.isEmpty()) {
             context.sendMessage(Message.raw(other ? targetPlayerRef.getUsername() + " has no abilities granted." : "No abilities granted."));
             return;
         }
-        Map<String, Map<String, AbilityGrant>> grants = AbilityRosters.readAllGrants(targetPlayerRef.getUuid());
+        Map<String, Map<String, AbilityGrant>> grants = AbilityUtils.readAllGrants(targetPlayerRef.getUuid());
 
         context.sendMessage(Message.raw(other
                 ? targetPlayerRef.getUsername() + "'s abilities:"
@@ -117,7 +117,7 @@ public class AbilityListCommand extends AbstractPlayerCommand {
         sb.append(" (");
         for (int i = 0; i < conditions.size(); i++) {
             if (i > 0) sb.append("; ");
-            sb.append(AbilityConditions.describe(conditions.get(i)));
+            sb.append(ConditionRegistery.describe(conditions.get(i)));
         }
         sb.append(")");
     }

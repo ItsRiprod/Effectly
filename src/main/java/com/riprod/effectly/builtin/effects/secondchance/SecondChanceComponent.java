@@ -7,11 +7,11 @@ import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.ComponentRegistryProxy;
 import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.core.AbilityComponent;
+import com.riprod.effectly.core.abilities.component.AbstractAbilityComponent;
 
 import javax.annotation.Nonnull;
 
-public final class SecondChanceComponent extends AbilityComponent {
+public final class SecondChanceComponent extends AbstractAbilityComponent {
 
     public static final String COMPONENT_ID = "Effectly:SecondChance";
 

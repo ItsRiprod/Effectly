@@ -5,9 +5,9 @@ import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.CommandSender;
 import com.hypixel.hytale.server.core.command.system.basecommands.CommandBase;
 import com.riprod.effectly.EffectlyPlugin;
-import com.riprod.effectly.ability.AbilityDefinition;
-import com.riprod.effectly.ability.AbilityRegistry;
-import com.riprod.effectly.ability.AbilityType;
+import com.riprod.effectly.core.conditions.components.AbilityDefinition;
+import com.riprod.effectly.core.effects.utils.AbilityType;
+import com.riprod.effectly.core.utils.AbilityRegistryUtils;
 
 import java.util.Set;
 import java.util.TreeSet;
@@ -37,13 +37,13 @@ public class AbilityAvailableCommand extends CommandBase {
 
     @Override
     protected void executeSync(@Nonnull CommandContext context) {
-        Set<String> ids = new TreeSet<>(AbilityRegistry.getAllIds());
+        Set<String> ids = new TreeSet<>(AbilityRegistryUtils.getAllIds());
         if (ids.isEmpty()) {
             context.sendMessage(Message.raw("No abilities registered."));
             return;
         }
         for (String id : ids) {
-            AbilityDefinition def = AbilityRegistry.get(id);
+            AbilityDefinition def = AbilityRegistryUtils.get(id);
             if (def == null) continue;
             String line = formatAbility(def);
             context.sendMessage(Message.raw(line));

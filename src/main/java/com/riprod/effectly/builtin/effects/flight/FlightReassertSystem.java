@@ -11,7 +11,7 @@ import com.hypixel.hytale.server.core.modules.entity.EntityModule;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.core.AbilityContext;
+import com.riprod.effectly.core.abilities.registry.AbilityContext;
 
 import javax.annotation.Nonnull;
 

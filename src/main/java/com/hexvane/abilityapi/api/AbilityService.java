@@ -33,7 +33,7 @@ public final class AbilityService {
             @Nonnull UUID playerId,
             @Nonnull String abilityId,
             @Nonnull List<AbilityConditionSpec> conditions) {
-        List<com.riprod.effectly.ability.AbilityConditionSpec> converted = convert(conditions);
+        List<com.riprod.effectly.core.conditions.AbilityConditionSpec> converted = convert(conditions);
         com.riprod.effectly.api.AbilityService.setConditions(
                 playerId, abilityId, converted != null ? converted : List.of());
     }
@@ -50,13 +50,13 @@ public final class AbilityService {
     }
 
     @Nullable
-    private static List<com.riprod.effectly.ability.AbilityConditionSpec> convert(
+    private static List<com.riprod.effectly.core.conditions.AbilityConditionSpec> convert(
             @Nullable List<AbilityConditionSpec> conditions) {
         if (conditions == null) return null;
-        List<com.riprod.effectly.ability.AbilityConditionSpec> out = new ArrayList<>(conditions.size());
+        List<com.riprod.effectly.core.conditions.AbilityConditionSpec> out = new ArrayList<>(conditions.size());
         for (AbilityConditionSpec spec : conditions) {
             if (spec == null) continue;
-            out.add(new com.riprod.effectly.ability.AbilityConditionSpec(
+            out.add(new com.riprod.effectly.core.conditions.AbilityConditionSpec(
                     spec.type(), spec.param(), spec.zoneIds()));
         }
         return out;

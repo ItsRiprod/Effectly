@@ -23,7 +23,7 @@ import com.hypixel.hytale.server.core.modules.interaction.BlockHarvestUtils;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.systems.AbilityConditionService;
+import com.riprod.effectly.core.utils.AbilityConditionUtils;
 
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -63,7 +63,7 @@ public class MiningFortuneEventSystem extends EntityEventSystem<EntityStore, Bre
         PlayerRef playerRefComponent = archetypeChunk.getComponent(index, PlayerRef.getComponentType());
         if (playerRefComponent == null) return;
 
-        var abilityValue = AbilityConditionService.getActiveAbilityValue(ref, store, world, playerRefComponent.getUuid(), component.getAbilityId());
+        var abilityValue = AbilityConditionUtils.getActiveAbilityValue(ref, store, world, playerRefComponent.getUuid(), component.getAbilityId());
         if (abilityValue == null || !abilityValue.isPresent() || !(abilityValue.getRaw() instanceof Number n)) return;
 
         int level = n.intValue();

@@ -4,18 +4,18 @@ import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.validation.Validators;
-import com.riprod.effectly.core.asset.AbilityHandlerConfig;
+import com.riprod.effectly.core.effects.registry.EffectHandlerConfig;
 
 import javax.annotation.Nonnull;
 
-public final class OxygenConfig extends AbilityHandlerConfig {
+public final class OxygenConfig extends EffectHandlerConfig {
 
     @Nonnull
     public static final OxygenConfig DEFAULTS = new OxygenConfig();
 
     @Nonnull
     public static final BuilderCodec<OxygenConfig> CODEC = BuilderCodec
-            .builder(OxygenConfig.class, OxygenConfig::new, AbilityHandlerConfig.BASE_CODEC)
+            .builder(OxygenConfig.class, OxygenConfig::new, EffectHandlerConfig.BASE_CODEC)
             .append(new KeyedCodec<>("UnitsPerSecond", Codec.FLOAT),
                     (config, v) -> config.unitsPerSecond = v,
                     config -> config.unitsPerSecond)

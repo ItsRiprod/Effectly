@@ -4,11 +4,11 @@ import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.ComponentRegistryProxy;
 import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.core.AbilityComponent;
+import com.riprod.effectly.core.abilities.component.AbstractAbilityComponent;
 
 import javax.annotation.Nonnull;
 
-public final class SwimSpeedComponent extends AbilityComponent {
+public final class SwimSpeedComponent extends AbstractAbilityComponent {
 
     private static ComponentType<EntityStore, SwimSpeedComponent> COMPONENT_TYPE;
 

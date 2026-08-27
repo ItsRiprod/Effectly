@@ -14,8 +14,8 @@ import com.hypixel.hytale.server.core.modules.time.WorldTimeResource;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.ability.AbilityValue;
-import com.riprod.effectly.systems.AbilityConditionService;
+import com.riprod.effectly.core.effects.components.AbilityValue;
+import com.riprod.effectly.core.utils.AbilityConditionUtils;
 
 import java.time.Instant;
 import javax.annotation.Nonnull;
@@ -51,7 +51,7 @@ public class ConditionalStatSystem extends EntityTickingSystem<EntityStore> {
         int staminaIndex = DefaultEntityStatTypes.getStamina();
         if (staminaIndex < 0 || staminaIndex == Integer.MIN_VALUE || staminaIndex >= statMap.size()) return;
 
-        AbilityValue activeValue = AbilityConditionService.getActiveAbilityValue(
+        AbilityValue activeValue = AbilityConditionUtils.getActiveAbilityValue(
                 ref, store, world, playerRefComponent.getUuid(), StaminaRegenHandler.ID);
         float multiplier = activeValue != null && activeValue.getRaw() instanceof Number n ? n.floatValue() : 0f;
         if (multiplier <= 1f) return;

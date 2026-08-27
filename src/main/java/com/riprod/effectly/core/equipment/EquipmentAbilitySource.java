@@ -3,9 +3,9 @@ package com.riprod.effectly.core.equipment;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.asset.type.item.config.Item;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
-import com.riprod.effectly.ability.AbilityConditionSpec;
-import com.riprod.effectly.core.asset.AbilityAsset;
-import com.riprod.effectly.core.condition.AbilityConditions;
+import com.riprod.effectly.core.conditions.AbilityConditionSpec;
+import com.riprod.effectly.core.conditions.registry.ConditionRegistery;
+import com.riprod.effectly.core.effects.registry.EffectAsset;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +71,7 @@ public final class EquipmentAbilitySource {
         if (trimmed.isEmpty()) return List.of();
 
         List<String> unparsed = new ArrayList<>();
-        List<AbilityConditionSpec> specs = AbilityConditions.parse(SPACES.split(trimmed), unparsed);
+        List<AbilityConditionSpec> specs = ConditionRegistery.parse(SPACES.split(trimmed), unparsed);
         if (!unparsed.isEmpty()) {
             LOGGER.atWarning().atMostEvery(1, TimeUnit.MINUTES)
                     .log("Item '%s' condition '%s' has unrecognised token(s) %s; "
@@ -85,7 +85,7 @@ public final class EquipmentAbilitySource {
             @Nonnull String abilityId,
             @Nullable Double requested,
             @Nonnull List<AbilityConditionSpec> conditions) {
-        AbilityAsset asset = AbilityAsset.getAssetMap().getAsset(abilityId);
+        EffectAsset asset = EffectAsset.getAssetMap().getAsset(abilityId);
         if (asset == null || !asset.isEnabled()) return;
 
         double value = requested == null ? asset.getDefaultValue() : requested;

@@ -16,8 +16,8 @@ import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.ability.AbilityValue;
-import com.riprod.effectly.systems.AbilityConditionService;
+import com.riprod.effectly.core.effects.components.AbilityValue;
+import com.riprod.effectly.core.utils.AbilityConditionUtils;
 
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -76,7 +76,7 @@ public class AbilityStrengthSystem extends DamageEventSystem {
         if (world == null) return;
 
         Ref<EntityStore> targetRef = archetypeChunk.getReferenceTo(index);
-        AbilityValue strengthAbility = AbilityConditionService.getActiveAbilityValue(attackerRef, store, world, attackerPlayerRef.getUuid(), StrengthHandler.ID, targetRef);
+        AbilityValue strengthAbility = AbilityConditionUtils.getActiveAbilityValue(attackerRef, store, world, attackerPlayerRef.getUuid(), StrengthHandler.ID, targetRef);
         if (strengthAbility == null || !strengthAbility.isPresent()) return;
 
         Object raw = strengthAbility.getRaw();

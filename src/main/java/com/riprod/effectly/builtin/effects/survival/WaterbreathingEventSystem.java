@@ -10,7 +10,7 @@ import com.hypixel.hytale.server.core.event.events.ecs.BreathingCheckEvent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.systems.AbilityConditionService;
+import com.riprod.effectly.core.utils.AbilityConditionUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -44,7 +44,7 @@ public class WaterbreathingEventSystem extends EntityEventSystem<EntityStore, Br
         PlayerRef playerRefComponent = archetypeChunk.getComponent(index, PlayerRef.getComponentType());
         if (playerRefComponent == null) return;
 
-        if (AbilityConditionService.isAbilityActive(ref, store, world, playerRefComponent.getUuid(), WaterbreathingHandler.ID)) {
+        if (AbilityConditionUtils.isAbilityActive(ref, store, world, playerRefComponent.getUuid(), WaterbreathingHandler.ID)) {
             event.setCanBreathe(true);
         }
     }

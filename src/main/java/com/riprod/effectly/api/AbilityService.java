@@ -4,9 +4,8 @@ import com.hypixel.hytale.component.ComponentAccessor;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.ability.AbilityConditionSpec;
-import com.riprod.effectly.core.AbilityMutations;
-import com.riprod.effectly.systems.AbilityStatService;
+import com.riprod.effectly.core.conditions.AbilityConditionSpec;
+import com.riprod.effectly.core.utils.AbilityMutationUtils;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,7 +26,7 @@ public final class AbilityService {
             @Nonnull String abilityId,
             @Nonnull Object value,
             @Nullable List<AbilityConditionSpec> conditions) {
-        AbilityMutations.grant(playerId, abilityId, toDouble(value), conditions);
+        AbilityMutationUtils.grant(playerId, abilityId, toDouble(value), conditions);
     }
 
     public static void setAbility(
@@ -36,11 +35,11 @@ public final class AbilityService {
             @Nonnull Object value,
             @Nullable List<AbilityConditionSpec> conditions,
             @Nonnull String sourceId) {
-        AbilityMutations.grant(playerId, abilityId, sourceId, toDouble(value), conditions, true);
+        AbilityMutationUtils.grant(playerId, abilityId, sourceId, toDouble(value), conditions, true);
     }
 
     public static void setConditions(@Nonnull UUID playerId, @Nonnull String abilityId, @Nonnull List<AbilityConditionSpec> conditions) {
-        AbilityMutations.setConditions(playerId, abilityId, conditions);
+        AbilityMutationUtils.setConditions(playerId, abilityId, conditions);
     }
 
     public static void setConditions(
@@ -48,15 +47,15 @@ public final class AbilityService {
             @Nonnull String abilityId,
             @Nonnull List<AbilityConditionSpec> conditions,
             @Nonnull String sourceId) {
-        AbilityMutations.setConditions(playerId, abilityId, sourceId, conditions);
+        AbilityMutationUtils.setConditions(playerId, abilityId, sourceId, conditions);
     }
 
     public static void removeAbility(@Nonnull UUID playerId, @Nonnull String abilityId) {
-        AbilityMutations.revoke(playerId, abilityId);
+        AbilityMutationUtils.revoke(playerId, abilityId);
     }
 
     public static void removeAbility(@Nonnull UUID playerId, @Nonnull String abilityId, @Nonnull String sourceId) {
-        AbilityMutations.revoke(playerId, abilityId, sourceId);
+        AbilityMutationUtils.revoke(playerId, abilityId, sourceId);
     }
 
     public static void applyForPlayer(
@@ -64,8 +63,7 @@ public final class AbilityService {
             @Nonnull ComponentAccessor<EntityStore> store,
             @Nonnull World world
     ) {
-        AbilityMutations.applyAll(ref, store, world);
-        AbilityStatService.applyForPlayer(ref, store, world);
+        AbilityMutationUtils.applyAll(ref, store, world);
     }
 
     private static double toDouble(@Nonnull Object value) {

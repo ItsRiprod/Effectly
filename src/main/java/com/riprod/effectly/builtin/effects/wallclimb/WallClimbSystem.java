@@ -23,7 +23,7 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.systems.AbilityConditionService;
+import com.riprod.effectly.core.utils.AbilityConditionUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -65,7 +65,7 @@ public class WallClimbSystem extends EntityTickingSystem<EntityStore> implements
         WallClimbComponent component = archetypeChunk.getComponent(index, WallClimbComponent.getComponentType());
         if (component == null || component.getAbilityId() == null) return;
 
-        if (!AbilityConditionService.isAbilityActive(ref, store, world, playerRefComponent.getUuid(), component.getAbilityId())) {
+        if (!AbilityConditionUtils.isAbilityActive(ref, store, world, playerRefComponent.getUuid(), component.getAbilityId())) {
             return;
         }
 

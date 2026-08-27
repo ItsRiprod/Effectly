@@ -9,7 +9,7 @@ import com.hypixel.hytale.server.core.event.events.ecs.DamageBlockEvent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.systems.AbilityConditionService;
+import com.riprod.effectly.core.utils.AbilityConditionUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,7 +43,7 @@ public class MiningHasteEventSystem extends EntityEventSystem<EntityStore, Damag
         PlayerRef playerRefComponent = archetypeChunk.getComponent(index, PlayerRef.getComponentType());
         if (playerRefComponent == null) return;
 
-        var abilityValue = AbilityConditionService.getActiveAbilityValue(ref, store, world, playerRefComponent.getUuid(), component.getAbilityId());
+        var abilityValue = AbilityConditionUtils.getActiveAbilityValue(ref, store, world, playerRefComponent.getUuid(), component.getAbilityId());
         if (abilityValue == null || !abilityValue.isPresent() || !(abilityValue.getRaw() instanceof Number n)) return;
 
         int level = n.intValue();

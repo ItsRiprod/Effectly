@@ -4,9 +4,9 @@ import com.hypixel.hytale.assetstore.AssetRegistry;
 import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
 import com.hypixel.hytale.server.core.asset.HytaleAssetStore;
 import com.riprod.configly.Configly;
-import com.riprod.effectly.builtin.conditions.HealthCondition;
-import com.riprod.effectly.builtin.conditions.SkyLightCondition;
-import com.riprod.effectly.builtin.conditions.ZoneCondition;
+import com.riprod.effectly.builtin.conditions.health.HealthCondition;
+import com.riprod.effectly.builtin.conditions.skylight.SkyLightCondition;
+import com.riprod.effectly.builtin.conditions.zone.ZoneCondition;
 import com.riprod.effectly.builtin.effects.combat.PunchDamageHandler;
 import com.riprod.effectly.builtin.effects.combat.ResistanceHandler;
 import com.riprod.effectly.builtin.effects.combat.StrengthHandler;
@@ -27,13 +27,13 @@ import com.riprod.effectly.builtin.effects.swimspeed.SwimSpeedHandler;
 import com.riprod.effectly.builtin.effects.wallclimb.WallClimbHandler;
 import com.riprod.effectly.commands.AbilityCommand;
 import com.riprod.effectly.config.EffectlyConfig;
-import com.riprod.effectly.core.AbilityHandlerRegistry;
-import com.riprod.effectly.core.AbilityRoster;
-import com.riprod.effectly.core.asset.AbilityAsset;
-import com.riprod.effectly.core.asset.DefaultAbilityHandlerConfig;
-import com.riprod.effectly.core.condition.AbilityConditions;
-import com.riprod.effectly.core.condition.asset.AbilityConditionAsset;
-import com.riprod.effectly.core.condition.asset.DefaultAbilityConditionConfig;
+import com.riprod.effectly.core.abilities.component.AbilityComponent;
+import com.riprod.effectly.core.abilities.registry.AbilityHandlerRegistry;
+import com.riprod.effectly.core.conditions.registry.ConditionAsset;
+import com.riprod.effectly.core.conditions.registry.ConditionRegistery;
+import com.riprod.effectly.core.conditions.registry.DefaultConditionConfig;
+import com.riprod.effectly.core.effects.registry.EffectAsset;
+import com.riprod.effectly.core.effects.registry.DefaultAbilityHandlerConfig;
 import com.riprod.effectly.core.equipment.EquipmentAbilityComponent;
 import com.riprod.effectly.core.equipment.EquipmentAttachSystem;
 import com.riprod.effectly.core.equipment.EquipmentChangeSystem;
@@ -57,32 +57,36 @@ public class EffectlyPlugin extends JavaPlugin {
     @Override
     protected void setup() {
         AbilityHandlerRegistry.reset();
-        AbilityConditions.reset();
+        ConditionRegistery.reset();
 
-        DefaultAbilityConditionConfig.register();
+        DefaultConditionConfig.register();
 
-        AbilityConditions.register(new ZoneCondition());
-        AbilityConditions.register(new SkyLightCondition());
-        AbilityConditions.register(new HealthCondition());
+        ConditionRegistery.register(new ZoneCondition());
+        ConditionRegistery.register(new SkyLightCondition());
+        ConditionRegistery.register(new HealthCondition());
 
         Configly.register(EffectlyConfig.TYPE, EffectlyConfig.class, EffectlyConfig.CODEC);
 
         AssetRegistry.register(HytaleAssetStore
-                .builder(AbilityConditionAsset.class, new DefaultAssetMap<String, AbilityConditionAsset>())
-                .setPath(AbilityConditionAsset.ASSET_PATH)
-                .setCodec(AbilityConditionAsset.CODEC)
-                .setKeyFunction(AbilityConditionAsset::getId)
+                .builder(ConditionAsset.class, new DefaultAssetMap<String, ConditionAsset>())
+                .setPath(ConditionAsset.ASSET_PATH)
+                .setCodec(ConditionAsset.CODEC)
+                .setKeyFunction(ConditionAsset::getId)
                 .build());
 
         AssetRegistry.register(HytaleAssetStore
-                .builder(AbilityAsset.class, new DefaultAssetMap<String, AbilityAsset>())
-                .setPath(AbilityAsset.ASSET_PATH)
-                .setCodec(AbilityAsset.CODEC)
-                .setKeyFunction(AbilityAsset::getId)
+                .builder(EffectAsset.class, new DefaultAssetMap<String, EffectAsset>())
+                .setPath(EffectAsset.ASSET_PATH)
+                .setCodec(EffectAsset.CODEC)
+                .setKeyFunction(EffectAsset::getId)
                 .loadsAfter(DamageCause.class)
                 .build());
 
-        AbilityRoster.register(this.getEntityStoreRegistry());
+        var entityStoreRegistry = this.getEntityStoreRegistry();
+
+        var abilityComponentType = entityStoreRegistry.registerComponent(AbilityComponent.class,
+                AbilityComponent.ID, AbilityComponent.CODEC);
+        AbilityComponent.setComponentType(abilityComponentType);
 
         DefaultAbilityHandlerConfig.register();
 
@@ -104,14 +108,14 @@ public class EffectlyPlugin extends JavaPlugin {
         AbilityHandlerRegistry.register(new OxygenHandler());
         AbilityHandlerRegistry.register(new MoveSpeedHandler());
         AbilityHandlerRegistry.register(new SwimSpeedHandler());
-        AbilityHandlerRegistry.installAll(this.getEntityStoreRegistry());
+        AbilityHandlerRegistry.installAll(entityStoreRegistry);
 
-        this.getEntityStoreRegistry().registerSystem(new AbilityLoginSystem());
-
-        EquipmentAbilityComponent.register(this.getEntityStoreRegistry());
-        this.getEntityStoreRegistry().registerSystem(new EquipmentAttachSystem());
-        this.getEntityStoreRegistry().registerSystem(new EquipmentChangeSystem());
-        // this.getEntityStoreRegistry().registerSystem(new EquipmentActiveSlotSystem());
+        EquipmentAbilityComponent.register(entityStoreRegistry);
+        entityStoreRegistry.registerSystem(new AbilityLoginSystem());
+        entityStoreRegistry.registerSystem(new EquipmentAttachSystem());
+        entityStoreRegistry.registerSystem(new EquipmentChangeSystem());
+        // this.getEntityStoreRegistry().registerSystem(new
+        // EquipmentActiveSlotSystem());
 
         this.getCommandRegistry().registerCommand(new AbilityCommand(this));
         LOGGER.atInfo().log("Effectly setup complete");

@@ -4,20 +4,20 @@ import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.validation.Validators;
-import com.riprod.effectly.core.asset.AbilityHandlerConfig;
+import com.riprod.effectly.core.effects.registry.EffectHandlerConfig;
 
 import javax.annotation.Nonnull;
 
 import org.jetbrains.annotations.NotNull;
 
-public final class DarkVisionConfig extends AbilityHandlerConfig {
+public final class DarkVisionConfig extends EffectHandlerConfig {
 
     @Nonnull
     public static final DarkVisionConfig DEFAULTS = new DarkVisionConfig();
 
     @Nonnull
     public static final BuilderCodec<@NotNull DarkVisionConfig> CODEC = BuilderCodec
-            .builder(DarkVisionConfig.class, DarkVisionConfig::new, AbilityHandlerConfig.BASE_CODEC)
+            .builder(DarkVisionConfig.class, DarkVisionConfig::new, EffectHandlerConfig.BASE_CODEC)
             .append(new KeyedCodec<>("EffectId", Codec.STRING),
                     (config, v) -> config.effectId = v,
                     config -> config.effectId)

@@ -3,17 +3,17 @@ package com.riprod.effectly.builtin.effects.swimspeed;
 import com.hypixel.hytale.component.ComponentRegistryProxy;
 import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.ability.AbilityValue;
-import com.riprod.effectly.core.AbilityContext;
-import com.riprod.effectly.core.AbilityEntry;
-import com.riprod.effectly.core.AbilityHandler;
+import com.riprod.effectly.core.abilities.component.AbilityEntry;
+import com.riprod.effectly.core.abilities.registry.AbilityContext;
+import com.riprod.effectly.core.effects.components.AbilityValue;
+import com.riprod.effectly.core.effects.registry.EffectHandler;
 import com.riprod.effectly.core.movement.SpeedModifierComponent;
 import com.riprod.effectly.core.movement.SpeedModifiers;
-import com.riprod.effectly.systems.AbilityConditionService;
+import com.riprod.effectly.core.utils.AbilityConditionUtils;
 
 import javax.annotation.Nonnull;
 
-public final class SwimSpeedHandler implements AbilityHandler {
+public final class SwimSpeedHandler implements EffectHandler {
 
     public static final String ID = "swim_speed";
 
@@ -72,7 +72,7 @@ public final class SwimSpeedHandler implements AbilityHandler {
         String abilityId = component.getAbilityId();
         if (abilityId == null || !isSwimming(context)) return 1.0f;
 
-        AbilityValue value = AbilityConditionService.getActiveAbilityValue(
+        AbilityValue value = AbilityConditionUtils.getActiveAbilityValue(
                 context.getRef(), context.getComponents(), context.getWorld(), context.getUuid(), abilityId);
         if (value == null || !value.isPresent() || !(value.getRaw() instanceof Number multiplier)) return 1.0f;
 

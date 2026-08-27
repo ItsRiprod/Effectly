@@ -4,18 +4,18 @@ import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.validation.Validators;
-import com.riprod.effectly.core.asset.AbilityHandlerConfig;
+import com.riprod.effectly.core.effects.registry.EffectHandlerConfig;
 
 import javax.annotation.Nonnull;
 
-public final class HealthRegenConfig extends AbilityHandlerConfig {
+public final class HealthRegenConfig extends EffectHandlerConfig {
 
     @Nonnull
     public static final HealthRegenConfig DEFAULTS = new HealthRegenConfig();
 
     @Nonnull
     public static final BuilderCodec<HealthRegenConfig> CODEC = BuilderCodec
-            .builder(HealthRegenConfig.class, HealthRegenConfig::new, AbilityHandlerConfig.BASE_CODEC)
+            .builder(HealthRegenConfig.class, HealthRegenConfig::new, EffectHandlerConfig.BASE_CODEC)
             .append(new KeyedCodec<>("DelaySeconds", Codec.FLOAT),
                     (config, v) -> config.delaySeconds = v,
                     config -> config.delaySeconds)

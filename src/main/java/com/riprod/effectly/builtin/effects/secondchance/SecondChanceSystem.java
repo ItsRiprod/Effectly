@@ -16,7 +16,7 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.riprod.effectly.core.damage.DamageModifierPipelineDependencies;
-import com.riprod.effectly.systems.AbilityConditionService;
+import com.riprod.effectly.core.utils.AbilityConditionUtils;
 
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -62,7 +62,7 @@ public class SecondChanceSystem extends DamageEventSystem {
         SecondChanceComponent state = archetypeChunk.getComponent(index, SecondChanceComponent.getComponentType());
         if (state == null || state.getAbilityId() == null || state.onCooldown()) return;
 
-        if (!AbilityConditionService.isAbilityActive(targetRef, store, world, playerRefComponent.getUuid(), state.getAbilityId())) {
+        if (!AbilityConditionUtils.isAbilityActive(targetRef, store, world, playerRefComponent.getUuid(), state.getAbilityId())) {
             return;
         }
 

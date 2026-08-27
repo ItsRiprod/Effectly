@@ -17,7 +17,7 @@ import com.hypixel.hytale.server.core.modules.entity.damage.DamageModule;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.systems.AbilityConditionService;
+import com.riprod.effectly.core.utils.AbilityConditionUtils;
 
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -70,7 +70,7 @@ public class FallDamageImmunitySystem extends DamageEventSystem {
         PlayerRef playerRefComponent = archetypeChunk.getComponent(index, PlayerRef.getComponentType());
         if (playerRefComponent == null) return;
 
-        if (!AbilityConditionService.isAbilityActive(targetRef, store, world, playerRefComponent.getUuid(), FallDamageImmunityHandler.ID)) {
+        if (!AbilityConditionUtils.isAbilityActive(targetRef, store, world, playerRefComponent.getUuid(), FallDamageImmunityHandler.ID)) {
             return;
         }
 

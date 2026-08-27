@@ -2,14 +2,14 @@ package com.riprod.effectly.builtin.effects.combat;
 
 import com.hypixel.hytale.component.ComponentRegistryProxy;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.core.AbilityContext;
-import com.riprod.effectly.core.AbilityEntry;
-import com.riprod.effectly.core.AbilityHandler;
-import com.riprod.effectly.core.AbilityHandlerRegistry;
+import com.riprod.effectly.core.abilities.component.AbilityEntry;
+import com.riprod.effectly.core.abilities.registry.AbilityContext;
+import com.riprod.effectly.core.abilities.registry.AbilityHandlerRegistry;
+import com.riprod.effectly.core.effects.registry.EffectHandler;
 
 import javax.annotation.Nonnull;
 
-public final class ResistanceHandler implements AbilityHandler {
+public final class ResistanceHandler implements EffectHandler {
 
     public static final String ID = "resistance";
 

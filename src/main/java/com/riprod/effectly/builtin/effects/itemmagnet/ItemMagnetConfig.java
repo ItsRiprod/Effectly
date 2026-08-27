@@ -4,18 +4,18 @@ import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.validation.Validators;
-import com.riprod.effectly.core.asset.AbilityHandlerConfig;
+import com.riprod.effectly.core.effects.registry.EffectHandlerConfig;
 
 import javax.annotation.Nonnull;
 
-public final class ItemMagnetConfig extends AbilityHandlerConfig {
+public final class ItemMagnetConfig extends EffectHandlerConfig {
 
     @Nonnull
     public static final ItemMagnetConfig DEFAULTS = new ItemMagnetConfig();
 
     @Nonnull
     public static final BuilderCodec<ItemMagnetConfig> CODEC = BuilderCodec
-            .builder(ItemMagnetConfig.class, ItemMagnetConfig::new, AbilityHandlerConfig.BASE_CODEC)
+            .builder(ItemMagnetConfig.class, ItemMagnetConfig::new, EffectHandlerConfig.BASE_CODEC)
             .append(new KeyedCodec<>("BaseRange", Codec.DOUBLE),
                     (config, v) -> config.baseRange = v,
                     config -> config.baseRange)

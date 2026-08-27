@@ -11,8 +11,8 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.riprod.effectly.EffectlyPlugin;
-import com.riprod.effectly.ability.AbilityRegistry;
 import com.riprod.effectly.api.AbilityService;
+import com.riprod.effectly.core.utils.AbilityRegistryUtils;
 
 import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
@@ -58,7 +58,7 @@ public class AbilityRemoveCommand extends AbstractPlayerCommand {
         }
         String[] parts = SPACES.split(rawArgs.trim());
         String abilityId = parts[0];
-        if (!AbilityRegistry.isValid(abilityId)) {
+        if (!AbilityRegistryUtils.isValid(abilityId)) {
             context.sendMessage(Message.raw("Unknown ability: " + abilityId));
             return;
         }

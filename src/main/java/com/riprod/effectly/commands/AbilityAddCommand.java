@@ -11,12 +11,12 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.riprod.effectly.EffectlyPlugin;
-import com.riprod.effectly.ability.AbilityConditionSpec;
-import com.riprod.effectly.ability.AbilityDefinition;
-import com.riprod.effectly.ability.AbilityRegistry;
-import com.riprod.effectly.ability.AbilityType;
 import com.riprod.effectly.api.AbilityService;
-import com.riprod.effectly.core.condition.AbilityConditions;
+import com.riprod.effectly.core.conditions.AbilityConditionSpec;
+import com.riprod.effectly.core.conditions.components.AbilityDefinition;
+import com.riprod.effectly.core.conditions.registry.ConditionRegistery;
+import com.riprod.effectly.core.effects.utils.AbilityType;
+import com.riprod.effectly.core.utils.AbilityRegistryUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,7 +66,7 @@ public class AbilityAddCommand extends AbstractPlayerCommand {
             return;
         }
         String abilityId = parts[0];
-        AbilityDefinition def = AbilityRegistry.get(abilityId);
+        AbilityDefinition def = AbilityRegistryUtils.get(abilityId);
         if (def == null) {
             context.sendMessage(Message.raw("Unknown ability: " + abilityId));
             return;
@@ -115,6 +115,6 @@ public class AbilityAddCommand extends AbstractPlayerCommand {
     @Nonnull
     private static List<AbilityConditionSpec> parseConditions(String rest) {
         if (rest == null || rest.isBlank()) return List.of();
-        return AbilityConditions.parse(SPACES.split(rest.trim()));
+        return ConditionRegistery.parse(SPACES.split(rest.trim()));
     }
 }

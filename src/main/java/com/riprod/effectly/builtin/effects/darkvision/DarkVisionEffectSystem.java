@@ -11,7 +11,7 @@ import com.hypixel.hytale.server.core.entity.effect.EffectControllerComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.systems.AbilityConditionService;
+import com.riprod.effectly.core.utils.AbilityConditionUtils;
 
 import javax.annotation.Nonnull;
 
@@ -54,7 +54,7 @@ public final class DarkVisionEffectSystem extends EntityTickingSystem<EntityStor
         EffectControllerComponent controller = store.getComponent(ref, EffectControllerComponent.getComponentType());
         if (controller == null) return;
 
-        boolean active = AbilityConditionService.isAbilityActive(
+        boolean active = AbilityConditionUtils.isAbilityActive(
                 ref, store, world, playerRef.getUuid(), state.getAbilityId());
         boolean applied = controller.getActiveEffects().containsKey(effectIndex);
 

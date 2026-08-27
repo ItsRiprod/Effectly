@@ -6,14 +6,14 @@ import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.movement.MovementManager;
 import com.hypixel.hytale.server.core.modules.entity.EntityModule;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.core.AbilityContext;
-import com.riprod.effectly.core.AbilityEntry;
-import com.riprod.effectly.core.AbilityHandler;
-import com.riprod.effectly.systems.AbilityConditionService;
+import com.riprod.effectly.core.abilities.component.AbilityEntry;
+import com.riprod.effectly.core.abilities.registry.AbilityContext;
+import com.riprod.effectly.core.effects.registry.EffectHandler;
+import com.riprod.effectly.core.utils.AbilityConditionUtils;
 
 import javax.annotation.Nonnull;
 
-public final class FlightHandler implements AbilityHandler {
+public final class FlightHandler implements EffectHandler {
 
     public static final String ID = "creative_flight";
 
@@ -51,7 +51,7 @@ public final class FlightHandler implements AbilityHandler {
     }
 
     static boolean isActive(@Nonnull AbilityContext context) {
-        return AbilityConditionService.isAbilityActive(
+        return AbilityConditionUtils.isAbilityActive(
                 context.getRef(), context.getComponents(), context.getWorld(), context.getUuid(), ID);
     }
 
