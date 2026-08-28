@@ -21,7 +21,7 @@ import com.hypixel.hytale.server.core.modules.physics.component.Velocity;
 import com.hypixel.hytale.server.core.modules.physics.systems.IVelocityModifyingSystem;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
+import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.riprod.effectly.core.utils.AbilityConditionUtils;
 
@@ -63,11 +63,11 @@ public class WallClimbSystem extends EntityTickingSystem<EntityStore> implements
         if (playerRefComponent == null) return;
 
         WallClimbComponent component = archetypeChunk.getComponent(index, WallClimbComponent.getComponentType());
-        if (component == null || component.getAbilityId() == null) return;
+        if (component == null) return;
 
-        if (!AbilityConditionUtils.isAbilityActive(ref, store, world, playerRefComponent.getUuid(), component.getAbilityId())) {
-            return;
-        }
+        var active = AbilityConditionUtils.bestActiveForHandler(
+                ref, store, world, playerRefComponent.getUuid(), WallClimbHandler.ID);
+        if (active == null) return;
 
         MovementStatesComponent movementStatesComponent = store.getComponent(ref, MovementStatesComponent.getComponentType());
         if (movementStatesComponent == null) return;
@@ -90,7 +90,7 @@ public class WallClimbSystem extends EntityTickingSystem<EntityStore> implements
         forwardX /= len;
         forwardZ /= len;
 
-        WallClimbConfig config = component.configOrDefault(WallClimbConfig.class, WallClimbConfig.DEFAULTS);
+        WallClimbConfig config = active.configOrDefault(WallClimbConfig.class, WallClimbConfig.DEFAULTS);
         double bodyHeight = bodyHeight(ref, store, movementStates);
         if (!isSolidWallInFront(world, position, forwardX, forwardZ, config.getProbeDistance(), bodyHeight)) {
             return;
@@ -131,11 +131,17 @@ public class WallClimbSystem extends EntityTickingSystem<EntityStore> implements
         int blockZ = MathUtil.floor(probeZ);
         int blockYFeet = MathUtil.floor(position.y);
         int blockYHead = MathUtil.floor(position.y + bodyHeight);
-        WorldChunk chunk = world.getChunkIfInMemory(ChunkUtil.indexChunkFromBlock(blockX, blockZ));
-        if (chunk == null) return false;
+        var chunkStore = world.getChunkStore();
         for (int by = blockYFeet; by <= blockYHead; by++) {
             if (by < ChunkUtil.MIN_Y || by >= ChunkUtil.HEIGHT) continue;
-            int blockId = chunk.getBlock(blockX, by, blockZ);
+
+            var sectionRef = chunkStore.getChunkSectionReferenceAtBlock(blockX, by, blockZ);
+            if (sectionRef == null || !sectionRef.isValid()) continue;
+
+            BlockSection section = chunkStore.getStore().getComponent(sectionRef, BlockSection.getComponentType());
+            if (section == null) continue;
+
+            int blockId = section.get(blockX, by, blockZ);
             BlockType blockType = blockId != 0 ? BlockType.getAssetMap().getAsset(blockId) : null;
             if (blockType != null && blockType.getMaterial() == BlockMaterial.Solid) {
                 return true;

@@ -49,7 +49,7 @@ public class MiningFortuneEventSystem extends EntityEventSystem<EntityStore, Bre
         if (event.isCancelled()) return;
 
         MiningFortuneComponent component = archetypeChunk.getComponent(index, MiningFortuneComponent.getComponentType());
-        if (component == null || component.getAbilityId() == null) return;
+        if (component == null) return;
 
         MiningFortuneConfig config = component.configOrDefault(MiningFortuneConfig.class, MiningFortuneConfig.DEFAULTS);
         if (!config.getAffectedBlocks().contains(event.getBlockType().getId())) return;
@@ -63,10 +63,11 @@ public class MiningFortuneEventSystem extends EntityEventSystem<EntityStore, Bre
         PlayerRef playerRefComponent = archetypeChunk.getComponent(index, PlayerRef.getComponentType());
         if (playerRefComponent == null) return;
 
-        var abilityValue = AbilityConditionUtils.getActiveAbilityValue(ref, store, world, playerRefComponent.getUuid(), component.getAbilityId());
-        if (abilityValue == null || !abilityValue.isPresent() || !(abilityValue.getRaw() instanceof Number n)) return;
+        var active = AbilityConditionUtils.bestActiveForHandler(
+                ref, store, world, playerRefComponent.getUuid(), MiningFortuneHandler.ID);
+        if (active == null) return;
 
-        int level = n.intValue();
+        int level = (int) active.value();
         if (level < 1) return;
 
         BlockType blockType = event.getBlockType();

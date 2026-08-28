@@ -1,11 +1,11 @@
 {
   "Handler": {
-    "Id": "creative_flight",
-    "ReassertSeconds": 15.0
+    "Id": "movement_state",
+    "Field": "CanFly"
   },
   "Type": "Binary",
   "Default": 1.0,
   "Min": 0.0,
   "Max": 1.0,
-  "Description": "Allow creative-style flight"
+  "Description": "Creative-style flight"
 }

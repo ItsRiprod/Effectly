@@ -32,17 +32,20 @@ public final class ZoneCondition implements ConditionHandler {
             @Nonnull ConditionContext context,
             @Nonnull ConditionAsset asset,
             @Nonnull AbilityConditionSpec spec) {
-        List<Integer> allowed = allowedZones(asset, spec);
-        if (allowed.isEmpty()) return false;
+        int[] allowed = allowedZones(asset, spec);
+        if (allowed.length == 0) return false;
 
         TransformComponent transform = context.getComponents()
                 .getComponent(context.getRef(), TransformComponent.getComponentType());
         if (transform == null) return false;
 
         var position = transform.getPosition();
-        int zone = ZoneResolver.getZoneAt(context.getWorld(),
-                (int) Math.floor(position.x), (int) Math.floor(position.z));
-        return allowed.contains(zone);
+        // truncate rather than floor to match BiomeDataSystem, so both share one generator cache entry
+        int zone = ZoneResolver.getZoneAt(context.getWorld(), (int) position.x, (int) position.z);
+        for (int allowedZone : allowed) {
+            if (allowedZone == zone) return true;
+        }
+        return false;
     }
 
     @Nullable
@@ -70,9 +73,8 @@ public final class ZoneCondition implements ConditionHandler {
     @Nonnull
     @Override
     public String describe(@Nonnull ConditionAsset asset, @Nonnull AbilityConditionSpec spec) {
-        List<Integer> zones = allowedZones(asset, spec);
         StringBuilder out = new StringBuilder(asset.getKeyword());
-        for (Integer zone : zones) {
+        for (int zone : allowedZones(asset, spec)) {
             out.append(' ').append(zone);
         }
         return out.toString();
@@ -85,10 +87,10 @@ public final class ZoneCondition implements ConditionHandler {
     }
 
     @Nonnull
-    private static List<Integer> allowedZones(
+    private static int[] allowedZones(
             @Nonnull ConditionAsset asset, @Nonnull AbilityConditionSpec spec) {
-        List<Integer> override = spec.allowedZoneIds();
-        if (!override.isEmpty()) return override;
+        int[] override = spec.allowedZoneIdArray();
+        if (override.length > 0) return override;
         return asset.configOrDefault(ZoneConditionConfig.class, ZoneConditionConfig.DEFAULTS).getZones();
     }
 }

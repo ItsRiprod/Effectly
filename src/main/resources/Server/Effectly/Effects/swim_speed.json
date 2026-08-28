@@ -1,7 +1,14 @@
 {
+  "Handler": {
+    "Id": "movement_state",
+    "Field": "BaseSpeed"
+  },
+  "Conditions": [
+    { "Type": "Swimming" }
+  ],
   "Type": "Numeric",
   "Default": 1.0,
   "Min": 0.5,
   "Max": 3.0,
-  "Description": "Swimming speed multiplier"
+  "Description": "Movement speed multiplier while swimming"
 }

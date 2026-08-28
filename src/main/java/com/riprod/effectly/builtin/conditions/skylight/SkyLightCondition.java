@@ -1,9 +1,8 @@
 package com.riprod.effectly.builtin.conditions.skylight;
 
-import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.modules.time.WorldTimeResource;
-import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
+import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.riprod.effectly.core.conditions.AbilityConditionSpec;
 import com.riprod.effectly.core.conditions.ConditionContext;
 import com.riprod.effectly.core.conditions.registry.ConditionAsset;
@@ -52,10 +51,14 @@ public final class SkyLightCondition implements ConditionHandler {
         int blockY = (int) Math.floor(position.y);
         int blockZ = (int) Math.floor(position.z);
 
-        WorldChunk chunk = context.getWorld().getChunkIfInMemory(ChunkUtil.indexChunkFromBlock(blockX, blockZ));
-        if (chunk == null) return false;
+        var chunkStore = context.getWorld().getChunkStore();
+        var sectionRef = chunkStore.getChunkSectionReferenceAtBlock(blockX, blockY, blockZ);
+        if (sectionRef == null || !sectionRef.isValid()) return false;
 
-        byte skyLight = chunk.getBlockChunk().getSkyLight(blockX, blockY, blockZ);
+        BlockSection section = chunkStore.getStore().getComponent(sectionRef, BlockSection.getComponentType());
+        if (section == null) return false;
+
+        byte skyLight = section.getGlobalLight().getSkyLight(blockX, blockY, blockZ);
         if (skyLight < config.getMinSkyLight()) return false;
         if (skyLight > config.getMaxSkyLight()) return false;
 

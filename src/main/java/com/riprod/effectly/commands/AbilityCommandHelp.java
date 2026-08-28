@@ -4,7 +4,7 @@ import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.AbstractCommand;
 import com.hypixel.hytale.server.core.command.system.CommandSender;
 import com.riprod.effectly.core.conditions.registry.ConditionAsset;
-import com.riprod.effectly.core.conditions.registry.ConditionRegistery;
+import com.riprod.effectly.core.conditions.registry.ConditionRegistry;
 
 import javax.annotation.Nonnull;
 
@@ -121,9 +121,9 @@ public final class AbilityCommandHelp {
     @Nonnull
     private static Message conditionLines() {
         Message out = Message.raw("");
-        for (ConditionAsset asset : ConditionRegistery.assets()) {
+        for (ConditionAsset asset : ConditionRegistry.assets()) {
             out = out.insert("  ")
-                    .insert(Message.raw(ConditionRegistery.usage(asset)).color(OPTIONAL))
+                    .insert(Message.raw(ConditionRegistry.usage(asset)).color(OPTIONAL))
                     .insert(" - " + (asset.getDescription() == null ? asset.getId() : asset.getDescription()) + "\n");
         }
         return out;

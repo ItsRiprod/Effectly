@@ -8,9 +8,12 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.riprod.effectly.core.abilities.component.AbilityComponent;
 import com.riprod.effectly.core.abilities.component.AbilityEntry;
 import com.riprod.effectly.core.abilities.component.AbilityGrant;
+import com.riprod.effectly.core.abilities.component.ResolvedAbilityComponent;
+import com.riprod.effectly.core.effects.registry.EffectAsset;
+import com.riprod.effectly.core.effects.registry.EffectHandlerConfig;
 import com.riprod.effectly.core.conditions.AbilityConditionSpec;
 import com.riprod.effectly.core.conditions.ConditionContext;
-import com.riprod.effectly.core.conditions.registry.ConditionRegistery;
+import com.riprod.effectly.core.conditions.registry.ConditionRegistry;
 import com.riprod.effectly.core.effects.components.AbilityValue;
 
 import java.util.List;
@@ -30,7 +33,14 @@ import javax.annotation.Nullable;
 public final class AbilityConditionUtils {
     private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
+    /** Sentinel for "not active"; distinguishable from a real value of zero. */
+    public static final double INACTIVE = Double.NaN;
+
     private AbilityConditionUtils() {}
+
+    public static boolean isActive(double value) {
+        return !Double.isNaN(value);
+    }
 
     /**
      * Returns true if the ability is set for the player and all its conditions pass
@@ -42,7 +52,7 @@ public final class AbilityConditionUtils {
             @Nonnull World world,
             @Nonnull java.util.UUID playerId,
             @Nonnull String abilityId) {
-        return getActiveAbilityValue(ref, store, world, playerId, abilityId) != null;
+        return isActive(activeValue(ref, store, world, playerId, abilityId));
     }
 
     /**
@@ -73,9 +83,41 @@ public final class AbilityConditionUtils {
             @Nonnull java.util.UUID playerId,
             @Nonnull String abilityId,
             @Nullable Ref<EntityStore> targetRef) {
+        double value = activeValue(ref, store, world, playerId, abilityId, targetRef);
+        return isActive(value) ? AbilityEntry.toValue(abilityId, value) : null;
+    }
+
+    /**
+     * Allocation-free form of {@link #getActiveAbilityValue}. Returns {@link #INACTIVE} when the
+     * ability is absent or gated. Prefer this everywhere except the command and public API surface,
+     * where the boolean-vs-number distinction is user-facing.
+     */
+    public static double activeValue(
+            @Nonnull Ref<EntityStore> ref,
+            @Nonnull ComponentAccessor<EntityStore> store,
+            @Nonnull World world,
+            @Nonnull java.util.UUID playerId,
+            @Nonnull String abilityId) {
+        return activeValue(ref, store, world, playerId, abilityId, null);
+    }
+
+    public static double activeValue(
+            @Nonnull Ref<EntityStore> ref,
+            @Nonnull ComponentAccessor<EntityStore> store,
+            @Nonnull World world,
+            @Nonnull java.util.UUID playerId,
+            @Nonnull String abilityId,
+            @Nullable Ref<EntityStore> targetRef) {
         AbilityComponent roster = AbilityComponent.of(ref, store);
         AbilityEntry entry = roster != null ? roster.get(abilityId) : null;
-        if (entry == null) return null;
+        if (entry == null) return INACTIVE;
+
+        List<AbilityConditionSpec> intrinsic = EffectAsset.conditionsFor(abilityId);
+        if (!intrinsic.isEmpty()
+                && !allPass(ref, store, world, abilityId, intrinsic, targetRef)) {
+            LOGGER.at(Level.FINE).log("Ability '%s' gated by its own conditions -> inactive", abilityId);
+            return INACTIVE;
+        }
 
         double best = 0.0;
         boolean any = false;
@@ -87,10 +129,68 @@ public final class AbilityConditionUtils {
         }
         if (!any) {
             LOGGER.at(Level.FINE).log("No active source for ability '%s' -> inactive", abilityId);
-            return null;
+            return INACTIVE;
         }
         LOGGER.at(Level.FINE).log("Ability '%s' active at %s", abilityId, best);
-        return AbilityEntry.toValue(abilityId, best);
+        return best;
+    }
+
+    /**
+     * Resolves which ability implemented by {@code handlerId} is currently active on this entity,
+     * and at what value. A handler may back several assets, so a system must ask by handler rather
+     * than assuming its handler id is also an ability id. Highest active value wins, matching how
+     * sources are resolved within a single ability.
+     */
+    @Nullable
+    public static ActiveAbility bestActiveForHandler(
+            @Nonnull Ref<EntityStore> ref,
+            @Nonnull ComponentAccessor<EntityStore> store,
+            @Nonnull World world,
+            @Nonnull java.util.UUID playerId,
+            @Nonnull String handlerId) {
+        return bestActiveForHandler(ref, store, world, playerId, handlerId, null);
+    }
+
+    @Nullable
+    public static ActiveAbility bestActiveForHandler(
+            @Nonnull Ref<EntityStore> ref,
+            @Nonnull ComponentAccessor<EntityStore> store,
+            @Nonnull World world,
+            @Nonnull java.util.UUID playerId,
+            @Nonnull String handlerId,
+            @Nullable Ref<EntityStore> targetRef) {
+        List<ResolvedAbilityComponent.Resolved> candidates =
+                ResolvedAbilityComponent.forHandler(ref, store, handlerId);
+        if (candidates.isEmpty()) return null;
+
+        ActiveAbility best = null;
+        for (ResolvedAbilityComponent.Resolved candidate : candidates) {
+            double amount = activeValue(ref, store, world, playerId, candidate.abilityId(), targetRef);
+            if (!isActive(amount)) continue;
+            if (best == null || amount > best.value()) {
+                best = new ActiveAbility(candidate.abilityId(), candidate.assetIndex(), amount);
+            }
+        }
+        return best;
+    }
+
+    /**
+     * @param assetIndex resolved index into the effect asset map, for array-speed config lookups
+     */
+    public record ActiveAbility(@Nonnull String abilityId, int assetIndex, double value) {
+
+        @Nullable
+        public <T extends EffectHandlerConfig> T config(@Nonnull Class<T> type) {
+            EffectAsset asset = EffectAsset.byIndex(assetIndex);
+            EffectHandlerConfig config = asset != null ? asset.getHandlerConfig() : null;
+            return type.isInstance(config) ? type.cast(config) : null;
+        }
+
+        @Nonnull
+        public <T extends EffectHandlerConfig> T configOrDefault(@Nonnull Class<T> type, @Nonnull T fallback) {
+            T config = config(type);
+            return config != null ? config : fallback;
+        }
     }
 
     private static boolean conditionsPass(
@@ -104,23 +204,24 @@ public final class AbilityConditionUtils {
         List<AbilityConditionSpec> conditions = grant.getConditions();
         if (conditions.isEmpty()) return true;
 
-        LOGGER.at(Level.FINE).log("Evaluating %d condition(s) for ability '%s' source '%s'",
-                conditions.size(), abilityId, sourceId);
-        for (AbilityConditionSpec cond : conditions) {
-            boolean passed = evaluate(ref, store, world, abilityId, cond, targetRef);
-            LOGGER.at(Level.FINE).log("  Condition %s(%s): passed=%s", cond.type(), cond.param(), passed);
-            if (!passed) return false;
-        }
-        return true;
+        return allPass(ref, store, world, abilityId, conditions, targetRef);
     }
 
-    private static boolean evaluate(
+    private static boolean allPass(
             @Nonnull Ref<EntityStore> ref,
             @Nonnull ComponentAccessor<EntityStore> store,
             @Nonnull World world,
             @Nonnull String abilityId,
-            @Nonnull AbilityConditionSpec cond,
+            @Nonnull List<AbilityConditionSpec> conditions,
             @Nullable Ref<EntityStore> targetRef) {
-        return ConditionRegistery.test(new ConditionContext(ref, store, world, targetRef), cond);
+        ConditionContext context = new ConditionContext(ref, store, world, targetRef);
+        for (AbilityConditionSpec cond : conditions) {
+            if (!ConditionRegistry.test(context, cond)) {
+                LOGGER.at(Level.FINE).log("Condition '%s' failed for ability '%s'", cond.type(), abilityId);
+                return false;
+            }
+        }
+        return true;
     }
+
 }

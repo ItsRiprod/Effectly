@@ -1,0 +1,8 @@
+{
+  "Handler": {
+    "Id": "in_liquid",
+    "State": "Swimming"
+  },
+  "Keyword": "swimming",
+  "Description": "active while swimming"
+}

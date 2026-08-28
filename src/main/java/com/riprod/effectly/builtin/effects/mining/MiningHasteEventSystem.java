@@ -32,7 +32,7 @@ public class MiningHasteEventSystem extends EntityEventSystem<EntityStore, Damag
             @Nonnull CommandBuffer<EntityStore> commandBuffer,
             @Nonnull DamageBlockEvent event) {
         MiningHasteComponent component = archetypeChunk.getComponent(index, MiningHasteComponent.getComponentType());
-        if (component == null || component.getAbilityId() == null) return;
+        if (component == null) return;
 
         var ref = archetypeChunk.getReferenceTo(index);
         if (ref == null || !ref.isValid()) return;
@@ -43,13 +43,14 @@ public class MiningHasteEventSystem extends EntityEventSystem<EntityStore, Damag
         PlayerRef playerRefComponent = archetypeChunk.getComponent(index, PlayerRef.getComponentType());
         if (playerRefComponent == null) return;
 
-        var abilityValue = AbilityConditionUtils.getActiveAbilityValue(ref, store, world, playerRefComponent.getUuid(), component.getAbilityId());
-        if (abilityValue == null || !abilityValue.isPresent() || !(abilityValue.getRaw() instanceof Number n)) return;
+        var active = AbilityConditionUtils.bestActiveForHandler(
+                ref, store, world, playerRefComponent.getUuid(), MiningHasteHandler.ID);
+        if (active == null) return;
 
-        int level = n.intValue();
+        int level = (int) active.value();
         if (level < 1) return;
 
-        double multiplier = 1.0 + component.configOrDefault(MiningHasteConfig.class, MiningHasteConfig.DEFAULTS).getPerLevel() * level;
+        double multiplier = 1.0 + active.configOrDefault(MiningHasteConfig.class, MiningHasteConfig.DEFAULTS).getPerLevel() * level;
         float damage = event.getDamage();
         event.setDamage((float) (damage * multiplier));
     }

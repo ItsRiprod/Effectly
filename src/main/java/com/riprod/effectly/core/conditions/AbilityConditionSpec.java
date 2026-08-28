@@ -4,6 +4,7 @@ import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
@@ -29,18 +30,20 @@ public final class AbilityConditionSpec {
                     + "omitted the asset's own configuration is used")
             .add()
             .append(new KeyedCodec<>("ZoneIds", Codec.INT_ARRAY),
-                    (spec, v) -> spec.zoneIds = toList(v),
-                    spec -> toArray(spec.zoneIds))
+                    (spec, v) -> spec.zoneIds = (v == null || v.length == 0) ? null : v,
+                    spec -> spec.zoneIds)
             .documentation("Optional zone id override for in_zone; when absent, Param is the only "
                     + "allowed zone, and when both are absent the asset's configured zones are used")
             .add()
             .build();
 
+    private static final int[] EMPTY = new int[0];
+
     private String type;
     @Nullable
     private Integer param;
     @Nullable
-    private List<Integer> zoneIds;
+    private int[] zoneIds;
 
     private AbilityConditionSpec() {
     }
@@ -48,7 +51,7 @@ public final class AbilityConditionSpec {
     public AbilityConditionSpec(@Nonnull String type, @Nullable Integer param, @Nullable List<Integer> zoneIds) {
         this.type = type;
         this.param = param;
-        this.zoneIds = zoneIds;
+        this.zoneIds = toArray(zoneIds);
     }
 
     public AbilityConditionSpec(@Nonnull String type, int param) {
@@ -78,13 +81,22 @@ public final class AbilityConditionSpec {
 
     @Nullable
     public List<Integer> zoneIds() {
-        return zoneIds;
+        return toList(zoneIds);
+    }
+
+    /** Hot-path form of {@link #allowedZoneIds()}; empty when neither an override nor a param is set. */
+    @Nonnull
+    public int[] allowedZoneIdArray() {
+        if (zoneIds != null && zoneIds.length > 0) return zoneIds;
+        return param == null ? EMPTY : new int[] {param};
     }
 
     @Nonnull
     public List<Integer> allowedZoneIds() {
-        if (zoneIds != null && !zoneIds.isEmpty()) return zoneIds;
-        return param == null ? List.of() : List.of(param);
+        int[] ids = allowedZoneIdArray();
+        List<Integer> out = new ArrayList<>(ids.length);
+        for (int id : ids) out.add(id);
+        return out;
     }
 
     @Override
@@ -93,17 +105,17 @@ public final class AbilityConditionSpec {
         if (!(other instanceof AbilityConditionSpec spec)) return false;
         return Objects.equals(param, spec.param)
                 && Objects.equals(type, spec.type)
-                && Objects.equals(zoneIds, spec.zoneIds);
+                && Arrays.equals(zoneIds, spec.zoneIds);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(type, param, zoneIds);
+        return Objects.hash(type, param) * 31 + Arrays.hashCode(zoneIds);
     }
 
     @Override
     public String toString() {
-        return "AbilityConditionSpec[type=" + type + ", param=" + param + ", zoneIds=" + zoneIds + "]";
+        return "AbilityConditionSpec[type=" + type + ", param=" + param + ", zoneIds=" + Arrays.toString(zoneIds) + "]";
     }
 
     @Nullable

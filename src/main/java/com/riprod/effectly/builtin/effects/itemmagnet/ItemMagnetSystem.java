@@ -22,7 +22,6 @@ import com.hypixel.hytale.server.core.modules.entity.system.ItemSpatialSystem;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.core.effects.components.AbilityValue;
 import com.riprod.effectly.core.utils.AbilityConditionUtils;
 
 import java.util.ArrayList;
@@ -72,20 +71,20 @@ public class ItemMagnetSystem extends EntityTickingSystem<EntityStore> {
         if (playerRefComponent == null) return;
 
         ItemMagnetComponent component = archetypeChunk.getComponent(index, ItemMagnetComponent.getComponentType());
-        if (component == null || component.getAbilityId() == null) return;
+        if (component == null) return;
 
-        AbilityValue abilityValue = AbilityConditionUtils.getActiveAbilityValue(
-                playerRef, store, world, playerRefComponent.getUuid(), component.getAbilityId());
-        if (abilityValue == null || !abilityValue.isPresent() || !(abilityValue.getRaw() instanceof Number n)) return;
+        var active = AbilityConditionUtils.bestActiveForHandler(
+                playerRef, store, world, playerRefComponent.getUuid(), ItemMagnetHandler.ID);
+        if (active == null) return;
 
-        double value = n.doubleValue();
+        double value = active.value();
         if (value < 1.0) return;
 
         TransformComponent playerTransform = store.getComponent(playerRef, TransformComponent.getComponentType());
         if (playerTransform == null) return;
         Vector3d playerPosition = playerTransform.getPosition();
 
-        ItemMagnetConfig config = component.configOrDefault(ItemMagnetConfig.class, ItemMagnetConfig.DEFAULTS);
+        ItemMagnetConfig config = active.configOrDefault(ItemMagnetConfig.class, ItemMagnetConfig.DEFAULTS);
         double radius = config.getBaseRange() * value;
 
         ResourceType<EntityStore, SpatialResource<Ref<EntityStore>, EntityStore>> itemSpatialResourceType =

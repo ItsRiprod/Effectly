@@ -19,7 +19,6 @@ import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.core.effects.components.AbilityValue;
 import com.riprod.effectly.core.utils.AbilityConditionUtils;
 
 import java.util.Set;
@@ -87,13 +86,11 @@ public class AbilityPunchDamageSystem extends DamageEventSystem {
         if (world == null) return;
 
         Ref<EntityStore> targetRef = archetypeChunk.getReferenceTo(index);
-        AbilityValue punchDamageAbility = AbilityConditionUtils.getActiveAbilityValue(attackerRef, store, world, attackerPlayerRef.getUuid(), PunchDamageHandler.ID, targetRef);
-        if (punchDamageAbility == null || !punchDamageAbility.isPresent()) return;
+        var punchDamageAbility = AbilityConditionUtils.bestActiveForHandler(
+                attackerRef, store, world, attackerPlayerRef.getUuid(), PunchDamageHandler.ID, targetRef);
+        if (punchDamageAbility == null) return;
 
-        Object raw = punchDamageAbility.getRaw();
-        if (!(raw instanceof Number n)) return;
-
-        double multiplier = n.doubleValue();
+        double multiplier = punchDamageAbility.value();
         if (multiplier == 1.0) return;
 
         float currentAmount = damage.getAmount();

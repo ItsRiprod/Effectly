@@ -11,7 +11,6 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.riprod.effectly.config.EffectlyConfig;
-import com.riprod.effectly.core.effects.components.AbilityValue;
 import com.riprod.effectly.core.utils.AbilityConditionUtils;
 
 import javax.annotation.Nonnull;
@@ -59,10 +58,11 @@ public class ConditionalHealthRegenSystem extends com.hypixel.hytale.component.s
         HealthRegenComponent state = archetypeChunk.getComponent(index, HealthRegenComponent.getComponentType());
         if (state == null || state.blocked(dt)) return;
 
-        AbilityValue activeValue = AbilityConditionUtils.getActiveAbilityValue(ref, store, world, playerRefComponent.getUuid(), HealthRegenHandler.ID);
-        if (activeValue == null || !activeValue.isPresent()) return;
+        var activeValue = AbilityConditionUtils.bestActiveForHandler(
+                ref, store, world, playerRefComponent.getUuid(), HealthRegenHandler.ID);
+        if (activeValue == null) return;
 
-        float valuePerSecond = activeValue.getRaw() instanceof Number n ? n.floatValue() : 0f;
+        float valuePerSecond = (float) activeValue.value();
         if (valuePerSecond <= 0f) return;
 
         float current = healthStat.get();

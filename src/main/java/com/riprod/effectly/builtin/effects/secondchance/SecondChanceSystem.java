@@ -60,13 +60,13 @@ public class SecondChanceSystem extends DamageEventSystem {
         if (playerRefComponent == null) return;
 
         SecondChanceComponent state = archetypeChunk.getComponent(index, SecondChanceComponent.getComponentType());
-        if (state == null || state.getAbilityId() == null || state.onCooldown()) return;
+        if (state == null || state.onCooldown()) return;
 
-        if (!AbilityConditionUtils.isAbilityActive(targetRef, store, world, playerRefComponent.getUuid(), state.getAbilityId())) {
-            return;
-        }
+        var active = AbilityConditionUtils.bestActiveForHandler(
+                targetRef, store, world, playerRefComponent.getUuid(), SecondChanceHandler.ID);
+        if (active == null) return;
 
-        SecondChanceConfig config = state.configOrDefault(SecondChanceConfig.class, SecondChanceConfig.DEFAULTS);
+        SecondChanceConfig config = active.configOrDefault(SecondChanceConfig.class, SecondChanceConfig.DEFAULTS);
 
         EntityStatMap statMap = archetypeChunk.getComponent(index, EntityStatMap.getComponentType());
         if (statMap == null) return;
@@ -83,7 +83,7 @@ public class SecondChanceSystem extends DamageEventSystem {
 
         float minHealth = healthStat.getMin();
         float lethalThreshold = currentHealth - minHealth;
-        if (Math.round(damage.getAmount()) < lethalThreshold) {
+        if (damage.getAmount() < lethalThreshold) {
             return;
         }
 

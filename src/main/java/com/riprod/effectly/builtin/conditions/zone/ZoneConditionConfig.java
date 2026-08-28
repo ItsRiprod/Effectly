@@ -5,8 +5,6 @@ import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.riprod.effectly.core.conditions.registry.ConditionConfig;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.annotation.Nonnull;
 
 public final class ZoneConditionConfig extends ConditionConfig {
@@ -25,13 +23,12 @@ public final class ZoneConditionConfig extends ConditionConfig {
             .add()
             .build();
 
+    private static final int[] EMPTY = new int[0];
+
     private int[] zones;
 
     @Nonnull
-    public List<Integer> getZones() {
-        if (this.zones == null || this.zones.length == 0) return List.of();
-        List<Integer> out = new ArrayList<>(this.zones.length);
-        for (int zone : this.zones) out.add(zone);
-        return out;
+    public int[] getZones() {
+        return this.zones == null ? EMPTY : this.zones;
     }
 }

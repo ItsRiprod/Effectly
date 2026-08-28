@@ -6,6 +6,7 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.riprod.effectly.core.abilities.component.AbilityComponent;
+import com.riprod.effectly.core.abilities.component.ResolvedAbilityComponent;
 
 import java.util.UUID;
 import javax.annotation.Nonnull;
@@ -19,7 +20,7 @@ public final class AbilityContext {
     private final PlayerRef playerRef;
 
     private AbilityComponent roster;
-    private boolean rosterResolved;
+    private ResolvedAbilityComponent resolved;
 
     public AbilityContext(
             @Nonnull Ref<EntityStore> ref,
@@ -59,9 +60,9 @@ public final class AbilityContext {
 
     @Nullable
     public AbilityComponent getRoster() {
-        if (!rosterResolved) {
+        // only a found roster is cached; latching a null would hide one created by another path
+        if (roster == null) {
             roster = AbilityComponent.of(ref, components);
-            rosterResolved = true;
         }
         return roster;
     }
@@ -77,7 +78,32 @@ public final class AbilityContext {
 
     public void clearRoster() {
         components.tryRemoveComponent(ref, AbilityComponent.getComponentType());
+        components.tryRemoveComponent(ref, ResolvedAbilityComponent.getComponentType());
         roster = null;
-        rosterResolved = true;
+        resolved = null;
+    }
+
+    /**
+     * Rebuilds the handler-grouped view of the roster. Call after any roster mutation and before
+     * dispatching to handlers, so a handler always sees the abilities it currently backs.
+     * <p>
+     * The view is held here for the life of the context because a CommandBuffer accessor reads the
+     * live store rather than its own pending writes; without this a second rebuild in one apply pass
+     * would start from a stale instance.
+     */
+    public void refreshResolved() {
+        AbilityComponent current = getRoster();
+        if (current == null || current.isEmpty()) {
+            components.tryRemoveComponent(ref, ResolvedAbilityComponent.getComponentType());
+            resolved = null;
+            return;
+        }
+        ResolvedAbilityComponent view = resolved != null
+                ? resolved
+                : components.getComponent(ref, ResolvedAbilityComponent.getComponentType());
+        if (view == null) view = new ResolvedAbilityComponent();
+        view.setResolved(ResolvedAbilityComponent.resolve(current));
+        resolved = view;
+        components.putComponent(ref, ResolvedAbilityComponent.getComponentType(), view);
     }
 }

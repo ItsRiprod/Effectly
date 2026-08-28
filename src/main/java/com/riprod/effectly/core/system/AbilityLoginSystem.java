@@ -9,7 +9,7 @@ import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.RefSystem;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.core.abilities.component.AbilityComponent;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.riprod.effectly.core.utils.AbilityMutationUtils;
 
 import javax.annotation.Nonnull;
@@ -19,7 +19,9 @@ public final class AbilityLoginSystem extends RefSystem<EntityStore> {
     @Nonnull
     @Override
     public Query<EntityStore> getQuery() {
-        return AbilityComponent.getComponentType();
+        // every player, not just those holding abilities: handlers must be able to clean up
+        // persisted external state (stat modifiers) left behind by a grant removed while offline
+        return PlayerRef.getComponentType();
     }
 
     @Override

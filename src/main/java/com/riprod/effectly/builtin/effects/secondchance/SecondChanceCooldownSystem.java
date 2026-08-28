@@ -2,7 +2,9 @@ package com.riprod.effectly.builtin.effects.secondchance;
 
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
+import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.riprod.effectly.core.abilities.component.ResolvedAbilityComponent;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -24,6 +26,17 @@ public final class SecondChanceCooldownSystem extends EntityTickingSystem<Entity
             @Nonnull Store<EntityStore> store,
             @Nonnull CommandBuffer<EntityStore> commandBuffer) {
         SecondChanceComponent state = archetypeChunk.getComponent(index, SecondChanceComponent.getComponentType());
-        if (state != null) state.tickCooldown(dt);
+        if (state == null) return;
+
+        state.tickCooldown(dt);
+        if (state.onCooldown()) return;
+
+        // this component persists, so once the cooldown is spent it has to remove itself or it
+        // survives a relog with no ability backing it and ticks forever
+        Ref<EntityStore> ref = archetypeChunk.getReferenceTo(index);
+        if (ref == null || !ref.isValid()) return;
+        if (!ResolvedAbilityComponent.forHandler(ref, store, SecondChanceHandler.ID).isEmpty()) return;
+
+        commandBuffer.tryRemoveComponent(ref, SecondChanceComponent.getComponentType());
     }
 }

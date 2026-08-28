@@ -90,7 +90,9 @@ public final class AbilityMutationUtils {
     public static void revoke(@Nonnull UUID playerId, @Nonnull String abilityId, @Nonnull String sourceId) {
         mutate(playerId, abilityId,
                 roster -> applyRevoke(roster, abilityId, sourceId),
-                (context, handler) -> revokeIn(context, abilityId, sourceId));
+                (context, handler) -> revokeIn(context, abilityId, sourceId),
+                true,
+                false);
     }
 
     public static void grantIn(
@@ -108,6 +110,7 @@ public final class AbilityMutationUtils {
         }
         AbilityComponent roster = context.getOrCreateRoster();
         AbilityEntry entry = applyGrant(roster, abilityId, sourceId, value, conditions, persistent);
+        context.refreshResolved();
         handler.grant(context, abilityId, entry);
     }
 
@@ -115,8 +118,9 @@ public final class AbilityMutationUtils {
             @Nonnull AbilityContext context,
             @Nonnull String abilityId,
             @Nonnull String sourceId) {
+        // handler may be null when the asset was deleted or renamed under a live grant; the entry
+        // still has to be removable or it is stranded in the roster and re-saved on every logout
         EffectHandler handler = AbilityHandlerRegistry.forAbility(abilityId);
-        if (handler == null) return;
         AbilityComponent roster = context.getRoster();
         if (roster == null) return;
 
@@ -124,11 +128,13 @@ public final class AbilityMutationUtils {
         if (entry == null || entry.removeGrant(sourceId) == null) return;
 
         if (!entry.isEmpty()) {
-            handler.grant(context, abilityId, entry);
+            context.refreshResolved();
+            if (handler != null) handler.grant(context, abilityId, entry);
             return;
         }
         roster.remove(abilityId);
-        handler.revoke(context, abilityId);
+        context.refreshResolved();
+        if (handler != null) handler.revoke(context, abilityId);
         if (roster.isEmpty()) {
             context.clearRoster();
         }
@@ -182,6 +188,7 @@ public final class AbilityMutationUtils {
 
     public static void applyAll(@Nonnull AbilityContext context) {
         AbilityComponent roster = context.getRoster();
+        context.refreshResolved();
         if (roster != null) {
             for (Map.Entry<String, AbilityEntry> granted : roster.getAbilities().entrySet()) {
                 if (!EffectAsset.isEnabled(granted.getKey())) {
@@ -218,27 +225,41 @@ public final class AbilityMutationUtils {
             @Nonnull String abilityId,
             @Nonnull Consumer<AbilityComponent> rosterChange,
             @Nonnull BiConsumer<AbilityContext, EffectHandler> whenOnline) {
+        mutate(playerId, abilityId, rosterChange, whenOnline, true, true);
+    }
+
+    private static void mutate(
+            @Nonnull UUID playerId,
+            @Nonnull String abilityId,
+            @Nonnull Consumer<AbilityComponent> rosterChange,
+            @Nonnull BiConsumer<AbilityContext, EffectHandler> whenOnline,
+            boolean allowOfflineRetry,
+            boolean requireHandler) {
         EffectHandler handler = AbilityHandlerRegistry.forAbility(abilityId);
-        if (handler == null) {
+        if (handler == null && requireHandler) {
             LOGGER.atWarning().log("No handler registered for ability '%s'; ignoring", abilityId);
             return;
         }
         Universe universe = Universe.get();
         PlayerRef playerRef = universe != null ? universe.getPlayer(playerId) : null;
         if (playerRef == null || !playerRef.isValid()) {
-            mutateOffline(playerId, abilityId, rosterChange);
+            mutateOffline(playerId, abilityId, rosterChange, allowOfflineRetry
+                    ? () -> mutate(playerId, abilityId, rosterChange, whenOnline, false, requireHandler)
+                    : null);
             return;
         }
         World world = universe.getWorld(playerRef.getWorldUuid());
         if (world == null) {
-            LOGGER.atWarning().log("No world for player %s; '%s' was not applied", playerId, abilityId);
+            LOGGER.atWarning().log("No world for player %s; '%s' was written to saved data instead",
+                    playerId, abilityId);
+            mutateOffline(playerId, abilityId, rosterChange, null);
             return;
         }
         try {
             world.execute(() -> {
                 Ref<EntityStore> ref = playerRef.getReference();
                 if (ref == null || !ref.isValid()) {
-                    mutateOffline(playerId, abilityId, rosterChange);
+                    mutateOffline(playerId, abilityId, rosterChange, null);
                     return;
                 }
                 Store<EntityStore> store = world.getEntityStore().getStore();
@@ -246,15 +267,17 @@ public final class AbilityMutationUtils {
                 whenOnline.accept(context, handler);
             });
         } catch (RuntimeException e) {
-            LOGGER.atWarning().log("World %s rejected the ability task for %s; '%s' was not applied",
-                    world.getName(), playerId, abilityId);
+            LOGGER.atWarning().log("World %s rejected the ability task for %s; '%s' was written to "
+                    + "saved data instead", world.getName(), playerId, abilityId);
+            mutateOffline(playerId, abilityId, rosterChange, null);
         }
     }
 
     private static void mutateOffline(
             @Nonnull UUID playerId,
             @Nonnull String abilityId,
-            @Nonnull Consumer<AbilityComponent> rosterChange) {
+            @Nonnull Consumer<AbilityComponent> rosterChange,
+            @Nullable Runnable retryIfCameOnline) {
         Universe universe = Universe.get();
         if (universe == null || universe.getPlayerStorage() == null) {
             LOGGER.atWarning().log("No player storage; '%s' for offline %s was not applied", abilityId, playerId);
@@ -273,7 +296,19 @@ public final class AbilityMutationUtils {
                         .log("Failed to write '%s' to the saved data of offline player %s", abilityId, playerId);
                 return;
             }
+            if (retryIfCameOnline != null && isOnline(playerId)) {
+                LOGGER.atInfo().log("Player %s came online while '%s' was written offline; reapplying "
+                        + "to the live entity", playerId, abilityId);
+                retryIfCameOnline.run();
+                return;
+            }
             LOGGER.atInfo().log("Applied '%s' to the saved data of offline player %s", abilityId, playerId);
         });
+    }
+
+    private static boolean isOnline(@Nonnull UUID playerId) {
+        Universe universe = Universe.get();
+        PlayerRef playerRef = universe != null ? universe.getPlayer(playerId) : null;
+        return playerRef != null && playerRef.isValid();
     }
 }

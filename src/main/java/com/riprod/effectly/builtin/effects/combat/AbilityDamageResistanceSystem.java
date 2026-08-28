@@ -16,10 +16,11 @@ import com.hypixel.hytale.server.core.modules.entity.damage.DamageModule;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.core.abilities.component.AbilityComponent;
+import com.riprod.effectly.core.abilities.component.ResolvedAbilityComponent;
 import com.riprod.effectly.core.effects.registry.EffectAsset;
 import com.riprod.effectly.core.utils.AbilityConditionUtils;
 
+import java.util.List;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -83,61 +84,57 @@ public class AbilityDamageResistanceSystem extends DamageEventSystem {
         var ref = archetypeChunk.getReferenceTo(index);
         if (ref == null || !ref.isValid()) return;
 
-        Double value = resistanceFor(ref, store, world, playerRefComponent.getUuid(), damageCause);
-        if (value == null || value == 0) return;
+        double value = resistanceFor(ref, store, world, playerRefComponent.getUuid(), damageCause);
+        if (!AbilityConditionUtils.isActive(value) || value == 0) return;
 
         float currentAmount = damage.getAmount();
         float newAmount = (float) Math.max(0.0, currentAmount * (1.0 - value));
         damage.setAmount(newAmount);
     }
 
-    @Nullable
-    private static Double resistanceFor(
+    private static double resistanceFor(
             @Nonnull Ref<EntityStore> ref,
             @Nonnull ComponentAccessor<EntityStore> store,
             @Nonnull World world,
             @Nonnull java.util.UUID playerId,
             @Nonnull DamageCause cause) {
-        AbilityComponent roster = AbilityComponent.of(ref, store);
-        if (roster == null || roster.isEmpty()) return null;
+        List<ResolvedAbilityComponent.Resolved> resistances =
+                ResolvedAbilityComponent.forHandler(ref, store, ResistanceHandler.ID);
+        if (resistances.isEmpty()) return AbilityConditionUtils.INACTIVE;
 
         DamageCause current = cause;
         for (int depth = 0; current != null && depth < MAX_CHAIN_DEPTH; depth++) {
             String causeId = current.getId();
-            if (causeId == null || causeId.isBlank()) return null;
+            if (causeId == null || causeId.isBlank()) return AbilityConditionUtils.INACTIVE;
 
-            Double best = bestAt(ref, store, world, playerId, roster, causeId);
-            if (best != null) return best;
+            double best = bestAt(ref, store, world, playerId, resistances, causeId);
+            if (AbilityConditionUtils.isActive(best)) return best;
 
             String inherits = current.getInherits();
-            if (inherits == null || inherits.isBlank()) return null;
+            if (inherits == null || inherits.isBlank()) return AbilityConditionUtils.INACTIVE;
             current = DamageCause.getAssetMap().getAsset(inherits);
         }
-        return null;
+        return AbilityConditionUtils.INACTIVE;
     }
 
-    @Nullable
-    private static Double bestAt(
+    private static double bestAt(
             @Nonnull Ref<EntityStore> ref,
             @Nonnull ComponentAccessor<EntityStore> store,
             @Nonnull World world,
             @Nonnull java.util.UUID playerId,
-            @Nonnull AbilityComponent roster,
+            @Nonnull List<ResolvedAbilityComponent.Resolved> resistances,
             @Nonnull String causeId) {
-        Double best = null;
-        for (String abilityId : roster.getAbilities().keySet()) {
-            EffectAsset asset = EffectAsset.getAssetMap().getAsset(abilityId);
+        double best = AbilityConditionUtils.INACTIVE;
+        for (ResolvedAbilityComponent.Resolved resistance : resistances) {
+            EffectAsset asset = EffectAsset.byIndex(resistance.assetIndex());
             if (asset == null || !asset.isEnabled()) continue;
             if (!(asset.getHandlerConfig() instanceof ResistanceConfig config)) continue;
             if (!causeId.equalsIgnoreCase(config.getDamageCause())) continue;
 
-            var abilityValue = AbilityConditionUtils.getActiveAbilityValue(ref, store, world, playerId, abilityId);
-            if (abilityValue == null || !abilityValue.isPresent()) continue;
-            if (!(abilityValue.getRaw() instanceof Number n)) continue;
-
-            double value = n.doubleValue();
-            if (!Double.isFinite(value)) continue;
-            if (best == null || value > best) best = value;
+            double value = AbilityConditionUtils.activeValue(
+                    ref, store, world, playerId, resistance.abilityId());
+            if (!AbilityConditionUtils.isActive(value) || !Double.isFinite(value)) continue;
+            if (!AbilityConditionUtils.isActive(best) || value > best) best = value;
         }
         return best;
     }

@@ -1,4 +1,8 @@
 {
+  "Handler": {
+    "Id": "movement_state",
+    "Field": "BaseSpeed"
+  },
   "Type": "Numeric",
   "Default": 1.0,
   "Min": 0.5,

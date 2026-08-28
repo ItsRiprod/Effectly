@@ -13,6 +13,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.riprod.effectly.EffectlyPlugin;
 import com.riprod.effectly.api.AbilityService;
 import com.riprod.effectly.core.utils.AbilityRegistryUtils;
+import com.riprod.effectly.core.utils.AbilityUtils;
 
 import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
@@ -58,10 +59,6 @@ public class AbilityRemoveCommand extends AbstractPlayerCommand {
         }
         String[] parts = SPACES.split(rawArgs.trim());
         String abilityId = parts[0];
-        if (!AbilityRegistryUtils.isValid(abilityId)) {
-            context.sendMessage(Message.raw("Unknown ability: " + abilityId));
-            return;
-        }
         if (parts.length > 2) {
             context.sendMessage(AbilityCommandHelp.removeHelp(this));
             return;
@@ -75,6 +72,12 @@ public class AbilityRemoveCommand extends AbstractPlayerCommand {
             }
             targetPlayerRef = found;
         }
+        boolean held = AbilityUtils.readAll(targetPlayerRef.getUuid()).containsKey(abilityId);
+        if (!AbilityRegistryUtils.isValid(abilityId) && !held) {
+            context.sendMessage(Message.raw("Unknown ability: " + abilityId));
+            return;
+        }
+
         AbilityService.removeAbility(targetPlayerRef.getUuid(), abilityId);
         boolean other = !targetPlayerRef.getUuid().equals(playerRef.getUuid());
         String targetLabel = other ? " from " + targetPlayerRef.getUsername() : "";

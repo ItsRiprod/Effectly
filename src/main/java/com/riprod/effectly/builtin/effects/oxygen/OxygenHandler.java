@@ -8,7 +8,6 @@ import com.hypixel.hytale.server.core.modules.entitystats.modifier.StaticModifie
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.riprod.effectly.core.abilities.component.AbilityEntry;
 import com.riprod.effectly.core.abilities.registry.AbilityContext;
-import com.riprod.effectly.core.effects.components.AbilityValue;
 import com.riprod.effectly.core.effects.registry.EffectHandler;
 import com.riprod.effectly.core.utils.AbilityConditionUtils;
 
@@ -57,6 +56,24 @@ public final class OxygenHandler implements EffectHandler {
         context.getComponents().tryRemoveComponent(context.getRef(), OxygenComponent.getComponentType());
     }
 
+    @Override
+    public void reconcile(@Nonnull AbilityContext context) {
+        // the stat modifier is written into the saved player document, so a grant removed while
+        // offline would otherwise leave it applied forever with nothing backing it
+        clearModifier(context);
+    }
+
+    private static void clearModifier(@Nonnull AbilityContext context) {
+        EntityStatMap statMap = context.getComponents()
+                .getComponent(context.getRef(), EntityStatMap.getComponentType());
+        if (statMap == null) return;
+
+        int statIndex = DefaultEntityStatTypes.getOxygen();
+        if (statIndex < 0 || statIndex >= statMap.size()) return;
+
+        statMap.removeModifier(EntityStatMap.Predictable.SELF, statIndex, MODIFIER_KEY);
+    }
+
     static void apply(@Nonnull AbilityContext context, @Nonnull OxygenComponent component) {
         write(context, component, resolveAmount(context, component));
     }
@@ -65,11 +82,11 @@ public final class OxygenHandler implements EffectHandler {
         String abilityId = component.getAbilityId();
         if (abilityId == null) return 0f;
 
-        AbilityValue value = AbilityConditionUtils.getActiveAbilityValue(
+        double value = AbilityConditionUtils.activeValue(
                 context.getRef(), context.getComponents(), context.getWorld(), context.getUuid(), abilityId);
-        if (value == null || !value.isPresent() || value.asNumber() <= 0) return 0f;
+        if (!AbilityConditionUtils.isActive(value) || value <= 0) return 0f;
 
-        return (float) (value.asNumber()
+        return (float) (value
                 * component.configOrDefault(OxygenConfig.class, OxygenConfig.DEFAULTS).getUnitsPerSecond());
     }
 

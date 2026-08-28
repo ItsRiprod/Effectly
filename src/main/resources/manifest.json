@@ -1,7 +1,7 @@
 {
     "Group": "Riprod",
     "Name": "Effectly",
-    "Version": "1.4.0-Patch-2",
+    "Version": "1.5.0",
     "Description": "Effectly - Library mod for player effects",
     "Authors": [
         {
@@ -12,7 +12,7 @@
         }
     ],
     "Website": "https://modtale.net/mod/effectly",
-    "ServerVersion": ">=0.5.0 <0.7.0",
+    "ServerVersion": ">=0.6.0 <0.7.0",
     "Dependencies": {
         
     },
@@ -30,7 +30,7 @@
             "Group": "hexvane",
             "Name": "AbilityAPI",
             "Main": "com.hexvane.abilityapi.AbilityAPIPlugin",
-            "ServerVersion": ">=0.5.0 <0.7.0",
+            "ServerVersion": ">=0.6.0 <0.7.0",
             "DisabledByDefault": false,
             "IncludesAssetPack": false
         }

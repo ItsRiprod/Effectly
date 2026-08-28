@@ -17,12 +17,12 @@ import java.util.logging.Level;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public final class ConditionRegistery {
+public final class ConditionRegistry {
     private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
     private static final Map<String, ConditionHandler> CONDITIONS = new LinkedHashMap<>();
 
-    private ConditionRegistery() {}
+    private ConditionRegistry() {}
 
     public static void reset() {
         CONDITIONS.clear();

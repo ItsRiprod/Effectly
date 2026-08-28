@@ -31,7 +31,7 @@ public final class DarkVisionEffectSystem extends EntityTickingSystem<EntityStor
             @Nonnull Store<EntityStore> store,
             @Nonnull CommandBuffer<EntityStore> commandBuffer) {
         DarkVisionComponent state = archetypeChunk.getComponent(index, DarkVisionComponent.getComponentType());
-        if (state == null || state.getAbilityId() == null) return;
+        if (state == null) return;
 
         DarkVisionConfig config = state.configOrDefault(DarkVisionConfig.class, DarkVisionConfig.DEFAULTS);
         if (!state.due(dt, config.getCheckSeconds())) return;
@@ -54,8 +54,8 @@ public final class DarkVisionEffectSystem extends EntityTickingSystem<EntityStor
         EffectControllerComponent controller = store.getComponent(ref, EffectControllerComponent.getComponentType());
         if (controller == null) return;
 
-        boolean active = AbilityConditionUtils.isAbilityActive(
-                ref, store, world, playerRef.getUuid(), state.getAbilityId());
+        boolean active = AbilityConditionUtils.bestActiveForHandler(
+                ref, store, world, playerRef.getUuid(), DarkVisionHandler.ID) != null;
         boolean applied = controller.getActiveEffects().containsKey(effectIndex);
 
         if (active && !applied) {

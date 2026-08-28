@@ -1,0 +1,8 @@
+{
+  "Handler": {
+    "Id": "in_liquid",
+    "State": "InFluid"
+  },
+  "Keyword": "in_liquid",
+  "Description": "active while touching liquid"
+}

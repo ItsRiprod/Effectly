@@ -17,9 +17,9 @@ public final class ConditionKeyValidator implements Validator<String> {
     @Override
     public void accept(String key, @Nonnull ValidationResults results) {
         if (key == null || key.isEmpty()) return;
-        if (ConditionRegistery.get(key) == null) {
+        if (ConditionRegistry.get(key) == null) {
             results.fail("Unknown ability condition handler '" + key + "'. Registered: "
-                    + String.join(", ", ConditionRegistery.ids()));
+                    + String.join(", ", ConditionRegistry.ids()));
         }
     }
 

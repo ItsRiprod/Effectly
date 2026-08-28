@@ -14,7 +14,7 @@ import com.riprod.effectly.EffectlyPlugin;
 import com.riprod.effectly.api.AbilityService;
 import com.riprod.effectly.core.conditions.AbilityConditionSpec;
 import com.riprod.effectly.core.conditions.components.AbilityDefinition;
-import com.riprod.effectly.core.conditions.registry.ConditionRegistery;
+import com.riprod.effectly.core.conditions.registry.ConditionRegistry;
 import com.riprod.effectly.core.effects.utils.AbilityType;
 import com.riprod.effectly.core.utils.AbilityRegistryUtils;
 
@@ -115,6 +115,6 @@ public class AbilityAddCommand extends AbstractPlayerCommand {
     @Nonnull
     private static List<AbilityConditionSpec> parseConditions(String rest) {
         if (rest == null || rest.isBlank()) return List.of();
-        return ConditionRegistery.parse(SPACES.split(rest.trim()));
+        return ConditionRegistry.parse(SPACES.split(rest.trim()));
     }
 }

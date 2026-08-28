@@ -53,8 +53,8 @@ no longer baked into the jar.
 
 ### 2.2 Player ability storage
 
-Every granted ability is one entry in a single persistent ECS component, `AbilityRoster`, attached to
-the player entity:
+Every granted ability is one entry in a single persistent ECS component, `AbilityComponent`
+(component id `Effectly:Roster`), attached to the player entity:
 
 - `abilityId -> { value, conditions }`
 
@@ -62,9 +62,14 @@ That component is the only thing Effectly persists. The engine saves it with the
 document (autosave every 10s, plus on disconnect and world shutdown), so changes survive restarts
 without Effectly writing any file itself.
 
-Individual abilities may attach further *transient* components (for example `FlightState`) - those
-exist only while the ability is granted and are never written to disk. Having the component is what
-makes an ability tick; removing it is what stops it.
+Individual abilities may attach further *transient* components - those exist only while the ability
+is granted and are never written to disk. Having the component is what makes an ability tick;
+removing it is what stops it. `SecondChanceComponent` is the exception: it persists its cooldown so a
+relog cannot reset it, and removes itself once the cooldown is spent and no ability backs it.
+
+Abilities that write state the engine persists - a stat modifier, for example - must also implement
+`reconcile`, which runs on login for every player holding nothing for that handler. Without it a
+grant removed while the player was offline would leave the modifier applied forever.
 
 If another mod grants or removes an ability for a player who is **offline**, the change is written
 straight into that player's saved document, so it survives a restart and is live the moment they next
@@ -80,28 +85,44 @@ so several conditions may share one handler with different configuration. Settin
 stops a condition being evaluated without removing the file; a grant referencing a disabled or
 missing condition never activates.
 
-Ships with three handlers:
+Ships with four condition handlers:
 
 - `zone` - active in the configured world zone ids
 - `sky_light` - active within a sunlight-factor and sky-light range
 - `health` - compares health % against a threshold, for either the ability holder or the damage target
+- `in_liquid` - active while in a fluid, optionally only while swimming
 
-and seven conditions built on them:
+and nine conditions built on them:
 
 - `in_zone` - active when the player is in one of the given zone IDs
 - `in_sunlight` - active when it is daytime and there is open sky above the player
+- `In_Liquid` - active while touching liquid
+- `Swimming` - active while actually swimming
 - `Moonlight` - active at night under open sky
 - `health_below` / `health_above` - player health % below, or at or above, the threshold
 - `target_health_below` / `target_health_above` - same, for the damage **target**
 
-A grant carries an `AbilityConditionSpec` referencing one of those conditions:
+Conditions attach in two places. An **effect asset** may declare conditions intrinsic to itself,
+which gate it for every source that grants it - `swim_speed` uses this to require `Swimming`:
+
+```json
+{
+  "Handler": { "Id": "movement_state", "Field": "BaseSpeed" },
+  "Conditions": [ { "Type": "Swimming" } ],
+  "Type": "Numeric", "Min": 0.5, "Max": 3.0
+}
+```
+
+A **grant** may carry its own on top, AND-ed with the asset's. Either way it is an
+`AbilityConditionSpec` referencing a condition asset:
 
 - `Type` (string): the condition asset id
 - `Param` (optional int): overrides the condition's configured value - a health percentage (0-100),
   or the sole zone id. When omitted the asset's own configuration applies
 - `ZoneIds` (optional list): overrides the zone ids for `in_zone`
 
-Effectly’s internal systems (e.g. `AbilityConditionService`, `AbilityStatService`) evaluate these conditions on demand when applying stats or reacting to events.
+Effectly evaluates these on demand via `AbilityConditionUtils` when applying stats or reacting to
+events; nothing is cached between ticks.
 
 ---
 
@@ -176,6 +197,10 @@ Below is a brief summary of the most important built‑in abilities. See `PLAN.m
 
 - `**creative_flight` (binary)**  
   - Enables creative‑style flight for the player.
+  - Implemented by the shared `movement_state` handler, which folds every movement ability into one
+    desired state and writes it once. `creative_flight` contributes to `CanFly`; `move_speed` and
+    `swim_speed` multiply `BaseSpeed`. There is no separate reassert loop - the system re-pushes only
+    when what is applied differs from what is wanted, and reverts the same way.
 - `**waterbreathing` (binary)**  
   - Player can breathe underwater (handled via `BreathingCheckEvent` on Hytale 0.5+).
 - `**oxygen` (numeric)**  
@@ -185,7 +210,8 @@ Below is a brief summary of the most important built‑in abilities. See `PLAN.m
 - `**move_speed` (numeric multiplier)**  
   - Modifies base movement speed. `1.0` = normal; `>1` faster, `<1` slower.
 - `**swim_speed` (numeric multiplier)**  
-  - Multiplier applied when the player is swimming.
+  - Multiplier applied when the player is swimming, gated by the `Swimming` condition declared on the
+    asset rather than by handler code.
 - `**wall_climb` (binary)**  
   - Allows climbing solid surfaces via the dedicated `WallClimbSystem`.
 

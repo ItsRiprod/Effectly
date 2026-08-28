@@ -13,7 +13,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.riprod.effectly.EffectlyPlugin;
 import com.riprod.effectly.core.abilities.component.AbilityGrant;
 import com.riprod.effectly.core.conditions.AbilityConditionSpec;
-import com.riprod.effectly.core.conditions.registry.ConditionRegistery;
+import com.riprod.effectly.core.conditions.registry.ConditionRegistry;
 import com.riprod.effectly.core.effects.components.AbilityValue;
 import com.riprod.effectly.core.utils.AbilityUtils;
 
@@ -31,6 +31,8 @@ public class AbilityListCommand extends AbstractPlayerCommand {
     public AbilityListCommand(@Nonnull EffectlyPlugin plugin) {
         super("list", "List your abilities");
         this.setAllowsExtraArguments(true);
+        // reads only the caller's own abilities, and takes a target name that must already be online
+        this.requireNoPermission();
     }
 
     @Nonnull
@@ -117,7 +119,7 @@ public class AbilityListCommand extends AbstractPlayerCommand {
         sb.append(" (");
         for (int i = 0; i < conditions.size(); i++) {
             if (i > 0) sb.append("; ");
-            sb.append(ConditionRegistery.describe(conditions.get(i)));
+            sb.append(ConditionRegistry.describe(conditions.get(i)));
         }
         sb.append(")");
     }
@@ -125,12 +127,6 @@ public class AbilityListCommand extends AbstractPlayerCommand {
     @Nonnull
     private static String formatNumber(double value) {
         return value == (long) value ? String.valueOf((long) value) : String.valueOf(value);
-    }
-
-
-    @Override
-    protected boolean canGeneratePermission() {
-        return false;
     }
 
 }

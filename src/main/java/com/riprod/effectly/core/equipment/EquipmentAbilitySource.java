@@ -4,7 +4,7 @@ import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.asset.type.item.config.Item;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.riprod.effectly.core.conditions.AbilityConditionSpec;
-import com.riprod.effectly.core.conditions.registry.ConditionRegistery;
+import com.riprod.effectly.core.conditions.registry.ConditionRegistry;
 import com.riprod.effectly.core.effects.registry.EffectAsset;
 
 import java.util.ArrayList;
@@ -71,7 +71,7 @@ public final class EquipmentAbilitySource {
         if (trimmed.isEmpty()) return List.of();
 
         List<String> unparsed = new ArrayList<>();
-        List<AbilityConditionSpec> specs = ConditionRegistery.parse(SPACES.split(trimmed), unparsed);
+        List<AbilityConditionSpec> specs = ConditionRegistry.parse(SPACES.split(trimmed), unparsed);
         if (!unparsed.isEmpty()) {
             LOGGER.atWarning().atMostEvery(1, TimeUnit.MINUTES)
                     .log("Item '%s' condition '%s' has unrecognised token(s) %s; "

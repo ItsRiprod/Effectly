@@ -4,7 +4,8 @@ import com.hypixel.hytale.assetstore.AssetExtraInfo;
 import com.hypixel.hytale.assetstore.AssetRegistry;
 import com.hypixel.hytale.assetstore.AssetStore;
 import com.hypixel.hytale.assetstore.codec.AssetBuilderCodec;
-import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
+import com.hypixel.hytale.assetstore.map.AssetMapWithIndexes;
+import com.hypixel.hytale.assetstore.map.IndexedLookupTableAssetMap;
 import com.hypixel.hytale.assetstore.map.JsonAssetWithMap;
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
@@ -14,13 +15,15 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public final class ConditionAsset
-        implements JsonAssetWithMap<String, DefaultAssetMap<String, ConditionAsset>> {
+        implements JsonAssetWithMap<String, IndexedLookupTableAssetMap<String, ConditionAsset>> {
 
     public static final String ASSET_PATH = "Effectly/Conditions";
 
+    public static final int NOT_FOUND = AssetMapWithIndexes.NOT_FOUND;
+
     public static final AssetBuilderCodec<String, ConditionAsset> CODEC = buildCodec();
 
-    private static AssetStore<String, ConditionAsset, DefaultAssetMap<String, ConditionAsset>> ASSET_STORE;
+    private static AssetStore<String, ConditionAsset, IndexedLookupTableAssetMap<String, ConditionAsset>> ASSET_STORE;
 
     private AssetExtraInfo.Data data;
     private String id;
@@ -32,7 +35,7 @@ public final class ConditionAsset
     private ConditionAsset() {
     }
 
-    public static AssetStore<String, ConditionAsset, DefaultAssetMap<String, ConditionAsset>> getAssetStore() {
+    public static AssetStore<String, ConditionAsset, IndexedLookupTableAssetMap<String, ConditionAsset>> getAssetStore() {
         if (ASSET_STORE == null) {
             ASSET_STORE = AssetRegistry.getAssetStore(ConditionAsset.class);
         }
@@ -40,8 +43,25 @@ public final class ConditionAsset
     }
 
     @SuppressWarnings("unchecked")
-    public static DefaultAssetMap<String, ConditionAsset> getAssetMap() {
-        return (DefaultAssetMap<String, ConditionAsset>) getAssetStore().getAssetMap();
+    public static IndexedLookupTableAssetMap<String, ConditionAsset> getAssetMap() {
+        return (IndexedLookupTableAssetMap<String, ConditionAsset>) getAssetStore().getAssetMap();
+    }
+
+    public static int indexOf(@Nonnull String conditionId) {
+        return getAssetMap().getIndex(conditionId);
+    }
+
+    @Nullable
+    public static ConditionAsset byIndex(int index) {
+        return index == NOT_FOUND ? null : getAssetMap().getAsset(index);
+    }
+
+    @Nonnull
+    public static ConditionAsset getDisabledFor(@Nonnull String key) {
+        ConditionAsset stub = new ConditionAsset();
+        stub.id = key;
+        stub.enabled = false;
+        return stub;
     }
 
     @Override

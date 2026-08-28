@@ -4,27 +4,34 @@ import com.hypixel.hytale.assetstore.AssetExtraInfo;
 import com.hypixel.hytale.assetstore.AssetRegistry;
 import com.hypixel.hytale.assetstore.AssetStore;
 import com.hypixel.hytale.assetstore.codec.AssetBuilderCodec;
-import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
+import com.hypixel.hytale.assetstore.map.AssetMapWithIndexes;
+import com.hypixel.hytale.assetstore.map.IndexedLookupTableAssetMap;
 import com.hypixel.hytale.assetstore.map.JsonAssetWithMap;
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.codecs.EnumCodec;
 import com.hypixel.hytale.codec.schema.metadata.ui.UIEditor;
 import com.hypixel.hytale.codec.schema.metadata.ui.UIEditorSectionStart;
+import com.hypixel.hytale.codec.codecs.array.ArrayCodec;
+import com.riprod.effectly.core.conditions.AbilityConditionSpec;
 import com.riprod.effectly.core.effects.utils.AbilityType;
+
+import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.NotNull;
 
-public final class EffectAsset implements JsonAssetWithMap<String, DefaultAssetMap<String, EffectAsset>> {
+public final class EffectAsset implements JsonAssetWithMap<String, IndexedLookupTableAssetMap<String, EffectAsset>> {
 
     public static final String ASSET_PATH = "Effectly/Effects";
 
+    public static final int NOT_FOUND = AssetMapWithIndexes.NOT_FOUND;
+
     public static final AssetBuilderCodec<String, EffectAsset> CODEC = buildCodec();
 
-    private static AssetStore<String, EffectAsset, DefaultAssetMap<String, EffectAsset>> ASSET_STORE;
+    private static AssetStore<String, EffectAsset, IndexedLookupTableAssetMap<String, EffectAsset>> ASSET_STORE;
 
     private AssetExtraInfo.Data data;
     private String id;
@@ -35,11 +42,12 @@ public final class EffectAsset implements JsonAssetWithMap<String, DefaultAssetM
     private double min = 0.0;
     private double max = 1.0;
     private boolean enabled = true;
+    private List<AbilityConditionSpec> conditions = List.of();
 
     private EffectAsset() {
     }
 
-    public static AssetStore<String, EffectAsset, DefaultAssetMap<String, EffectAsset>> getAssetStore() {
+    public static AssetStore<String, EffectAsset, IndexedLookupTableAssetMap<String, EffectAsset>> getAssetStore() {
         if (ASSET_STORE == null) {
             ASSET_STORE = AssetRegistry.getAssetStore(EffectAsset.class);
         }
@@ -47,8 +55,52 @@ public final class EffectAsset implements JsonAssetWithMap<String, DefaultAssetM
     }
 
     @SuppressWarnings("unchecked")
-    public static DefaultAssetMap<String, EffectAsset> getAssetMap() {
-        return (DefaultAssetMap<String, EffectAsset>) getAssetStore().getAssetMap();
+    public static IndexedLookupTableAssetMap<String, EffectAsset> getAssetMap() {
+        return (IndexedLookupTableAssetMap<String, EffectAsset>) getAssetStore().getAssetMap();
+    }
+
+    /** Asset map, or null before the store is registered, so a early grant warns instead of throwing. */
+    @Nullable
+    private static IndexedLookupTableAssetMap<String, EffectAsset> assetMapOrNull() {
+        try {
+            return getAssetMap();
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    @Nullable
+    public static EffectAsset get(@Nonnull String abilityId) {
+        IndexedLookupTableAssetMap<String, EffectAsset> map = assetMapOrNull();
+        return map != null ? map.getAsset(abilityId) : null;
+    }
+
+    /**
+     * Index for an ability id, resolved once and then used for array-speed lookups. Never persist
+     * one: indexes are assigned in load order and are not stable across restarts.
+     */
+    public static int indexOf(@Nonnull String abilityId) {
+        IndexedLookupTableAssetMap<String, EffectAsset> map = assetMapOrNull();
+        return map != null ? map.getIndex(abilityId) : NOT_FOUND;
+    }
+
+    @Nullable
+    public static EffectAsset byIndex(int index) {
+        if (index == NOT_FOUND) return null;
+        IndexedLookupTableAssetMap<String, EffectAsset> map = assetMapOrNull();
+        return map != null ? map.getAsset(index) : null;
+    }
+
+    /**
+     * Placeholder for an asset removed while the server is running. Indexes are array slots, so a
+     * removal cannot leave a hole; a disabled stub keeps the slot and makes grants no-op.
+     */
+    @Nonnull
+    public static EffectAsset getDisabledFor(@Nonnull String key) {
+        EffectAsset stub = new EffectAsset();
+        stub.id = key;
+        stub.enabled = false;
+        return stub;
     }
 
     @Override
@@ -88,18 +140,33 @@ public final class EffectAsset implements JsonAssetWithMap<String, DefaultAssetM
         return this.enabled;
     }
 
+    /**
+     * Conditions intrinsic to the effect itself, gating it regardless of who granted it. AND-ed with
+     * whatever conditions the individual grant carries.
+     */
+    @Nonnull
+    public List<AbilityConditionSpec> getConditions() {
+        return this.conditions;
+    }
+
+    @Nonnull
+    public static List<AbilityConditionSpec> conditionsFor(@Nonnull String abilityId) {
+        EffectAsset asset = get(abilityId);
+        return asset == null ? List.of() : asset.conditions;
+    }
+
     @Nullable
     public EffectHandlerConfig getHandlerConfig() {
         return this.handler;
     }
 
     public static boolean isEnabled(@Nonnull String abilityId) {
-        EffectAsset asset = getAssetMap().getAsset(abilityId);
+        EffectAsset asset = get(abilityId);
         return asset != null && asset.enabled;
     }
 
     public static double clampToRange(@Nonnull String abilityId, double value) {
-        EffectAsset asset = getAssetMap().getAsset(abilityId);
+        EffectAsset asset = get(abilityId);
         if (asset == null) return value;
         if (value < asset.min) return asset.min;
         if (value > asset.max) return asset.max;
@@ -109,7 +176,7 @@ public final class EffectAsset implements JsonAssetWithMap<String, DefaultAssetM
     @Nullable
     public static <T extends EffectHandlerConfig> T configFor(
             @Nonnull String abilityId, @Nonnull Class<T> type) {
-        EffectAsset asset = getAssetMap().getAsset(abilityId);
+        EffectAsset asset = get(abilityId);
         EffectHandlerConfig config = asset != null ? asset.handler : null;
         return type.isInstance(config) ? type.cast(config) : null;
     }
@@ -153,6 +220,15 @@ public final class EffectAsset implements JsonAssetWithMap<String, DefaultAssetM
                         (asset, v) -> asset.description = v,
                         asset -> asset.description)
                 .documentation("Help text shown by /ability available")
+                .add()
+                .append(new KeyedCodec<>("Conditions",
+                                new ArrayCodec<>(AbilityConditionSpec.CODEC, AbilityConditionSpec[]::new)),
+                        (asset, v) -> asset.conditions = v == null ? List.of() : List.of(v),
+                        asset -> asset.conditions.isEmpty()
+                                ? null
+                                : asset.conditions.toArray(AbilityConditionSpec[]::new))
+                .documentation("Conditions intrinsic to this effect, gating it for every source that "
+                        + "grants it. AND-ed with the grant's own conditions")
                 .add()
                 .append(new KeyedCodec<>("Enabled", Codec.BOOLEAN),
                         (asset, v) -> asset.enabled = v,

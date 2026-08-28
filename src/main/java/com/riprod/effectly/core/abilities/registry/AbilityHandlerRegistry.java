@@ -2,7 +2,7 @@ package com.riprod.effectly.core.abilities.registry;
 
 import com.hypixel.hytale.component.ComponentRegistryProxy;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.core.abilities.component.AbilityComponent;
+import com.riprod.effectly.core.abilities.component.ResolvedAbilityComponent;
 import com.riprod.effectly.core.effects.registry.EffectAsset;
 import com.riprod.effectly.core.effects.registry.EffectHandlerConfig;
 import com.riprod.effectly.core.effects.registry.EffectHandler;
@@ -56,12 +56,9 @@ public final class AbilityHandlerRegistry {
     }
 
     public static boolean holdsAnyFor(@Nonnull AbilityContext context, @Nonnull EffectHandler handler) {
-        AbilityComponent roster = AbilityComponent.of(context.getRef(), context.getComponents());
-        if (roster == null) return false;
-        for (String abilityId : roster.getAbilities().keySet()) {
-            if (EffectAsset.isEnabled(abilityId) && forAbility(abilityId) == handler) return true;
-        }
-        return false;
+        return !ResolvedAbilityComponent
+                .forHandler(context.getRef(), context.getComponents(), handler.getId())
+                .isEmpty();
     }
 
     @Nonnull
