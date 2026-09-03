@@ -1,6 +1,6 @@
 # Changelog
 
-# [1.5.0-1.5.1] 
+# [1.5.0-1.5.2] 
 
 - **Conditions** can now be applied on the item-level, config-level, or command-level
 - **Triggers** now can be a source to any action
