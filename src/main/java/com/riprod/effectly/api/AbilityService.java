@@ -67,8 +67,6 @@ public final class AbilityService {
         AbilityMutationUtils.applyAll(ref, commandBuffer, world);
     }
 
-    // handlers attach and detach components, so the caller's accessor is deliberately unused here:
-    // it may be a live Store handed over from inside a system, where an archetype change throws
     public static void applyForPlayer(
             @Nonnull Ref<EntityStore> ref,
             @Nonnull ComponentAccessor<EntityStore> store,

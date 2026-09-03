@@ -77,8 +77,7 @@ public final class ThornsSystem extends DamageEventSystem {
         DamageCause reflectedCause = DamageCause.getAssetMap().getAsset(config.getDamageCause());
         if (reflectedCause == null) return;
 
-        // reflected damage carries our own cause, so a thorns wearer struck by thorns does not
-        // reflect it again and bounce the hit between two holders
+
         if (reflectedCause.getId().equalsIgnoreCase(currentCauseId(damage))) return;
 
         float reflected = (float) (landed * active.value());

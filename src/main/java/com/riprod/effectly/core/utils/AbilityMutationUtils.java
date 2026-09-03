@@ -118,8 +118,6 @@ public final class AbilityMutationUtils {
             @Nonnull AbilityContext context,
             @Nonnull String abilityId,
             @Nonnull String sourceId) {
-        // handler may be null when the asset was deleted or renamed under a live grant; the entry
-        // still has to be removable or it is stranded in the roster and re-saved on every logout
         AbilityHandler handler = AbilityHandlerRegistry.forAbility(abilityId);
         AbilityComponent roster = context.getRoster();
         if (roster == null) return;

@@ -95,7 +95,6 @@ public class ItemMagnetSystem extends EntityTickingSystem<EntityStore> {
         SpatialStructure<Ref<EntityStore>> spatialStructure = itemSpatial.getSpatialStructure();
         if (spatialStructure == null) return;
 
-        // the thread-local scratch list is shared, so take a private one before iterating and calling back into the store
         List<Ref<EntityStore>> items = new ArrayList<>();
         spatialStructure.ordered(playerPosition, radius, items);
         if (items.isEmpty()) return;

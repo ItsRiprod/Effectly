@@ -45,7 +45,6 @@ public final class GustAction extends Action {
     public boolean execute(@Nonnull ActionContext context) {
         if (radius <= 0) return false;
 
-        // the spatial scratch list is a shared threadlocal, copy before doing anything re-entrant
         List<Ref<EntityStore>> targets = List.copyOf(
                 TargetUtil.getAllEntitiesInSphere(context.getPosition(), radius, context.getStore()));
 

@@ -19,8 +19,6 @@ public final class AbilityLoginSystem extends RefSystem<EntityStore> {
     @Nonnull
     @Override
     public Query<EntityStore> getQuery() {
-        // every player, not just those holding abilities: handlers must be able to clean up
-        // persisted external state (stat modifiers) left behind by a grant removed while offline
         return PlayerRef.getComponentType();
     }
 

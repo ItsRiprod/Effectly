@@ -73,7 +73,7 @@ public class WallClimbSystem extends EntityTickingSystem<EntityStore> implements
         if (movementStatesComponent == null) return;
 
         var movementStates = movementStatesComponent.getMovementStates();
-        // Only climb when actively pressing forward into the wall (W), not just standing against it
+
         boolean pressingForward = movementStates.walking || movementStates.running || movementStates.sprinting;
         if (!pressingForward) return;
 

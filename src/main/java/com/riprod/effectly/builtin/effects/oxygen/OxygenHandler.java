@@ -58,8 +58,6 @@ public final class OxygenHandler implements AbilityHandler {
 
     @Override
     public void reconcile(@Nonnull AbilityContext context) {
-        // the stat modifier is written into the saved player document, so a grant removed while
-        // offline would otherwise leave it applied forever with nothing backing it
         clearModifier(context);
     }
 

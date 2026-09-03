@@ -40,7 +40,6 @@ public final class ZoneCondition implements ConditionHandler {
         if (transform == null) return false;
 
         var position = transform.getPosition();
-        // truncate rather than floor to match BiomeDataSystem, so both share one generator cache entry
         int zone = ZoneResolver.getZoneAt(context.getWorld(), (int) position.x, (int) position.z);
         for (int allowedZone : allowed) {
             if (allowedZone == zone) return true;

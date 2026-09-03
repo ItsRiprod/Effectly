@@ -31,8 +31,6 @@ public final class SecondChanceCooldownSystem extends EntityTickingSystem<Entity
         state.tickCooldown(dt);
         if (state.onCooldown()) return;
 
-        // this component persists, so once the cooldown is spent it has to remove itself or it
-        // survives a relog with no ability backing it and ticks forever
         Ref<EntityStore> ref = archetypeChunk.getReferenceTo(index);
         if (ref == null || !ref.isValid()) return;
         if (!ResolvedAbilityComponent.forHandler(ref, store, SecondChanceHandler.ID).isEmpty()) return;

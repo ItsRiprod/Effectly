@@ -31,10 +31,7 @@ public final class AbilityGrant {
     private double value = 1.0;
     private List<AbilityConditionSpec> conditions = new ArrayList<>();
 
-    // runtime-only and deliberately absent from the codec: equipment grants are rebuilt from gear on
-    // login and must never be written. Anything decoded came from disk and is therefore persistent,
-    // which is what this default encodes. Adding it to the codec would resurrect equipment grants as
-    // permanent, so encoding must stay filtered by AbilityEntry.persistentGrants.
+
     private boolean persistent = true;
 
     private AbilityGrant() {

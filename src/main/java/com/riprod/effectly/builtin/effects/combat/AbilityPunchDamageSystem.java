@@ -62,7 +62,7 @@ public class AbilityPunchDamageSystem extends DamageEventSystem {
             @Nonnull Damage damage) {
         DamageCause cause = DamageCause.getAssetMap().getAsset(damage.getDamageCauseIndex());
         if (cause == null) return;
-        // Only apply to PHYSICAL damage (unarmed/melee) - use cause id to avoid deprecated DamageCause.PHYSICAL
+
         String causeId = cause.getId();
         if (causeId == null || !causeId.equalsIgnoreCase("physical")) return;
 
@@ -76,7 +76,7 @@ public class AbilityPunchDamageSystem extends DamageEventSystem {
         Player attackerPlayer = store.getComponent(attackerRef, Player.getComponentType());
         if (attackerPlayer == null) return;
 
-        // Only apply punch_damage when attacking with fists (empty hand / no weapon)
+
         if (!ItemStack.isEmpty(InventoryComponent.getItemInHand(store, attackerRef))) return;
 
         PlayerRef attackerPlayerRef = store.getComponent(attackerRef, PlayerRef.getComponentType());
