@@ -1,5 +1,16 @@
 # Changelog
 
+# [1.5.0-1.5.1] 
+
+- **Conditions** can now be applied on the item-level, config-level, or command-level
+- **Triggers** now can be a source to any action
+- **Actions** now can be condition-gated events from triggers
+- **Effects** Effects bring everything together into a single asset, enabling more advanced behaviors than ever before
+- **Docs Update** Now docs properly reflect the current state of Effectly
+
+- fix: performance issue on per-tick systems
+
+
 # [1.4.0-Patch-1]
 Dropped Java version from 26 to 25 for compatibility
 

@@ -44,7 +44,7 @@ public class WaterbreathingEventSystem extends EntityEventSystem<EntityStore, Br
         PlayerRef playerRefComponent = archetypeChunk.getComponent(index, PlayerRef.getComponentType());
         if (playerRefComponent == null) return;
 
-        if (AbilityConditionUtils.bestActiveForHandler(ref, store, world, playerRefComponent.getUuid(), WaterbreathingHandler.ID) != null) {
+        if (AbilityConditionUtils.bestActiveForHandler(ref, store, world, WaterbreathingHandler.ID) != null) {
             event.setCanBreathe(true);
         }
     }

@@ -64,7 +64,7 @@ public class MiningFortuneEventSystem extends EntityEventSystem<EntityStore, Bre
         if (playerRefComponent == null) return;
 
         var active = AbilityConditionUtils.bestActiveForHandler(
-                ref, store, world, playerRefComponent.getUuid(), MiningFortuneHandler.ID);
+                ref, store, world, MiningFortuneHandler.ID);
         if (active == null) return;
 
         int level = (int) active.value();

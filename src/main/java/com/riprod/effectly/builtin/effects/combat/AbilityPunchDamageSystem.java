@@ -87,7 +87,7 @@ public class AbilityPunchDamageSystem extends DamageEventSystem {
 
         Ref<EntityStore> targetRef = archetypeChunk.getReferenceTo(index);
         var punchDamageAbility = AbilityConditionUtils.bestActiveForHandler(
-                attackerRef, store, world, attackerPlayerRef.getUuid(), PunchDamageHandler.ID, targetRef);
+                attackerRef, store, world, PunchDamageHandler.ID, targetRef);
         if (punchDamageAbility == null) return;
 
         double multiplier = punchDamageAbility.value();

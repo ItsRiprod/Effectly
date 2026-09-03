@@ -59,7 +59,7 @@ public class ConditionalHealthRegenSystem extends com.hypixel.hytale.component.s
         if (state == null || state.blocked(dt)) return;
 
         var activeValue = AbilityConditionUtils.bestActiveForHandler(
-                ref, store, world, playerRefComponent.getUuid(), HealthRegenHandler.ID);
+                ref, store, world, HealthRegenHandler.ID);
         if (activeValue == null) return;
 
         float valuePerSecond = (float) activeValue.value();

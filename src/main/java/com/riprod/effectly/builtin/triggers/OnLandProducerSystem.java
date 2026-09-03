@@ -102,7 +102,7 @@ public final class OnLandProducerSystem extends EntityTickingSystem<EntityStore>
         World world = store.getExternalData().getWorld();
         if (world == null) return;
 
-        ActionDispatch.fire(TRIGGER, ref, store, commandBuffer, world, playerRef.getUuid(),
+        ActionDispatch.fire(TRIGGER, ref, store, commandBuffer, world,
                 holder, distance, transform.getPosition(), null, null);
     }
 }

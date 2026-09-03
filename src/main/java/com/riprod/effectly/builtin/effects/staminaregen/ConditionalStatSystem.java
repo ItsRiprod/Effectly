@@ -51,7 +51,7 @@ public class ConditionalStatSystem extends EntityTickingSystem<EntityStore> {
         if (staminaIndex < 0 || staminaIndex == Integer.MIN_VALUE || staminaIndex >= statMap.size()) return;
 
         var activeValue = AbilityConditionUtils.bestActiveForHandler(
-                ref, store, world, playerRefComponent.getUuid(), StaminaRegenHandler.ID);
+                ref, store, world, StaminaRegenHandler.ID);
         if (activeValue == null) return;
 
         float multiplier = (float) activeValue.value();

@@ -55,7 +55,7 @@ public final class DarkVisionEffectSystem extends EntityTickingSystem<EntityStor
         if (controller == null) return;
 
         boolean active = AbilityConditionUtils.bestActiveForHandler(
-                ref, store, world, playerRef.getUuid(), DarkVisionHandler.ID) != null;
+                ref, store, world, DarkVisionHandler.ID) != null;
         boolean applied = controller.getActiveEffects().containsKey(effectIndex);
 
         if (active && !applied) {
