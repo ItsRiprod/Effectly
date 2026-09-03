@@ -14,6 +14,7 @@ import com.hypixel.hytale.codec.schema.metadata.ui.UIEditor;
 import com.hypixel.hytale.codec.schema.metadata.ui.UIEditorSectionStart;
 import com.hypixel.hytale.codec.codecs.array.ArrayCodec;
 import com.riprod.effectly.core.actions.Action;
+import com.riprod.effectly.core.actions.capability.ActionCapabilityValidator;
 import com.riprod.effectly.core.conditions.AbilityConditionSpec;
 import com.riprod.effectly.core.effects.utils.AbilityType;
 
@@ -247,6 +248,7 @@ public final class EffectAsset implements JsonAssetWithMap<String, IndexedLookup
                         asset -> asset.actions.isEmpty()
                                 ? null
                                 : asset.actions.toArray(Action[]::new))
+                .addValidatorLate(() -> ActionCapabilityValidator.INSTANCE.late())
                 .documentation("One-shot actions executed when their trigger fires, scaled by the "
                         + "granted value. An effect may have actions, a handler, or both")
                 .add()

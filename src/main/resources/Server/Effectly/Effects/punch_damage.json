@@ -1,4 +1,19 @@
 {
+  "Actions": [
+    {
+      "Type": "Modify_Damage",
+      "Trigger": "OnAttack",
+      "Base": 0.0,
+      "Factor": 1.0,
+      "DamageCause": "Physical",
+      "MatchInherited": false
+    }
+  ],
+  "Conditions": [
+    {
+      "Type": "Empty_Hand"
+    }
+  ],
   "Type": "Numeric",
   "Default": 1.0,
   "Min": 0.5,

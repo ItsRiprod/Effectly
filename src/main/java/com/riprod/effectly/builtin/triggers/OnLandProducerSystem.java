@@ -17,7 +17,12 @@ import com.hypixel.hytale.server.core.modules.entity.player.PlayerInput;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.riprod.effectly.builtin.capabilities.MagnitudeCapability;
+import com.riprod.effectly.builtin.capabilities.PositionCapability;
+import com.riprod.effectly.builtin.capabilities.SelfCapability;
+import com.riprod.effectly.core.actions.ActionContext;
 import com.riprod.effectly.core.actions.ActionDispatch;
+import com.riprod.effectly.core.actions.capability.CapabilityType;
 import com.riprod.effectly.core.actions.component.ActionHolderComponent;
 
 import java.util.Set;
@@ -28,9 +33,12 @@ public final class OnLandProducerSystem extends EntityTickingSystem<EntityStore>
 
     public static final String TRIGGER = "OnLand";
 
-    private static final Query<EntityStore> QUERY = Query.and(
-            ActionHolderComponent.getComponentType(),
-            PlayerInput.getComponentType());
+    public static final Set<CapabilityType<?>> PROVIDES = Set.of(
+            SelfCapability.TYPE,
+            PositionCapability.TYPE,
+            MagnitudeCapability.TYPE);
+
+    private static final Query<EntityStore> QUERY = ActionHolderComponent.getComponentType();
 
     private static final Set<Dependency<EntityStore>> DEPENDENCIES = Set.of(
             new SystemDependency<>(Order.BEFORE, DamageSystems.FallDamagePlayers.class));
@@ -102,7 +110,12 @@ public final class OnLandProducerSystem extends EntityTickingSystem<EntityStore>
         World world = store.getExternalData().getWorld();
         if (world == null) return;
 
-        ActionDispatch.fire(TRIGGER, ref, store, commandBuffer, world,
-                holder, distance, transform.getPosition(), null, null);
+        ActionContext context = ActionContext.builder(commandBuffer, world)
+                .with(SelfCapability.TYPE, new SelfCapability(ref))
+                .with(PositionCapability.TYPE, new PositionCapability(transform.getPosition()))
+                .with(MagnitudeCapability.TYPE, new MagnitudeCapability(distance))
+                .build();
+
+        ActionDispatch.fire(TRIGGER, ref, holder, context, null);
     }
 }

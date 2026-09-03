@@ -11,10 +11,15 @@ import com.hypixel.hytale.server.core.modules.entity.damage.DamageSystems;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.util.TargetUtil;
+import com.riprod.effectly.builtin.capabilities.MagnitudeCapability;
+import com.riprod.effectly.builtin.capabilities.PositionCapability;
+import com.riprod.effectly.builtin.capabilities.SelfCapability;
 import com.riprod.effectly.core.actions.Action;
 import com.riprod.effectly.core.actions.ActionContext;
+import com.riprod.effectly.core.actions.capability.CapabilityType;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -24,6 +29,9 @@ public final class BurstAction extends Action {
 
     @Nonnull
     public static final String ID = "Burst";
+
+    private static final Set<CapabilityType<?>> REQUIRED =
+            Set.of(SelfCapability.TYPE, PositionCapability.TYPE, MagnitudeCapability.TYPE);
 
     @Nonnull
     public static final BuilderCodec<@NotNull BurstAction> CODEC = BuilderCodec
@@ -45,26 +53,34 @@ public final class BurstAction extends Action {
     private double radius = 4.0;
     private String damageCause = "Effectly_Burst";
 
+    @Nonnull
     @Override
-    public boolean execute(@Nonnull ActionContext context) {
+    public Set<CapabilityType<?>> requiredCapabilities() {
+        return REQUIRED;
+    }
+
+    @Override
+    public boolean execute(@Nonnull ActionContext context, double value) {
         if (radius <= 0) return false;
 
         DamageCause cause = DamageCause.getAssetMap().getAsset(damageCause);
         if (cause == null) return false;
 
-        float amount = (float) (context.getValue() * context.getMagnitude());
+        float amount = (float) (value * context.get(MagnitudeCapability.TYPE).asNumber());
         if (amount <= 0f) return false;
 
-        List<Ref<EntityStore>> targets = List.copyOf(
-                TargetUtil.getAllEntitiesInSphere(context.getPosition(), radius, context.getStore()));
+        var store = context.getEntityStore();
+        var self = context.get(SelfCapability.TYPE).getEntity();
+        List<Ref<EntityStore>> targets = List.copyOf(TargetUtil.getAllEntitiesInSphere(
+                context.get(PositionCapability.TYPE).getPosition(), radius, store));
 
         boolean hit = false;
         for (Ref<EntityStore> target : targets) {
-            if (target == null || !target.isValid() || target.equals(context.getHolderRef())) continue;
-            if (context.getStore().getComponent(target, EntityStatMap.getComponentType()) == null) continue;
+            if (target == null || !target.isValid() || target.equals(self)) continue;
+            if (store.getComponent(target, EntityStatMap.getComponentType()) == null) continue;
 
-            DamageSystems.executeDamage(target, context.getCommandBuffer(),
-                    new Damage(new Damage.EntitySource(context.getHolderRef()), cause, amount));
+            DamageSystems.executeDamage(target, store,
+                    new Damage(new Damage.EntitySource(self), cause, amount));
             hit = true;
         }
         return hit;

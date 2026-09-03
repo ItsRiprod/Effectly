@@ -1,4 +1,12 @@
 {
+  "Actions": [
+    {
+      "Type": "Modify_Damage",
+      "Trigger": "OnAttack",
+      "Base": 1.0,
+      "Factor": 1.0
+    }
+  ],
   "Type": "Numeric",
   "Default": 0.0,
   "Min": -1.0,

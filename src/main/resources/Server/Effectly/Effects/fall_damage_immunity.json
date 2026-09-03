@@ -1,4 +1,11 @@
 {
+  "Actions": [
+    {
+      "Type": "Heavy",
+      "Trigger": "OnFall",
+      "Reduction": 1.0
+    }
+  ],
   "Type": "Binary",
   "Default": 1.0,
   "Min": 0.0,

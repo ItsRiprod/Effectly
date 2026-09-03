@@ -20,7 +20,7 @@ public final class DefaultAction extends Action {
     }
 
     @Override
-    public boolean execute(@Nonnull ActionContext context) {
+    public boolean execute(@Nonnull ActionContext context, double value) {
         return false;
     }
 }

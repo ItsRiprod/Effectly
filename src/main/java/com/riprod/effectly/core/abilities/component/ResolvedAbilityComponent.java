@@ -9,8 +9,9 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.riprod.effectly.core.actions.Action;
 import com.riprod.effectly.core.effects.registry.EffectAsset;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -83,6 +84,10 @@ public final class ResolvedAbilityComponent implements Component<EntityStore> {
         return byTrigger.getOrDefault(triggerId, List.of());
     }
 
+    public boolean hasTrigger(@Nonnull String triggerId) {
+        return byTrigger.containsKey(triggerId);
+    }
+
     public boolean hasActions() {
         return !byTrigger.isEmpty();
     }
@@ -92,8 +97,8 @@ public final class ResolvedAbilityComponent implements Component<EntityStore> {
     }
 
     public void resolveFrom(@Nonnull AbilityComponent roster) {
-        Map<String, List<Resolved>> handlers = new HashMap<>();
-        Map<String, List<ResolvedAction>> triggers = new HashMap<>();
+        Map<String, List<Resolved>> handlers = new Object2ObjectOpenHashMap<>();
+        Map<String, List<ResolvedAction>> triggers = new Object2ObjectOpenHashMap<>();
         for (String abilityId : roster.getAbilities().keySet()) {
             EffectAsset asset = EffectAsset.getAssetMap().getAsset(abilityId);
             if (asset == null || !asset.isEnabled()) continue;
@@ -116,8 +121,8 @@ public final class ResolvedAbilityComponent implements Component<EntityStore> {
     @Override
     public Component<EntityStore> clone() {
         ResolvedAbilityComponent copy = new ResolvedAbilityComponent();
-        copy.byHandler = new HashMap<>(this.byHandler);
-        copy.byTrigger = new HashMap<>(this.byTrigger);
+        copy.byHandler = new Object2ObjectOpenHashMap<>(this.byHandler);
+        copy.byTrigger = new Object2ObjectOpenHashMap<>(this.byTrigger);
         return copy;
     }
 }

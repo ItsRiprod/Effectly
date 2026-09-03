@@ -1,61 +1,66 @@
 package com.riprod.effectly.core.actions;
 
 import com.hypixel.hytale.component.CommandBuffer;
-import com.hypixel.hytale.component.Ref;
-import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.server.core.modules.entity.damage.Damage;
 import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.riprod.effectly.core.actions.capability.Capability;
+import com.riprod.effectly.core.actions.capability.CapabilityRegistry;
+import com.riprod.effectly.core.actions.capability.CapabilityType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public final class ActionContext {
 
-    private final Ref<EntityStore> holderRef;
-    private final Store<EntityStore> store;
-    private final CommandBuffer<EntityStore> commandBuffer;
+    private final Capability[] slots;
+    private final CommandBuffer<EntityStore> entities;
     private final World world;
-    private final double value;
-    private final double magnitude;
-    private final org.joml.Vector3d position;
-    private final Ref<EntityStore> otherRef;
-    private final Damage damage;
 
-    public ActionContext(
-            @Nonnull Ref<EntityStore> holderRef,
-            @Nonnull Store<EntityStore> store,
-            @Nonnull CommandBuffer<EntityStore> commandBuffer,
-            @Nonnull World world,
-            double value,
-            double magnitude,
-            @Nonnull org.joml.Vector3d position,
-            @Nullable Ref<EntityStore> otherRef,
-            @Nullable Damage damage) {
-        this.holderRef = holderRef;
-        this.store = store;
-        this.commandBuffer = commandBuffer;
+    private ActionContext(
+            @Nonnull Capability[] slots,
+            @Nonnull CommandBuffer<EntityStore> entities,
+            @Nonnull World world) {
+        this.slots = slots;
+        this.entities = entities;
         this.world = world;
-        this.value = value;
-        this.magnitude = magnitude;
-        this.position = position;
-        this.otherRef = otherRef;
-        this.damage = damage;
     }
 
     @Nonnull
-    public Ref<EntityStore> getHolderRef() {
-        return holderRef;
+    public static Builder builder(
+            @Nonnull CommandBuffer<EntityStore> entities,
+            @Nonnull World world) {
+        return new Builder(entities, world);
     }
 
     @Nonnull
-    public Store<EntityStore> getStore() {
-        return store;
+    public <T extends Capability> T get(@Nonnull CapabilityType<T> type) {
+        Capability capability = find(type);
+        if (capability == null) {
+            throw new IllegalStateException(
+                    "Capability '" + type.getId() + "' was required but not supplied by the trigger");
+        }
+        return type.getType().cast(capability);
+    }
+
+    @Nullable
+    public Capability find(@Nonnull CapabilityType<?> type) {
+        int index = type.getIndex();
+        return index >= 0 && index < slots.length ? slots[index] : null;
+    }
+
+    public boolean has(@Nonnull CapabilityType<?> type) {
+        return find(type) != null;
     }
 
     @Nonnull
-    public CommandBuffer<EntityStore> getCommandBuffer() {
-        return commandBuffer;
+    public CommandBuffer<EntityStore> getEntityStore() {
+        return entities;
+    }
+
+    @Nonnull
+    public ChunkStore getChunkStore() {
+        return world.getChunkStore();
     }
 
     @Nonnull
@@ -63,26 +68,32 @@ public final class ActionContext {
         return world;
     }
 
-    public double getValue() {
-        return value;
-    }
+    public static final class Builder {
 
-    public double getMagnitude() {
-        return magnitude;
-    }
+        private final Capability[] slots;
+        private final CommandBuffer<EntityStore> entities;
+        private final World world;
 
-    @Nonnull
-    public org.joml.Vector3d getPosition() {
-        return position;
-    }
+        private Builder(@Nonnull CommandBuffer<EntityStore> entities, @Nonnull World world) {
+            this.slots = new Capability[CapabilityRegistry.count()];
+            this.entities = entities;
+            this.world = world;
+        }
 
-    @Nullable
-    public Ref<EntityStore> getOtherRef() {
-        return otherRef;
-    }
+        @Nonnull
+        public <T extends Capability> Builder with(@Nonnull CapabilityType<T> type, @Nonnull T capability) {
+            int index = type.getIndex();
+            if (index < 0 || index >= slots.length) {
+                throw new IllegalStateException(
+                        "Capability '" + type.getId() + "' is not registered; register it before the asset store");
+            }
+            slots[index] = capability;
+            return this;
+        }
 
-    @Nullable
-    public Damage getDamage() {
-        return damage;
+        @Nonnull
+        public ActionContext build() {
+            return new ActionContext(slots, entities, world);
+        }
     }
 }

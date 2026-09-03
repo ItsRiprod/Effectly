@@ -4,7 +4,7 @@
     "Field": "BaseSpeed"
   },
   "Type": "Numeric",
-  "Default": 1.0,
+  "Default": 1.5,
   "Min": 0.5,
   "Max": 3.0,
   "Description": "Movement speed multiplier"

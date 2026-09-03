@@ -1,8 +1,14 @@
 {
-  "Handler": {
-    "Id": "resistance",
-    "DamageCause": "Bludgeoning"
-  },
+  "Actions": [
+    {
+      "Type": "Modify_Damage",
+      "Trigger": "OnDamageFilter",
+      "Base": 1.0,
+      "Factor": -1.0,
+      "DamageCause": "Bludgeoning",
+      "MatchInherited": true
+    }
+  ],
   "Type": "Numeric",
   "Default": 0.0,
   "Min": -1.0,

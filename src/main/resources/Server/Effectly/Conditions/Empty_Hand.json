@@ -1,0 +1,7 @@
+{
+  "Handler": {
+    "Id": "empty_hand"
+  },
+  "Keyword": "empty_hand",
+  "Description": "active only while holding nothing"
+}

@@ -3,7 +3,7 @@
     {
       "Type": "Gust",
       "Trigger": "OnLand",
-      "MinFallDistance": 3.0,
+      "Threshold": { "Magnitude": 3.0 },
       "Cooldown": 1.0,
       "Radius": 4.0,
       "Force": 8.0

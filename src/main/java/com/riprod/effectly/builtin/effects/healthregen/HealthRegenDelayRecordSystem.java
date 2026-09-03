@@ -12,8 +12,6 @@ import com.hypixel.hytale.server.core.modules.entity.damage.Damage;
 import com.hypixel.hytale.server.core.modules.entity.damage.DamageEventSystem;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.riprod.effectly.builtin.effects.survival.FallDamageImmunitySystem;
-import com.riprod.effectly.builtin.effects.survival.InvulnerabilitySystem;
 import com.riprod.effectly.core.damage.DamageModifierPipelineDependencies;
 
 import java.util.HashSet;
@@ -32,8 +30,6 @@ public class HealthRegenDelayRecordSystem extends DamageEventSystem {
     public Set<Dependency<EntityStore>> getDependencies() {
         Set<Dependency<EntityStore>> dependencies = new HashSet<>(
                 DamageModifierPipelineDependencies.afterFilterBeforeApplyDamage());
-        dependencies.add(new SystemDependency<>(Order.AFTER, InvulnerabilitySystem.class));
-        dependencies.add(new SystemDependency<>(Order.AFTER, FallDamageImmunitySystem.class));
         return dependencies;
     }
 

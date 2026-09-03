@@ -42,4 +42,9 @@ public final class TriggerRegistry {
     public static Collection<String> ids() {
         return Collections.unmodifiableCollection(TRIGGERS.keySet());
     }
+
+    @Nonnull
+    public static Collection<Trigger> all() {
+        return Collections.unmodifiableCollection(TRIGGERS.values());
+    }
 }

@@ -3,7 +3,7 @@
     {
       "Type": "Bounce",
       "Trigger": "OnLand",
-      "MinFallDistance": 1.5,
+      "Threshold": { "Magnitude": 1.5 },
       "Cooldown": 0.5,
       "Restitution": 4.0
     }

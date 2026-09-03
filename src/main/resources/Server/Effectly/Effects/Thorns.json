@@ -1,8 +1,11 @@
 {
-  "Handler": {
-    "Id": "Thorns",
-    "DamageCause": "Effectly_Thorns"
-  },
+  "Actions": [
+    {
+      "Type": "Reflect",
+      "Trigger": "OnAttacked",
+      "DamageCause": "Effectly_Thorns"
+    }
+  ],
   "Type": "Numeric",
   "Default": 0.25,
   "Min": 0.0,

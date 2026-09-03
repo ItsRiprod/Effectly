@@ -9,10 +9,14 @@ import com.hypixel.hytale.server.core.modules.entity.component.TransformComponen
 import com.hypixel.hytale.server.core.modules.physics.component.Velocity;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.util.TargetUtil;
+import com.riprod.effectly.builtin.capabilities.PositionCapability;
+import com.riprod.effectly.builtin.capabilities.SelfCapability;
 import com.riprod.effectly.core.actions.Action;
 import com.riprod.effectly.core.actions.ActionContext;
+import com.riprod.effectly.core.actions.capability.CapabilityType;
 
 import java.util.List;
+import java.util.Set;
 import javax.annotation.Nonnull;
 
 import org.joml.Vector3d;
@@ -21,6 +25,9 @@ public final class GustAction extends Action {
 
     @Nonnull
     public static final String ID = "Gust";
+
+    private static final Set<CapabilityType<?>> REQUIRED =
+            Set.of(SelfCapability.TYPE, PositionCapability.TYPE);
 
     @Nonnull
     public static final BuilderCodec<GustAction> CODEC = BuilderCodec
@@ -41,22 +48,31 @@ public final class GustAction extends Action {
     private double radius = 4.0;
     private double force = 8.0;
 
+    @Nonnull
     @Override
-    public boolean execute(@Nonnull ActionContext context) {
+    public Set<CapabilityType<?>> requiredCapabilities() {
+        return REQUIRED;
+    }
+
+    @Override
+    public boolean execute(@Nonnull ActionContext context, double value) {
         if (radius <= 0) return false;
 
-        List<Ref<EntityStore>> targets = List.copyOf(
-                TargetUtil.getAllEntitiesInSphere(context.getPosition(), radius, context.getStore()));
+        var store = context.getEntityStore();
+        var self = context.get(SelfCapability.TYPE).getEntity();
+        Vector3d center = context.get(PositionCapability.TYPE).getPosition();
 
-        Vector3d center = context.getPosition();
+        List<Ref<EntityStore>> targets =
+                List.copyOf(TargetUtil.getAllEntitiesInSphere(center, radius, store));
+
         boolean pushed = false;
         for (Ref<EntityStore> target : targets) {
-            if (target == null || !target.isValid() || target.equals(context.getHolderRef())) continue;
+            if (target == null || !target.isValid() || target.equals(self)) continue;
 
-            Velocity velocity = context.getStore().getComponent(target, Velocity.getComponentType());
+            Velocity velocity = store.getComponent(target, Velocity.getComponentType());
             if (velocity == null) continue;
 
-            TransformComponent transform = context.getStore().getComponent(
+            TransformComponent transform = store.getComponent(
                     target, TransformComponent.getComponentType());
             if (transform == null) continue;
 
@@ -64,7 +80,7 @@ public final class GustAction extends Action {
             double distance = offset.length();
             if (distance > radius) continue;
 
-            double strength = force * context.getValue() * (1.0 - distance / radius);
+            double strength = force * value * (1.0 - distance / radius);
             if (strength <= 0) continue;
 
             Vector3d direction = distance < 1e-6

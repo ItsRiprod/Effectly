@@ -1,8 +1,14 @@
 {
-  "Handler": {
-    "Id": "resistance",
-    "DamageCause": "Fire"
-  },
+  "Actions": [
+    {
+      "Type": "Modify_Damage",
+      "Trigger": "OnDamageFilter",
+      "Base": 1.0,
+      "Factor": -1.0,
+      "DamageCause": "Fire",
+      "MatchInherited": true
+    }
+  ],
   "Type": "Numeric",
   "Default": 0.0,
   "Min": -1.0,
