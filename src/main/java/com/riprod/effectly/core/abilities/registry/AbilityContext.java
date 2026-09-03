@@ -9,7 +9,6 @@ import com.riprod.effectly.core.abilities.component.AbilityComponent;
 import com.riprod.effectly.core.abilities.component.ResolvedAbilityComponent;
 import com.riprod.effectly.core.actions.component.ActionHolderComponent;
 
-import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -52,11 +51,6 @@ public final class AbilityContext {
     @Nonnull
     public PlayerRef getPlayerRef() {
         return playerRef;
-    }
-
-    @Nonnull
-    public UUID getUuid() {
-        return playerRef.getUuid();
     }
 
     @Nullable

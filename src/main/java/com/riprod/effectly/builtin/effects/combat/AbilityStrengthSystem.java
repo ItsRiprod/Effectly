@@ -76,7 +76,7 @@ public class AbilityStrengthSystem extends DamageEventSystem {
 
         Ref<EntityStore> targetRef = archetypeChunk.getReferenceTo(index);
         var strengthAbility = AbilityConditionUtils.bestActiveForHandler(
-                attackerRef, store, world, attackerPlayerRef.getUuid(), StrengthHandler.ID, targetRef);
+                attackerRef, store, world, StrengthHandler.ID, targetRef);
         if (strengthAbility == null) return;
 
         double value = strengthAbility.value();

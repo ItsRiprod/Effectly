@@ -7,14 +7,12 @@ import com.hypixel.hytale.server.core.modules.entity.damage.Damage;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
-import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public final class ActionContext {
 
     private final Ref<EntityStore> holderRef;
-    private final UUID holderUuid;
     private final Store<EntityStore> store;
     private final CommandBuffer<EntityStore> commandBuffer;
     private final World world;
@@ -26,7 +24,6 @@ public final class ActionContext {
 
     public ActionContext(
             @Nonnull Ref<EntityStore> holderRef,
-            @Nonnull UUID holderUuid,
             @Nonnull Store<EntityStore> store,
             @Nonnull CommandBuffer<EntityStore> commandBuffer,
             @Nonnull World world,
@@ -36,7 +33,6 @@ public final class ActionContext {
             @Nullable Ref<EntityStore> otherRef,
             @Nullable Damage damage) {
         this.holderRef = holderRef;
-        this.holderUuid = holderUuid;
         this.store = store;
         this.commandBuffer = commandBuffer;
         this.world = world;
@@ -50,11 +46,6 @@ public final class ActionContext {
     @Nonnull
     public Ref<EntityStore> getHolderRef() {
         return holderRef;
-    }
-
-    @Nonnull
-    public UUID getHolderUuid() {
-        return holderUuid;
     }
 
     @Nonnull

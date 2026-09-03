@@ -84,7 +84,7 @@ public class AbilityDamageResistanceSystem extends DamageEventSystem {
         var ref = archetypeChunk.getReferenceTo(index);
         if (ref == null || !ref.isValid()) return;
 
-        double value = resistanceFor(ref, store, world, playerRefComponent.getUuid(), damageCause);
+        double value = resistanceFor(ref, store, world, damageCause);
         if (!AbilityConditionUtils.isActive(value) || value == 0) return;
 
         float currentAmount = damage.getAmount();
@@ -96,7 +96,6 @@ public class AbilityDamageResistanceSystem extends DamageEventSystem {
             @Nonnull Ref<EntityStore> ref,
             @Nonnull ComponentAccessor<EntityStore> store,
             @Nonnull World world,
-            @Nonnull java.util.UUID playerId,
             @Nonnull DamageCause cause) {
         List<ResolvedAbilityComponent.Resolved> resistances =
                 ResolvedAbilityComponent.forHandler(ref, store, ResistanceHandler.ID);
@@ -107,7 +106,7 @@ public class AbilityDamageResistanceSystem extends DamageEventSystem {
             String causeId = current.getId();
             if (causeId == null || causeId.isBlank()) return AbilityConditionUtils.INACTIVE;
 
-            double best = bestAt(ref, store, world, playerId, resistances, causeId);
+            double best = bestAt(ref, store, world, resistances, causeId);
             if (AbilityConditionUtils.isActive(best)) return best;
 
             String inherits = current.getInherits();
@@ -121,7 +120,6 @@ public class AbilityDamageResistanceSystem extends DamageEventSystem {
             @Nonnull Ref<EntityStore> ref,
             @Nonnull ComponentAccessor<EntityStore> store,
             @Nonnull World world,
-            @Nonnull java.util.UUID playerId,
             @Nonnull List<ResolvedAbilityComponent.Resolved> resistances,
             @Nonnull String causeId) {
         double best = AbilityConditionUtils.INACTIVE;
@@ -132,7 +130,7 @@ public class AbilityDamageResistanceSystem extends DamageEventSystem {
             if (!causeId.equalsIgnoreCase(config.getDamageCause())) continue;
 
             double value = AbilityConditionUtils.activeValue(
-                    ref, store, world, playerId, resistance.abilityId());
+                    ref, store, world, resistance.abilityId());
             if (!AbilityConditionUtils.isActive(value) || !Double.isFinite(value)) continue;
             if (!AbilityConditionUtils.isActive(best) || value > best) best = value;
         }

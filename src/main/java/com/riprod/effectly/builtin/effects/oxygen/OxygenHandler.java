@@ -81,7 +81,7 @@ public final class OxygenHandler implements AbilityHandler {
         if (abilityId == null) return 0f;
 
         double value = AbilityConditionUtils.activeValue(
-                context.getRef(), context.getComponents(), context.getWorld(), context.getUuid(), abilityId);
+                context.getRef(), context.getComponents(), context.getWorld(), abilityId);
         if (!AbilityConditionUtils.isActive(value) || value <= 0) return 0f;
 
         return (float) (value

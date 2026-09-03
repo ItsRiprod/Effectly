@@ -12,7 +12,6 @@ import com.riprod.effectly.core.effects.registry.EffectAsset;
 import com.riprod.effectly.core.utils.AbilityConditionUtils;
 
 import java.util.List;
-import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -28,7 +27,6 @@ public final class ActionDispatch {
             @Nonnull Store<EntityStore> store,
             @Nonnull CommandBuffer<EntityStore> commandBuffer,
             @Nonnull World world,
-            @Nonnull UUID playerId,
             @Nonnull ActionHolderComponent holder,
             double magnitude,
             @Nonnull Vector3d position,
@@ -51,7 +49,7 @@ public final class ActionDispatch {
             if (magnitude < action.getMinFallDistance()) continue;
 
             double value = AbilityConditionUtils.activeValue(
-                    ref, store, world, playerId, entry.abilityId(), otherRef);
+                    ref, store, world, entry.abilityId(), otherRef);
             if (!AbilityConditionUtils.isActive(value)) continue;
 
             String cooldownKey = null;
@@ -60,7 +58,7 @@ public final class ActionDispatch {
                 if (holder.isOnCooldown(cooldownKey)) continue;
             }
 
-            boolean fired = action.execute(new ActionContext(ref, playerId, store, commandBuffer, world,
+            boolean fired = action.execute(new ActionContext(ref, store, commandBuffer, world,
                     value, magnitude, position, otherRef, damage));
 
             if (fired && cooldownKey != null) {

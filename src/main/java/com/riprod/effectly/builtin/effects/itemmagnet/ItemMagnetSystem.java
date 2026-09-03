@@ -74,7 +74,7 @@ public class ItemMagnetSystem extends EntityTickingSystem<EntityStore> {
         if (component == null) return;
 
         var active = AbilityConditionUtils.bestActiveForHandler(
-                playerRef, store, world, playerRefComponent.getUuid(), ItemMagnetHandler.ID);
+                playerRef, store, world, ItemMagnetHandler.ID);
         if (active == null) return;
 
         double value = active.value();

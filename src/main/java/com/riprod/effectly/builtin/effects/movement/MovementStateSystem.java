@@ -72,7 +72,7 @@ public final class MovementStateSystem extends EntityTickingSystem<EntityStore> 
         for (ResolvedAbilityComponent.Resolved ability : abilities) {
             MovementStateConfig config = configOf(ability);
             double value = AbilityConditionUtils.activeValue(
-                    ref, store, world, playerRef.getUuid(), ability.abilityId());
+                    ref, store, world, ability.abilityId());
             if (!AbilityConditionUtils.isActive(value)) continue;
 
             if (config.getField() == MovementStateConfig.Field.CAN_FLY) {

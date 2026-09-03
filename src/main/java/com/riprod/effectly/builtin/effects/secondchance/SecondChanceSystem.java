@@ -63,7 +63,7 @@ public class SecondChanceSystem extends DamageEventSystem {
         if (state == null || state.onCooldown()) return;
 
         var active = AbilityConditionUtils.bestActiveForHandler(
-                targetRef, store, world, playerRefComponent.getUuid(), SecondChanceHandler.ID);
+                targetRef, store, world, SecondChanceHandler.ID);
         if (active == null) return;
 
         SecondChanceConfig config = active.configOrDefault(SecondChanceConfig.class, SecondChanceConfig.DEFAULTS);

@@ -69,7 +69,7 @@ public final class ThornsSystem extends DamageEventSystem {
         if (world == null) return;
 
         var active = AbilityConditionUtils.bestActiveForHandler(
-                victimRef, store, world, victimPlayerRef.getUuid(), ThornsHandler.ID, attackerRef);
+                victimRef, store, world, ThornsHandler.ID, attackerRef);
         if (active == null) return;
 
         ThornsConfig config = active.configOrDefault(ThornsConfig.class, ThornsConfig.DEFAULTS);

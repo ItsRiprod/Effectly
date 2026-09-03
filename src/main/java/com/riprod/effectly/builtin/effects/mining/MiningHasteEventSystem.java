@@ -44,7 +44,7 @@ public class MiningHasteEventSystem extends EntityEventSystem<EntityStore, Damag
         if (playerRefComponent == null) return;
 
         var active = AbilityConditionUtils.bestActiveForHandler(
-                ref, store, world, playerRefComponent.getUuid(), MiningHasteHandler.ID);
+                ref, store, world, MiningHasteHandler.ID);
         if (active == null) return;
 
         int level = (int) active.value();

@@ -70,7 +70,7 @@ public class FallDamageImmunitySystem extends DamageEventSystem {
         PlayerRef playerRefComponent = archetypeChunk.getComponent(index, PlayerRef.getComponentType());
         if (playerRefComponent == null) return;
 
-        if (AbilityConditionUtils.bestActiveForHandler(targetRef, store, world, playerRefComponent.getUuid(), FallDamageImmunityHandler.ID) == null) {
+        if (AbilityConditionUtils.bestActiveForHandler(targetRef, store, world, FallDamageImmunityHandler.ID) == null) {
             return;
         }
 

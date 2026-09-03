@@ -68,7 +68,7 @@ public final class OnFallProducerSystem extends DamageEventSystem {
         World world = store.getExternalData().getWorld();
         if (world == null) return;
 
-        ActionDispatch.fire(TRIGGER, ref, store, commandBuffer, world, playerRef.getUuid(),
+        ActionDispatch.fire(TRIGGER, ref, store, commandBuffer, world,
                 holder, amount, transform.getPosition(), null, damage);
     }
 }

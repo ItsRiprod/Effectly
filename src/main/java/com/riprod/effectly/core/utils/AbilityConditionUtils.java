@@ -50,9 +50,8 @@ public final class AbilityConditionUtils {
             @Nonnull Ref<EntityStore> ref,
             @Nonnull ComponentAccessor<EntityStore> store,
             @Nonnull World world,
-            @Nonnull java.util.UUID playerId,
             @Nonnull String abilityId) {
-        return isActive(activeValue(ref, store, world, playerId, abilityId));
+        return isActive(activeValue(ref, store, world, abilityId));
     }
 
     /**
@@ -64,26 +63,18 @@ public final class AbilityConditionUtils {
             @Nonnull Ref<EntityStore> ref,
             @Nonnull ComponentAccessor<EntityStore> store,
             @Nonnull World world,
-            @Nonnull java.util.UUID playerId,
             @Nonnull String abilityId) {
-        return getActiveAbilityValue(ref, store, world, playerId, abilityId, null);
+        return getActiveAbilityValue(ref, store, world, abilityId, null);
     }
 
-    /**
-     * Like {@link #getActiveAbilityValue(Ref, ComponentAccessor, World, java.util.UUID, String)} but supports
-     * target-based conditions (e.g. target_health_below). Pass the <b>target</b> entity ref when applying
-     * the ability in a damage context (e.g. the entity being damaged). If targetRef is null, target-based
-     * conditions fail.
-     */
     @Nullable
     public static AbilityValue getActiveAbilityValue(
             @Nonnull Ref<EntityStore> ref,
             @Nonnull ComponentAccessor<EntityStore> store,
             @Nonnull World world,
-            @Nonnull java.util.UUID playerId,
             @Nonnull String abilityId,
             @Nullable Ref<EntityStore> targetRef) {
-        double value = activeValue(ref, store, world, playerId, abilityId, targetRef);
+        double value = activeValue(ref, store, world, abilityId, targetRef);
         return isActive(value) ? AbilityEntry.toValue(abilityId, value) : null;
     }
 
@@ -96,16 +87,14 @@ public final class AbilityConditionUtils {
             @Nonnull Ref<EntityStore> ref,
             @Nonnull ComponentAccessor<EntityStore> store,
             @Nonnull World world,
-            @Nonnull java.util.UUID playerId,
             @Nonnull String abilityId) {
-        return activeValue(ref, store, world, playerId, abilityId, null);
+        return activeValue(ref, store, world, abilityId, null);
     }
 
     public static double activeValue(
             @Nonnull Ref<EntityStore> ref,
             @Nonnull ComponentAccessor<EntityStore> store,
             @Nonnull World world,
-            @Nonnull java.util.UUID playerId,
             @Nonnull String abilityId,
             @Nullable Ref<EntityStore> targetRef) {
         AbilityComponent roster = AbilityComponent.of(ref, store);
@@ -146,9 +135,8 @@ public final class AbilityConditionUtils {
             @Nonnull Ref<EntityStore> ref,
             @Nonnull ComponentAccessor<EntityStore> store,
             @Nonnull World world,
-            @Nonnull java.util.UUID playerId,
             @Nonnull String handlerId) {
-        return bestActiveForHandler(ref, store, world, playerId, handlerId, null);
+        return bestActiveForHandler(ref, store, world, handlerId, null);
     }
 
     @Nullable
@@ -156,7 +144,6 @@ public final class AbilityConditionUtils {
             @Nonnull Ref<EntityStore> ref,
             @Nonnull ComponentAccessor<EntityStore> store,
             @Nonnull World world,
-            @Nonnull java.util.UUID playerId,
             @Nonnull String handlerId,
             @Nullable Ref<EntityStore> targetRef) {
         List<ResolvedAbilityComponent.Resolved> candidates =
@@ -165,7 +152,7 @@ public final class AbilityConditionUtils {
 
         ActiveAbility best = null;
         for (ResolvedAbilityComponent.Resolved candidate : candidates) {
-            double amount = activeValue(ref, store, world, playerId, candidate.abilityId(), targetRef);
+            double amount = activeValue(ref, store, world, candidate.abilityId(), targetRef);
             if (!isActive(amount)) continue;
             if (best == null || amount > best.value()) {
                 best = new ActiveAbility(candidate.abilityId(), candidate.assetIndex(), amount);

@@ -66,7 +66,7 @@ public class WallClimbSystem extends EntityTickingSystem<EntityStore> implements
         if (component == null) return;
 
         var active = AbilityConditionUtils.bestActiveForHandler(
-                ref, store, world, playerRefComponent.getUuid(), WallClimbHandler.ID);
+                ref, store, world, WallClimbHandler.ID);
         if (active == null) return;
 
         MovementStatesComponent movementStatesComponent = store.getComponent(ref, MovementStatesComponent.getComponentType());
