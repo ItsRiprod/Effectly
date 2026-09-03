@@ -5,15 +5,18 @@ import com.hypixel.hytale.codec.schema.config.Schema;
 import com.hypixel.hytale.codec.validation.ValidationResults;
 import com.hypixel.hytale.codec.validation.Validator;
 import com.riprod.effectly.core.actions.Action;
+import com.riprod.effectly.core.actions.ActionRegistry;
 import com.riprod.effectly.core.actions.trigger.Trigger;
 import com.riprod.effectly.core.actions.trigger.TriggerRegistry;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 
-public final class ActionCapabilityValidator implements Validator<Action[]> {
+public final class ActionCapabilityValidator implements Validator<Map<String, Action[]>> {
 
     public static final ActionCapabilityValidator INSTANCE = new ActionCapabilityValidator();
 
@@ -21,18 +24,21 @@ public final class ActionCapabilityValidator implements Validator<Action[]> {
     }
 
     @Override
-    public void accept(Action[] actions, @Nonnull ValidationResults results) {
-        if (actions == null) return;
-        for (Action action : actions) {
-            if (action == null) continue;
-            String triggerId = action.getTrigger();
-            if (triggerId == null || triggerId.isEmpty()) continue;
-
+    public void accept(Map<String, Action[]> triggers, @Nonnull ValidationResults results) {
+        if (triggers == null) return;
+        for (Map.Entry<String, Action[]> entry : triggers.entrySet()) {
+            String triggerId = entry.getKey();
             Trigger trigger = TriggerRegistry.get(triggerId);
-            if (trigger == null) continue;
-
-            validateRequired(action, trigger, results);
-            validateThreshold(action, trigger, results);
+            if (trigger == null) {
+                results.fail("Unknown trigger '" + triggerId + "'. Registered: "
+                        + String.join(", ", TriggerRegistry.ids()));
+                continue;
+            }
+            for (Action action : entry.getValue()) {
+                if (action == null) continue;
+                validateRequired(action, trigger, results);
+                validateThreshold(action, trigger, results);
+            }
         }
     }
 
@@ -40,12 +46,11 @@ public final class ActionCapabilityValidator implements Validator<Action[]> {
             @Nonnull Action action,
             @Nonnull Trigger trigger,
             @Nonnull ValidationResults results) {
-        Set<CapabilityType<?>> required = action.requiredCapabilities();
-        for (CapabilityType<?> capability : required) {
+        for (CapabilityType<?> capability : action.requiredCapabilities()) {
             if (trigger.provides(capability)) continue;
-            results.fail("Action '" + action.getType() + "' on trigger '" + trigger.getId()
+            results.fail("Action '" + action.getType() + "' under trigger '" + trigger.getId()
                     + "' requires capability '" + capability.getId() + "', which '" + trigger.getId()
-                    + "' does not provide. " + satisfyingTriggers(required));
+                    + "' does not provide. " + validActionsFor(trigger));
         }
     }
 
@@ -65,7 +70,7 @@ public final class ActionCapabilityValidator implements Validator<Action[]> {
                 continue;
             }
             if (!trigger.provides(capability)) {
-                results.fail("Action '" + action.getType() + "' on trigger '" + trigger.getId()
+                results.fail("Action '" + action.getType() + "' under trigger '" + trigger.getId()
                         + "' thresholds on capability '" + key + "', which '" + trigger.getId()
                         + "' does not provide.");
             }
@@ -73,18 +78,21 @@ public final class ActionCapabilityValidator implements Validator<Action[]> {
     }
 
     @Nonnull
-    private static String satisfyingTriggers(@Nonnull Set<CapabilityType<?>> required) {
+    private static String validActionsFor(@Nonnull Trigger trigger) {
+        Set<CapabilityType<?>> provides = trigger.getProvides();
         List<String> candidates = new ArrayList<>();
-        for (Trigger candidate : TriggerRegistry.all()) {
-            if (candidate.getProvides().containsAll(required)) candidates.add(candidate.getId());
+        for (String id : Action.CODEC.getRegisteredIds()) {
+            if (provides.containsAll(ActionRegistry.requiredCapabilities(id))) candidates.add(id);
         }
+        Collections.sort(candidates);
         return candidates.isEmpty()
-                ? "No registered trigger provides all of them."
-                : "Triggers providing all required capabilities: " + String.join(", ", candidates) + ".";
+                ? "No registered action is valid for this trigger."
+                : "Actions valid for '" + trigger.getId() + "': " + String.join(", ", candidates) + ".";
     }
 
     @Override
     public void updateSchema(SchemaContext context, @Nonnull Schema target) {
-        target.setDescription("Each action must only require capabilities its trigger provides.");
+        target.setDescription("Keys must be registered triggers; each action must only require "
+                + "capabilities its trigger provides.");
     }
 }

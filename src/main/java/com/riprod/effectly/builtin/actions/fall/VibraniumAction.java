@@ -47,14 +47,17 @@ public final class VibraniumAction extends Action {
         float landed = damage.getAmount();
         if (landed <= 0f) return false;
 
-        damage.setAmount(0f);
+        float absorbed = (float) (landed * Math.min(Math.max(value, 0.0), 1.0));
+        if (absorbed <= 0f) return false;
+
+        damage.setAmount(landed - absorbed);
 
         var self = context.get(SelfCapability.TYPE).getEntity();
         EntityStatMap statMap = context.getEntityStore().getComponent(
                 self, EntityStatMap.getComponentType());
         if (statMap == null) return true;
 
-        float healed = (float) (landed * conversionRate * value);
+        float healed = (float) (absorbed * conversionRate * value);
         if (healed <= 0f) return true;
 
         statMap.addStatValue(DefaultEntityStatTypes.getHealth(), healed);

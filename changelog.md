@@ -1,5 +1,19 @@
 # Changelog
 
+# [1.5.3]
+- Added **Capabilities** declaration to Triggers and Actions - enabling them to be mixed/matched more effectively
+- Migrated all existing **Abilities** (that used to be coupled) to the **Actions** system triggered by a few new **Triggers**
+- Added new Triggers
+  - OnAttack
+  - OnDamage
+    - OnDamaged
+    - OnAttacked
+    - OnFall
+  - OnLand
+- Added new **Effects** field to **Actions** - enabling sfx/vfx to apply when the action triggers
+- Added new data map to the asset editor for a validated dropdown
+- Inverted the triggers so it's key-mapped to the actions array 
+
 # [1.5.0-1.5.2] 
 
 - **Conditions** can now be applied on the item-level, config-level, or command-level

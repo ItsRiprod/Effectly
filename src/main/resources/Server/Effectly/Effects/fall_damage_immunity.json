@@ -1,11 +1,13 @@
 {
-  "Actions": [
-    {
-      "Type": "Heavy",
-      "Trigger": "OnFall",
-      "Reduction": 1.0
-    }
-  ],
+  "Triggers": {
+    "OnFall": [
+      {
+        "Type": "Modify_Damage",
+        "Base": 1.0,
+        "Factor": -1.0
+      }
+    ]
+  },
   "Type": "Binary",
   "Default": 1.0,
   "Min": 0.0,

@@ -33,7 +33,8 @@ public final class ActionHolderComponent implements Component<EntityStore> {
                         if (v != null) holder.cooldowns.putAll(v);
                     },
                     holder -> holder.cooldowns.isEmpty() ? null : holder.cooldowns)
-            .documentation("Seconds left on each action cooldown, keyed by ability id and action index")
+            .documentation("Seconds left on each action cooldown, keyed by ability id, trigger id "
+                    + "and action index")
             .add()
             .build();
 

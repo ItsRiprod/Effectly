@@ -14,11 +14,13 @@ import com.hypixel.hytale.codec.schema.metadata.ui.UIEditor;
 import com.hypixel.hytale.codec.schema.metadata.ui.UIEditorSectionStart;
 import com.hypixel.hytale.codec.codecs.array.ArrayCodec;
 import com.riprod.effectly.core.actions.Action;
+import com.riprod.effectly.core.actions.TriggerActionsCodec;
 import com.riprod.effectly.core.actions.capability.ActionCapabilityValidator;
 import com.riprod.effectly.core.conditions.AbilityConditionSpec;
 import com.riprod.effectly.core.effects.utils.AbilityType;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,6 +32,8 @@ public final class EffectAsset implements JsonAssetWithMap<String, IndexedLookup
     public static final String ASSET_PATH = "Effectly/Effects";
 
     public static final int NOT_FOUND = AssetMapWithIndexes.NOT_FOUND;
+
+    private static final Action[] NO_ACTIONS = new Action[0];
 
     public static final AssetBuilderCodec<String, EffectAsset> CODEC = buildCodec();
 
@@ -45,7 +49,7 @@ public final class EffectAsset implements JsonAssetWithMap<String, IndexedLookup
     private double max = 1.0;
     private boolean enabled = true;
     private List<AbilityConditionSpec> conditions = List.of();
-    private List<Action> actions = List.of();
+    private Map<String, Action[]> triggers = Map.of();
 
     private EffectAsset() {
     }
@@ -159,12 +163,18 @@ public final class EffectAsset implements JsonAssetWithMap<String, IndexedLookup
     }
 
     @Nonnull
-    public List<Action> getActions() {
-        return this.actions;
+    public Map<String, Action[]> getTriggers() {
+        return this.triggers;
+    }
+
+    @Nonnull
+    public Action[] actionsFor(@Nonnull String triggerId) {
+        Action[] actions = this.triggers.get(triggerId);
+        return actions == null ? NO_ACTIONS : actions;
     }
 
     public boolean hasActions() {
-        return !this.actions.isEmpty();
+        return !this.triggers.isEmpty();
     }
 
     @Nullable
@@ -242,15 +252,12 @@ public final class EffectAsset implements JsonAssetWithMap<String, IndexedLookup
                 .documentation("Conditions intrinsic to this effect, gating it for every source that "
                         + "grants it. AND-ed with the grant's own conditions")
                 .add()
-                .append(new KeyedCodec<>("Actions",
-                                new ArrayCodec<>(Action.CODEC, Action[]::new)),
-                        (asset, v) -> asset.actions = v == null ? List.of() : List.of(v),
-                        asset -> asset.actions.isEmpty()
-                                ? null
-                                : asset.actions.toArray(Action[]::new))
+                .append(new KeyedCodec<>("Triggers", new TriggerActionsCodec()),
+                        (asset, v) -> asset.triggers = v == null ? Map.of() : v,
+                        asset -> asset.triggers.isEmpty() ? null : asset.triggers)
                 .addValidatorLate(() -> ActionCapabilityValidator.INSTANCE.late())
-                .documentation("One-shot actions executed when their trigger fires, scaled by the "
-                        + "granted value. An effect may have actions, a handler, or both")
+                .documentation("One-shot actions grouped by the trigger that fires them, scaled by "
+                        + "the granted value. An effect may have triggers, a handler, or both")
                 .add()
                 .append(new KeyedCodec<>("Enabled", Codec.BOOLEAN),
                         (asset, v) -> asset.enabled = v,

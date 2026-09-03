@@ -105,12 +105,13 @@ public final class ResolvedAbilityComponent implements Component<EntityStore> {
             int assetIndex = EffectAsset.indexOf(abilityId);
             handlers.computeIfAbsent(asset.getHandler(), id -> new ArrayList<>())
                     .add(new Resolved(abilityId, assetIndex));
-            List<Action> actions = asset.getActions();
-            for (int i = 0; i < actions.size(); i++) {
-                String trigger = actions.get(i).getTrigger();
-                if (trigger == null) continue;
-                triggers.computeIfAbsent(trigger, id -> new ArrayList<>())
-                        .add(new ResolvedAction(abilityId, assetIndex, i));
+            for (Map.Entry<String, Action[]> actionEntry : asset.getTriggers().entrySet()) {
+                Action[] actions = actionEntry.getValue();
+                List<ResolvedAction> resolvedActions =
+                        triggers.computeIfAbsent(actionEntry.getKey(), id -> new ArrayList<>());
+                for (int i = 0; i < actions.length; i++) {
+                    resolvedActions.add(new ResolvedAction(abilityId, assetIndex, i));
+                }
             }
         }
         this.byHandler = handlers;

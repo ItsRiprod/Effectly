@@ -1,14 +1,30 @@
 {
-  "Actions": [
-    {
-      "Type": "Gust",
-      "Trigger": "OnLand",
-      "Threshold": { "Magnitude": 3.0 },
-      "Cooldown": 1.0,
-      "Radius": 4.0,
-      "Force": 8.0
-    }
-  ],
+  "Triggers": {
+    "OnLand": [
+      {
+        "Type": "Gust",
+        "Threshold": {
+          "Magnitude": 3.0
+        },
+        "Cooldown": 1.0,
+        "Radius": 4.0,
+        "Force": 8.0,
+        "Effects": {
+          "ModelParticles": [
+            {
+              "SystemId": "Mace_Signature_Ground_Hit",
+              "TargetEntityPart": "Entity",
+              "TargetNodeName": "Hip",
+              "PositionOffset": {
+                "Y": 0.1
+              }
+            }
+          ],
+          "WorldSoundEventId": "SFX_Unarmed_Swing"
+        }
+      }
+    ]
+  },
   "Type": "Numeric",
   "Default": 1.0,
   "Min": 0.0,

@@ -1,13 +1,19 @@
 {
-  "Actions": [
-    {
-      "Type": "Bounce",
-      "Trigger": "OnLand",
-      "Threshold": { "Magnitude": 1.5 },
-      "Cooldown": 0.5,
-      "Restitution": 4.0
-    }
-  ],
+  "Triggers": {
+    "OnLand": [
+      {
+        "Type": "Bounce",
+        "Threshold": {
+          "Magnitude": 1.5
+        },
+        "Cooldown": 0.5,
+        "Restitution": 4.0,
+        "Effects": {
+          "WorldSoundEventId": "SFX_Player_Jump"
+        }
+      }
+    ]
+  },
   "Type": "Numeric",
   "Default": 1.0,
   "Min": 0.0,

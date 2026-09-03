@@ -1,14 +1,26 @@
 {
-  "Actions": [
-    {
-      "Type": "Burst",
-      "Trigger": "OnLand",
-      "Threshold": { "Magnitude": 4.0 },
-      "Cooldown": 1.0,
-      "Radius": 4.0,
-      "DamageCause": "Effectly_Burst"
-    }
-  ],
+  "Triggers": {
+    "OnLand": [
+      {
+        "Type": "Burst",
+        "Threshold": {
+          "Magnitude": 4.0
+        },
+        "Cooldown": 1.0,
+        "Radius": 4.0,
+        "DamageCause": "Effectly_Burst",
+        "Effects": {
+          "Particles": [
+            {
+              "SystemId": "Impact_Mace_Signature"
+            }
+          ],
+          "WorldSoundEventId": "SFX_Unarmed_Impact",
+          "CameraEffect": "Mace_Explode"
+        }
+      }
+    ]
+  },
   "Type": "Numeric",
   "Default": 1.0,
   "Min": 0.0,

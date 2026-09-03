@@ -46,29 +46,33 @@ Example Usage
     { "Type": "in_zone", "ZoneIds": [1, 3] },
     { "Type": "health_below", "Param": 25 }
   ],
-  "Actions": [
-    {
-      "Type": "Bounce",
-      "Trigger": "OnLand",
-      "MinFallDistance": 1.5,
-      "Cooldown": 0.5,
-      "Restitution": 4.0
-    },
-    {
-      "Type": "Heavy",
-      "Trigger": "OnFall",
-      "Reduction": 1.0
-    }
-  ],
+  "Triggers": {
+    "OnLand": [
+      {
+        "Type": "Bounce",
+        "Threshold": { "Magnitude": 1.5 },
+        "Cooldown": 0.5,
+        "Restitution": 4.0
+      }
+    ],
+    "OnFall": [
+      {
+        "Type": "Heavy",
+        "Reduction": 1.0
+      }
+    ]
+  },
   "Enabled": true
 }
 ```
 
 ```json
 {
-  "Actions": [
-    { "Type": "Bounce", "Trigger": "OnLand", "MinFallDistance": 1.5, "Restitution": 4.0 }
-  ],
+  "Triggers": {
+    "OnLand": [
+      { "Type": "Bounce", "Threshold": { "Magnitude": 1.5 }, "Restitution": 4.0 }
+    ]
+  },
   "Type": "Numeric",
   "Default": 1.0,
   "Min": 0.0,
@@ -242,9 +246,11 @@ AbilityService.removeAbility(playerUuid, "Bouncy", "mymod:armor_set");
 
 ```json
 {
-  "Actions": [
-    { "Type": "Bounce", "Trigger": "OnLand", "MinFallDistance": 1.5, "Restitution": 4.0 }
-  ],
+  "Triggers": {
+    "OnLand": [
+      { "Type": "Bounce", "Threshold": { "Magnitude": 1.5 }, "Restitution": 4.0 }
+    ]
+  },
   "Type": "Numeric",
   "Default": 1.0,
   "Min": 0.0,
@@ -331,11 +337,16 @@ ActionRegistry.register(MyAction.ID, MyAction.class, MyAction.CODEC);
 
 ```json
 {
-  "Type": "MyAction",
-  "Trigger": "OnLand",
-  "MinFallDistance": 2.0,
-  "Cooldown": 1.0,
-  "Strength": 3.0
+  "Triggers": {
+    "OnLand": [
+      {
+        "Type": "MyAction",
+        "Threshold": { "Magnitude": 2.0 },
+        "Cooldown": 1.0,
+        "Strength": 3.0
+      }
+    ]
+  }
 }
 ```
 

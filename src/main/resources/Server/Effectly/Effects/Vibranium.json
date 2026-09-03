@@ -1,11 +1,12 @@
 {
-  "Actions": [
-    {
-      "Type": "Vibranium",
-      "Trigger": "OnFall",
-      "ConversionRate": 0.5
-    }
-  ],
+  "Triggers": {
+    "OnFall": [
+      {
+        "Type": "Vibranium",
+        "ConversionRate": 0.5
+      }
+    ]
+  },
   "Type": "Numeric",
   "Default": 1.0,
   "Min": 0.0,

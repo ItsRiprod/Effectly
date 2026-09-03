@@ -1,7 +1,12 @@
 {
-  "Handler": {
-    "Id": "mining_haste",
-    "PerLevel": 0.2
+  "Triggers": {
+    "OnDamageBlock": [
+      {
+        "Type": "Modify_Block_Damage",
+        "Base": 1.0,
+        "Factor": 0.2
+      }
+    ]
   },
   "Type": "Numeric",
   "Default": 1.0,

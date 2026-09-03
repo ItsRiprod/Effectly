@@ -11,8 +11,6 @@ import com.riprod.effectly.builtin.conditions.zone.ZoneCondition;
 import com.riprod.effectly.builtin.effects.darkvision.DarkVisionHandler;
 import com.riprod.effectly.builtin.effects.healthregen.HealthRegenHandler;
 import com.riprod.effectly.builtin.effects.itemmagnet.ItemMagnetHandler;
-import com.riprod.effectly.builtin.effects.mining.MiningFortuneHandler;
-import com.riprod.effectly.builtin.effects.mining.MiningHasteHandler;
 import com.riprod.effectly.builtin.effects.movement.MovementStateHandler;
 import com.riprod.effectly.builtin.effects.oxygen.OxygenHandler;
 import com.riprod.effectly.builtin.effects.staminaregen.StaminaRegenHandler;
@@ -21,13 +19,17 @@ import com.riprod.effectly.builtin.effects.wallclimb.WallClimbHandler;
 import com.riprod.effectly.builtin.actions.fall.BounceAction;
 import com.riprod.effectly.builtin.actions.fall.BurstAction;
 import com.riprod.effectly.builtin.actions.fall.GustAction;
-import com.riprod.effectly.builtin.actions.fall.HeavyAction;
 import com.riprod.effectly.builtin.actions.fall.VibraniumAction;
+import com.riprod.effectly.builtin.actions.block.FortuneAction;
+import com.riprod.effectly.builtin.actions.block.ModifyBlockDamageAction;
 import com.riprod.effectly.builtin.actions.damage.ModifyDamageAction;
 import com.riprod.effectly.builtin.actions.damage.ReflectAction;
 import com.riprod.effectly.builtin.actions.damage.SecondChanceAction;
 import com.riprod.effectly.builtin.conditions.hand.EmptyHandCondition;
+import com.riprod.effectly.builtin.capabilities.BlockDamageCapability;
 import com.riprod.effectly.builtin.triggers.OnAttackProducerSystem;
+import com.riprod.effectly.builtin.triggers.OnBreakProducerSystem;
+import com.riprod.effectly.builtin.triggers.OnDamageBlockProducerSystem;
 import com.riprod.effectly.builtin.triggers.OnDamageFilterProducerSystem;
 import com.riprod.effectly.builtin.triggers.OnDamagedProducerSystem;
 import com.riprod.effectly.builtin.triggers.OnLandProducerSystem;
@@ -58,10 +60,13 @@ import com.riprod.effectly.core.equipment.EquipmentAbilityComponent;
 import com.riprod.effectly.core.equipment.EquipmentAttachSystem;
 import com.riprod.effectly.core.equipment.EquipmentChangeSystem;
 import com.riprod.effectly.core.system.AbilityLoginSystem;
+import com.hypixel.hytale.builtin.asseteditor.event.AssetEditorRequestDataSetEvent;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.modules.entity.damage.DamageCause;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
+
+import java.util.function.Consumer;
 
 /**
  * Effectly - Library mod for player abilities.
@@ -89,6 +94,7 @@ public class EffectlyPlugin extends JavaPlugin {
         CapabilityRegistry.register(MagnitudeCapability.TYPE);
         CapabilityRegistry.register(DamageCapability.TYPE);
         CapabilityRegistry.register(OtherEntityCapability.TYPE);
+        CapabilityRegistry.register(BlockDamageCapability.TYPE);
 
         // Components - registered before any system class is touched, because a producer's
         // static Query field resolves its component type during class initialization
@@ -112,11 +118,12 @@ public class EffectlyPlugin extends JavaPlugin {
         ActionRegistry.register(BounceAction.ID, BounceAction.class, BounceAction.CODEC);
         ActionRegistry.register(GustAction.ID, GustAction.class, GustAction.CODEC);
         ActionRegistry.register(BurstAction.ID, BurstAction.class, BurstAction.CODEC);
-        ActionRegistry.register(HeavyAction.ID, HeavyAction.class, HeavyAction.CODEC);
         ActionRegistry.register(VibraniumAction.ID, VibraniumAction.class, VibraniumAction.CODEC);
         ActionRegistry.register(ModifyDamageAction.ID, ModifyDamageAction.class, ModifyDamageAction.CODEC);
         ActionRegistry.register(ReflectAction.ID, ReflectAction.class, ReflectAction.CODEC);
         ActionRegistry.register(SecondChanceAction.ID, SecondChanceAction.class, SecondChanceAction.CODEC);
+        ActionRegistry.register(FortuneAction.ID, FortuneAction.class, FortuneAction.CODEC);
+        ActionRegistry.register(ModifyBlockDamageAction.ID, ModifyBlockDamageAction.class, ModifyBlockDamageAction.CODEC);
 
         // Triggers - things that invoke the Actions
         TriggerRegistry.register(new Trigger(OnLandProducerSystem.TRIGGER,
@@ -135,6 +142,12 @@ public class EffectlyPlugin extends JavaPlugin {
         TriggerRegistry.register(new Trigger(OnAttackProducerSystem.TRIGGER,
                 OnAttackProducerSystem.PROVIDES,
                 registry -> registry.registerSystem(new OnAttackProducerSystem())));
+        TriggerRegistry.register(new Trigger(OnBreakProducerSystem.TRIGGER,
+                OnBreakProducerSystem.PROVIDES,
+                registry -> registry.registerSystem(new OnBreakProducerSystem())));
+        TriggerRegistry.register(new Trigger(OnDamageBlockProducerSystem.TRIGGER,
+                OnDamageBlockProducerSystem.PROVIDES,
+                registry -> registry.registerSystem(new OnDamageBlockProducerSystem())));
 
         Configly.register(EffectlyConfig.TYPE, EffectlyConfig.class, EffectlyConfig.CODEC);
 
@@ -160,8 +173,6 @@ public class EffectlyPlugin extends JavaPlugin {
         AbilityHandlerRegistry.register(new MovementStateHandler());
         AbilityHandlerRegistry.register(new DarkVisionHandler());
         AbilityHandlerRegistry.register(new WaterbreathingHandler());
-        AbilityHandlerRegistry.register(new MiningHasteHandler());
-        AbilityHandlerRegistry.register(new MiningFortuneHandler());
         AbilityHandlerRegistry.register(new WallClimbHandler());
         AbilityHandlerRegistry.register(new StaminaRegenHandler());
         AbilityHandlerRegistry.register(new HealthRegenHandler());
@@ -180,6 +191,15 @@ public class EffectlyPlugin extends JavaPlugin {
 
         // commands
         this.getCommandRegistry().registerCommand(new AbilityCommand(this));
+
+        var events = this.getEventRegistry();
+        events.register(AssetEditorRequestDataSetEvent.class, "EffectlyHandlers",
+                (Consumer<AssetEditorRequestDataSetEvent>) e ->
+                        e.setResults(AbilityHandlerRegistry.ids().toArray(String[]::new)));
+        events.register(AssetEditorRequestDataSetEvent.class, "EffectlyConditions",
+                (Consumer<AssetEditorRequestDataSetEvent>) e ->
+                        e.setResults(ConditionRegistry.ids().toArray(String[]::new)));
+
         LOGGER.atInfo().log("Effectly setup complete");
     }
 

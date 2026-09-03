@@ -1,12 +1,24 @@
 {
-  "Actions": [
-    {
-      "Type": "Second_Chance",
-      "Trigger": "OnDamaged",
-      "Cooldown": 300.0,
-      "RestorePercent": 0.2
-    }
-  ],
+  "Triggers": {
+    "OnDamaged": [
+      {
+        "Type": "Second_Chance",
+        "Cooldown": 300.0,
+        "RestorePercent": 0.2,
+        "Effects": {
+          "Particles": [
+            {
+              "SystemId": "Potion_Health_Implosion",
+              "PositionOffset": {
+                "Y": 1.0
+              }
+            }
+          ],
+          "WorldSoundEventId": "SFX_Deployable_Totem_Heal_Despawn"
+        }
+      }
+    ]
+  },
   "Type": "Binary",
   "Default": 1.0,
   "Min": 0.0,

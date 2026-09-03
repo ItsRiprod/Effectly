@@ -1,14 +1,18 @@
 {
-  "Actions": [
-    {
-      "Type": "Modify_Damage",
-      "Trigger": "OnAttack",
-      "Base": 0.0,
-      "Factor": 1.0,
-      "DamageCause": "Physical",
-      "MatchInherited": false
-    }
-  ],
+  "Triggers": {
+    "OnAttack": [
+      {
+        "Type": "Modify_Damage",
+        "Base": 0.0,
+        "Factor": 1.0,
+        "DamageCause": "Physical",
+        "MatchInherited": false,
+        "Effects": {
+          "LocalSoundEventId": "SFX_NPC_Unarmed_Impact"
+        }
+      }
+    ]
+  },
   "Conditions": [
     {
       "Type": "Empty_Hand"

@@ -1,11 +1,13 @@
 package com.riprod.effectly.core.actions;
 
 import com.hypixel.hytale.codec.builder.BuilderCodec;
+import com.riprod.effectly.core.actions.capability.CapabilityType;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -33,6 +35,15 @@ public final class ActionRegistry {
     @Nullable
     public static Class<? extends Action> get(@Nonnull String id) {
         return ACTIONS.get(id);
+    }
+
+    @Nonnull
+    public static Set<CapabilityType<?>> requiredCapabilities(@Nonnull String id) {
+        var codec = Action.CODEC.getCodecFor(id);
+        if (!(codec instanceof BuilderCodec<?> builder)) return Set.of();
+        return builder.getSupplier().get() instanceof Action action
+                ? action.requiredCapabilities()
+                : Set.of();
     }
 
     @Nonnull

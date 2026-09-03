@@ -5,12 +5,11 @@ import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.codecs.map.MapCodec;
 import com.hypixel.hytale.codec.lookup.CodecMapCodec;
-import com.hypixel.hytale.codec.validation.Validators;
 import com.riprod.effectly.core.actions.capability.Capability;
 import com.riprod.effectly.core.actions.capability.CapabilityRegistry;
 import com.riprod.effectly.core.actions.capability.CapabilityType;
 import com.riprod.effectly.core.actions.capability.NumericCapability;
-import com.riprod.effectly.core.actions.trigger.TriggerKeyValidator;
+import com.riprod.effectly.core.actions.effects.ActionEffects;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -37,13 +36,6 @@ public abstract class Action {
             .documentation("Registered action that executes when the trigger fires. Selects the "
                     + "shape of the rest of the block.")
             .add()
-            .append(new KeyedCodec<>("Trigger", Codec.STRING),
-                    (action, v) -> action.trigger = v,
-                    action -> action.trigger)
-            .addValidator(Validators.nonEmptyString())
-            .addValidatorLate(() -> TriggerKeyValidator.INSTANCE.late())
-            .documentation("Registered trigger this action fires on, e.g. OnFall or OnLand.")
-            .add()
             .append(new KeyedCodec<>("Cooldown", Codec.DOUBLE),
                     (action, v) -> action.cooldown = v,
                     action -> action.cooldown)
@@ -56,23 +48,24 @@ public abstract class Action {
             .documentation("Minimum values the trigger must supply for this action to fire, keyed by "
                     + "capability id. Each key must name a numeric capability the trigger provides.")
             .add()
+            .append(new KeyedCodec<>("Effects", ActionEffects.CODEC),
+                    (action, v) -> action.effects = v,
+                    action -> action.effects)
+            .documentation("Sounds, particles, animation, camera shake and entity effects played on "
+                    + "the holder after this action executes.")
+            .add()
             .build();
 
     protected String type;
-    protected String trigger;
     protected double cooldown = 0.0;
     protected Map<String, Double> threshold = Map.of();
+    protected ActionEffects effects;
 
     private volatile Gate[] gates;
 
     @Nullable
     public String getType() {
         return type;
-    }
-
-    @Nullable
-    public String getTrigger() {
-        return trigger;
     }
 
     public double getCooldown() {
@@ -82,6 +75,11 @@ public abstract class Action {
     @Nonnull
     public Map<String, Double> getThreshold() {
         return threshold;
+    }
+
+    @Nullable
+    public ActionEffects getEffects() {
+        return effects;
     }
 
     @Nonnull
