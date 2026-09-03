@@ -4,18 +4,18 @@ import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.validation.Validators;
-import com.riprod.effectly.core.effects.registry.EffectHandlerConfig;
+import com.riprod.effectly.core.effects.registry.AbilityHandlerConfig;
 
 import javax.annotation.Nonnull;
 
-public final class WallClimbConfig extends EffectHandlerConfig {
+public final class WallClimbConfig extends AbilityHandlerConfig {
 
     @Nonnull
     public static final WallClimbConfig DEFAULTS = new WallClimbConfig();
 
     @Nonnull
     public static final BuilderCodec<WallClimbConfig> CODEC = BuilderCodec
-            .builder(WallClimbConfig.class, WallClimbConfig::new, EffectHandlerConfig.BASE_CODEC)
+            .builder(WallClimbConfig.class, WallClimbConfig::new, AbilityHandlerConfig.BASE_CODEC)
             .append(new KeyedCodec<>("ProbeDistance", Codec.DOUBLE),
                     (config, v) -> config.probeDistance = v,
                     config -> config.probeDistance)

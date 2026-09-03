@@ -8,11 +8,11 @@ import com.riprod.effectly.core.abilities.registry.AbilityHandlerRegistry;
 
 import javax.annotation.Nonnull;
 
-public final class EffectHandlerKeyValidator implements Validator<String> {
+public final class AbilityHandlerKeyValidator implements Validator<String> {
 
-    public static final EffectHandlerKeyValidator INSTANCE = new EffectHandlerKeyValidator();
+    public static final AbilityHandlerKeyValidator INSTANCE = new AbilityHandlerKeyValidator();
 
-    private EffectHandlerKeyValidator() {
+    private AbilityHandlerKeyValidator() {
     }
 
     @Override

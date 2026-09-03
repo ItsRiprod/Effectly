@@ -1,0 +1,17 @@
+{
+  "Actions": [
+    {
+      "Type": "Burst",
+      "Trigger": "OnLand",
+      "MinFallDistance": 4.0,
+      "Cooldown": 1.0,
+      "Radius": 4.0,
+      "DamageCause": "Effectly_Burst"
+    }
+  ],
+  "Type": "Numeric",
+  "Default": 1.0,
+  "Min": 0.0,
+  "Max": 3.0,
+  "Description": "Landing from a fall damages nearby entities, scaled by fall distance"
+}

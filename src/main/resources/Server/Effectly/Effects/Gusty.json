@@ -1,0 +1,17 @@
+{
+  "Actions": [
+    {
+      "Type": "Gust",
+      "Trigger": "OnLand",
+      "MinFallDistance": 3.0,
+      "Cooldown": 1.0,
+      "Radius": 4.0,
+      "Force": 8.0
+    }
+  ],
+  "Type": "Numeric",
+  "Default": 1.0,
+  "Min": 0.0,
+  "Max": 3.0,
+  "Description": "Landing from a fall pushes nearby entities away"
+}

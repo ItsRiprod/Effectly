@@ -4,18 +4,18 @@ import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.validation.Validators;
-import com.riprod.effectly.core.effects.registry.EffectHandlerConfig;
+import com.riprod.effectly.core.effects.registry.AbilityHandlerConfig;
 
 import javax.annotation.Nonnull;
 
-public final class SecondChanceConfig extends EffectHandlerConfig {
+public final class SecondChanceConfig extends AbilityHandlerConfig {
 
     @Nonnull
     public static final SecondChanceConfig DEFAULTS = new SecondChanceConfig();
 
     @Nonnull
     public static final BuilderCodec<SecondChanceConfig> CODEC = BuilderCodec
-            .builder(SecondChanceConfig.class, SecondChanceConfig::new, EffectHandlerConfig.BASE_CODEC)
+            .builder(SecondChanceConfig.class, SecondChanceConfig::new, AbilityHandlerConfig.BASE_CODEC)
             .append(new KeyedCodec<>("RestorePercent", Codec.FLOAT),
                     (config, v) -> config.restorePercent = v,
                     config -> config.restorePercent)

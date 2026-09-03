@@ -5,16 +5,16 @@ import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.validation.Validators;
 import com.hypixel.hytale.server.core.modules.entity.damage.DamageCause;
-import com.riprod.effectly.core.effects.registry.EffectHandlerConfig;
+import com.riprod.effectly.core.effects.registry.AbilityHandlerConfig;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public final class ResistanceConfig extends EffectHandlerConfig {
+public final class ResistanceConfig extends AbilityHandlerConfig {
 
     @Nonnull
     public static final BuilderCodec<ResistanceConfig> CODEC = BuilderCodec
-            .builder(ResistanceConfig.class, ResistanceConfig::new, EffectHandlerConfig.BASE_CODEC)
+            .builder(ResistanceConfig.class, ResistanceConfig::new, AbilityHandlerConfig.BASE_CODEC)
             .append(new KeyedCodec<>("DamageCause", Codec.STRING),
                     (config, v) -> config.damageCause = v,
                     config -> config.damageCause)

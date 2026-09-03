@@ -3,7 +3,7 @@ package com.riprod.effectly.core.abilities.component;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.riprod.effectly.core.effects.registry.EffectAsset;
-import com.riprod.effectly.core.effects.registry.EffectHandlerConfig;
+import com.riprod.effectly.core.effects.registry.AbilityHandlerConfig;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -26,12 +26,12 @@ public abstract class AbstractAbilityComponent implements Component<EntityStore>
     }
 
     @Nullable
-    public <T extends EffectHandlerConfig> T config(@Nonnull Class<T> type) {
+    public <T extends AbilityHandlerConfig> T config(@Nonnull Class<T> type) {
         return this.abilityId == null ? null : EffectAsset.configFor(this.abilityId, type);
     }
 
     @Nonnull
-    public <T extends EffectHandlerConfig> T configOrDefault(@Nonnull Class<T> type, @Nonnull T fallback) {
+    public <T extends AbilityHandlerConfig> T configOrDefault(@Nonnull Class<T> type, @Nonnull T fallback) {
         T config = config(type);
         return config != null ? config : fallback;
     }

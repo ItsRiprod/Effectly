@@ -9,19 +9,19 @@ import com.hypixel.hytale.codec.schema.metadata.ui.UIEditor;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public abstract class EffectHandlerConfig {
+public abstract class AbilityHandlerConfig {
 
     @Nonnull
-    public static final CodecMapCodec<EffectHandlerConfig> CODEC = new CodecMapCodec<>("Id", true, false);
+    public static final CodecMapCodec<AbilityHandlerConfig> CODEC = new CodecMapCodec<>("Id", true, false);
 
     @Nonnull
-    public static final BuilderCodec<EffectHandlerConfig> BASE_CODEC = BuilderCodec
-            .abstractBuilder(EffectHandlerConfig.class)
+    public static final BuilderCodec<AbilityHandlerConfig> BASE_CODEC = BuilderCodec
+            .abstractBuilder(AbilityHandlerConfig.class)
             .append(new KeyedCodec<>("Id", Codec.STRING),
                     (config, v) -> config.id = v,
                     config -> config.id)
             .metadata(new UIEditor(new UIEditor.Dropdown("EffectlyHandlers")))
-            .addValidatorLate(() -> EffectHandlerKeyValidator.INSTANCE.late())
+            .addValidatorLate(() -> AbilityHandlerKeyValidator.INSTANCE.late())
             .documentation("Registered ability handler that implements this ability - several ability "
                     + "assets may share one handler. Defaults to the asset id.")
             .add()

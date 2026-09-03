@@ -19,16 +19,30 @@ import com.riprod.effectly.builtin.effects.mining.MiningHasteHandler;
 import com.riprod.effectly.builtin.effects.movement.MovementStateHandler;
 import com.riprod.effectly.builtin.effects.oxygen.OxygenHandler;
 import com.riprod.effectly.builtin.effects.secondchance.SecondChanceHandler;
+import com.riprod.effectly.builtin.effects.thorns.ThornsHandler;
 import com.riprod.effectly.builtin.effects.staminaregen.StaminaRegenHandler;
 import com.riprod.effectly.builtin.effects.survival.FallDamageImmunityHandler;
 import com.riprod.effectly.builtin.effects.survival.InvulnerabilityHandler;
 import com.riprod.effectly.builtin.effects.survival.WaterbreathingHandler;
 import com.riprod.effectly.builtin.effects.wallclimb.WallClimbHandler;
+import com.riprod.effectly.builtin.actions.fall.BounceAction;
+import com.riprod.effectly.builtin.actions.fall.BurstAction;
+import com.riprod.effectly.builtin.actions.fall.GustAction;
+import com.riprod.effectly.builtin.actions.fall.HeavyAction;
+import com.riprod.effectly.builtin.actions.fall.VibraniumAction;
+import com.riprod.effectly.builtin.triggers.OnFallProducerSystem;
+import com.riprod.effectly.builtin.triggers.OnLandProducerSystem;
 import com.riprod.effectly.commands.AbilityCommand;
 import com.riprod.effectly.config.EffectlyConfig;
 import com.riprod.effectly.core.abilities.component.AbilityComponent;
 import com.riprod.effectly.core.abilities.component.ResolvedAbilityComponent;
 import com.riprod.effectly.core.abilities.registry.AbilityHandlerRegistry;
+import com.riprod.effectly.core.actions.ActionRegistry;
+import com.riprod.effectly.core.actions.DefaultAction;
+import com.riprod.effectly.core.actions.component.ActionCooldownSystem;
+import com.riprod.effectly.core.actions.component.ActionHolderComponent;
+import com.riprod.effectly.core.actions.trigger.Trigger;
+import com.riprod.effectly.core.actions.trigger.TriggerRegistry;
 import com.riprod.effectly.core.conditions.registry.ConditionAsset;
 import com.riprod.effectly.core.conditions.registry.ConditionRegistry;
 import com.riprod.effectly.core.conditions.registry.DefaultConditionConfig;
@@ -56,15 +70,33 @@ public class EffectlyPlugin extends JavaPlugin {
 
     @Override
     protected void setup() {
+        var entityStoreRegistry = this.getEntityStoreRegistry();
         AbilityHandlerRegistry.reset();
         ConditionRegistry.reset();
+        ActionRegistry.reset();
+        TriggerRegistry.reset();
 
+        // Conditions - gates for effects
         DefaultConditionConfig.register();
 
         ConditionRegistry.register(new ZoneCondition());
         ConditionRegistry.register(new SkyLightCondition());
         ConditionRegistry.register(new HealthCondition());
         ConditionRegistry.register(new InLiquidCondition());
+
+        // Actions - stuff that do things
+        DefaultAction.register();
+        ActionRegistry.register(BounceAction.ID, BounceAction.class, BounceAction.CODEC);
+        ActionRegistry.register(GustAction.ID, GustAction.class, GustAction.CODEC);
+        ActionRegistry.register(BurstAction.ID, BurstAction.class, BurstAction.CODEC);
+        ActionRegistry.register(HeavyAction.ID, HeavyAction.class, HeavyAction.CODEC);
+        ActionRegistry.register(VibraniumAction.ID, VibraniumAction.class, VibraniumAction.CODEC);
+
+        // Triggers - things that invoke the Actions
+        TriggerRegistry.register(new Trigger(OnFallProducerSystem.TRIGGER,
+                registry -> registry.registerSystem(new OnFallProducerSystem())));
+        TriggerRegistry.register(new Trigger(OnLandProducerSystem.TRIGGER,
+                registry -> registry.registerSystem(new OnLandProducerSystem())));
 
         Configly.register(EffectlyConfig.TYPE, EffectlyConfig.class, EffectlyConfig.CODEC);
 
@@ -85,12 +117,13 @@ public class EffectlyPlugin extends JavaPlugin {
                 .loadsAfter(DamageCause.class)
                 .build());
 
-        var entityStoreRegistry = this.getEntityStoreRegistry();
+        // Abilities - stuff that happens over time
 
         var abilityComponentType = entityStoreRegistry.registerComponent(AbilityComponent.class,
                 AbilityComponent.ID, AbilityComponent.CODEC);
         AbilityComponent.setComponentType(abilityComponentType);
         ResolvedAbilityComponent.register(entityStoreRegistry);
+        ActionHolderComponent.register(entityStoreRegistry);
 
         DefaultAbilityHandlerConfig.register();
 
@@ -110,7 +143,10 @@ public class EffectlyPlugin extends JavaPlugin {
         AbilityHandlerRegistry.register(new SecondChanceHandler());
         AbilityHandlerRegistry.register(new ItemMagnetHandler());
         AbilityHandlerRegistry.register(new OxygenHandler());
+        AbilityHandlerRegistry.register(new ThornsHandler());
         AbilityHandlerRegistry.installAll(entityStoreRegistry);
+        TriggerRegistry.installAll(entityStoreRegistry);
+        entityStoreRegistry.registerSystem(new ActionCooldownSystem());
 
         EquipmentAbilityComponent.register(entityStoreRegistry);
         entityStoreRegistry.registerSystem(new AbilityLoginSystem());
@@ -119,6 +155,7 @@ public class EffectlyPlugin extends JavaPlugin {
         // this.getEntityStoreRegistry().registerSystem(new
         // EquipmentActiveSlotSystem());
 
+        // commands
         this.getCommandRegistry().registerCommand(new AbilityCommand(this));
         LOGGER.atInfo().log("Effectly setup complete");
     }

@@ -1,0 +1,14 @@
+{
+  "Actions": [
+    {
+      "Type": "Vibranium",
+      "Trigger": "OnFall",
+      "ConversionRate": 0.5
+    }
+  ],
+  "Type": "Numeric",
+  "Default": 1.0,
+  "Min": 0.0,
+  "Max": 2.0,
+  "Description": "Fall damage is absorbed and partially converted into healing"
+}

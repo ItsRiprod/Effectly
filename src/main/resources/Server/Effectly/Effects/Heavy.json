@@ -1,0 +1,14 @@
+{
+  "Actions": [
+    {
+      "Type": "Heavy",
+      "Trigger": "OnFall",
+      "Reduction": 1.0
+    }
+  ],
+  "Type": "Numeric",
+  "Default": 0.5,
+  "Min": 0.0,
+  "Max": 1.0,
+  "Description": "Fraction of fall damage absorbed on landing"
+}

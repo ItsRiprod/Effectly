@@ -13,6 +13,7 @@ import com.hypixel.hytale.codec.codecs.EnumCodec;
 import com.hypixel.hytale.codec.schema.metadata.ui.UIEditor;
 import com.hypixel.hytale.codec.schema.metadata.ui.UIEditorSectionStart;
 import com.hypixel.hytale.codec.codecs.array.ArrayCodec;
+import com.riprod.effectly.core.actions.Action;
 import com.riprod.effectly.core.conditions.AbilityConditionSpec;
 import com.riprod.effectly.core.effects.utils.AbilityType;
 
@@ -35,7 +36,7 @@ public final class EffectAsset implements JsonAssetWithMap<String, IndexedLookup
 
     private AssetExtraInfo.Data data;
     private String id;
-    private EffectHandlerConfig handler;
+    private AbilityHandlerConfig handler;
     private String description;
     private AbilityType type = AbilityType.NUMERIC;
     private double defaultValue = 1.0;
@@ -43,6 +44,7 @@ public final class EffectAsset implements JsonAssetWithMap<String, IndexedLookup
     private double max = 1.0;
     private boolean enabled = true;
     private List<AbilityConditionSpec> conditions = List.of();
+    private List<Action> actions = List.of();
 
     private EffectAsset() {
     }
@@ -155,8 +157,17 @@ public final class EffectAsset implements JsonAssetWithMap<String, IndexedLookup
         return asset == null ? List.of() : asset.conditions;
     }
 
+    @Nonnull
+    public List<Action> getActions() {
+        return this.actions;
+    }
+
+    public boolean hasActions() {
+        return !this.actions.isEmpty();
+    }
+
     @Nullable
-    public EffectHandlerConfig getHandlerConfig() {
+    public AbilityHandlerConfig getHandlerConfig() {
         return this.handler;
     }
 
@@ -174,10 +185,10 @@ public final class EffectAsset implements JsonAssetWithMap<String, IndexedLookup
     }
 
     @Nullable
-    public static <T extends EffectHandlerConfig> T configFor(
+    public static <T extends AbilityHandlerConfig> T configFor(
             @Nonnull String abilityId, @Nonnull Class<T> type) {
         EffectAsset asset = get(abilityId);
-        EffectHandlerConfig config = asset != null ? asset.handler : null;
+        AbilityHandlerConfig config = asset != null ? asset.handler : null;
         return type.isInstance(config) ? type.cast(config) : null;
     }
 
@@ -188,7 +199,7 @@ public final class EffectAsset implements JsonAssetWithMap<String, IndexedLookup
                         asset -> asset.id,
                         (asset, data) -> asset.data = data,
                         asset -> asset.data)
-                .append(new KeyedCodec<>("Handler", EffectHandlerConfig.CODEC),
+                .append(new KeyedCodec<>("Handler", AbilityHandlerConfig.CODEC),
                         (asset, v) -> asset.handler = v,
                         asset -> asset.handler)
                 .documentation("The handler that implements this ability, plus its tuning. Id names a "
@@ -229,6 +240,15 @@ public final class EffectAsset implements JsonAssetWithMap<String, IndexedLookup
                                 : asset.conditions.toArray(AbilityConditionSpec[]::new))
                 .documentation("Conditions intrinsic to this effect, gating it for every source that "
                         + "grants it. AND-ed with the grant's own conditions")
+                .add()
+                .append(new KeyedCodec<>("Actions",
+                                new ArrayCodec<>(Action.CODEC, Action[]::new)),
+                        (asset, v) -> asset.actions = v == null ? List.of() : List.of(v),
+                        asset -> asset.actions.isEmpty()
+                                ? null
+                                : asset.actions.toArray(Action[]::new))
+                .documentation("One-shot actions executed when their trigger fires, scaled by the "
+                        + "granted value. An effect may have actions, a handler, or both")
                 .add()
                 .append(new KeyedCodec<>("Enabled", Codec.BOOLEAN),
                         (asset, v) -> asset.enabled = v,
