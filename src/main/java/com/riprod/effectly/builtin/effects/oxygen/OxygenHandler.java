@@ -8,12 +8,12 @@ import com.hypixel.hytale.server.core.modules.entitystats.modifier.StaticModifie
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.riprod.effectly.core.abilities.component.AbilityEntry;
 import com.riprod.effectly.core.abilities.registry.AbilityContext;
-import com.riprod.effectly.core.effects.registry.EffectHandler;
+import com.riprod.effectly.core.effects.registry.AbilityHandler;
 import com.riprod.effectly.core.utils.AbilityConditionUtils;
 
 import javax.annotation.Nonnull;
 
-public final class OxygenHandler implements EffectHandler {
+public final class OxygenHandler implements AbilityHandler {
 
     public static final String ID = "oxygen";
 

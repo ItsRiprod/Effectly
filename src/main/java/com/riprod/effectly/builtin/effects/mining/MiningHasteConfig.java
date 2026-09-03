@@ -4,18 +4,18 @@ import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.validation.Validators;
-import com.riprod.effectly.core.effects.registry.EffectHandlerConfig;
+import com.riprod.effectly.core.effects.registry.AbilityHandlerConfig;
 
 import javax.annotation.Nonnull;
 
-public final class MiningHasteConfig extends EffectHandlerConfig {
+public final class MiningHasteConfig extends AbilityHandlerConfig {
 
     @Nonnull
     public static final MiningHasteConfig DEFAULTS = new MiningHasteConfig();
 
     @Nonnull
     public static final BuilderCodec<MiningHasteConfig> CODEC = BuilderCodec
-            .builder(MiningHasteConfig.class, MiningHasteConfig::new, EffectHandlerConfig.BASE_CODEC)
+            .builder(MiningHasteConfig.class, MiningHasteConfig::new, AbilityHandlerConfig.BASE_CODEC)
             .append(new KeyedCodec<>("PerLevel", Codec.DOUBLE),
                     (config, v) -> config.perLevel = v,
                     config -> config.perLevel)

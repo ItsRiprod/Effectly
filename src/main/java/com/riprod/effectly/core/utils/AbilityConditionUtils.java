@@ -10,7 +10,7 @@ import com.riprod.effectly.core.abilities.component.AbilityEntry;
 import com.riprod.effectly.core.abilities.component.AbilityGrant;
 import com.riprod.effectly.core.abilities.component.ResolvedAbilityComponent;
 import com.riprod.effectly.core.effects.registry.EffectAsset;
-import com.riprod.effectly.core.effects.registry.EffectHandlerConfig;
+import com.riprod.effectly.core.effects.registry.AbilityHandlerConfig;
 import com.riprod.effectly.core.conditions.AbilityConditionSpec;
 import com.riprod.effectly.core.conditions.ConditionContext;
 import com.riprod.effectly.core.conditions.registry.ConditionRegistry;
@@ -180,14 +180,14 @@ public final class AbilityConditionUtils {
     public record ActiveAbility(@Nonnull String abilityId, int assetIndex, double value) {
 
         @Nullable
-        public <T extends EffectHandlerConfig> T config(@Nonnull Class<T> type) {
+        public <T extends AbilityHandlerConfig> T config(@Nonnull Class<T> type) {
             EffectAsset asset = EffectAsset.byIndex(assetIndex);
-            EffectHandlerConfig config = asset != null ? asset.getHandlerConfig() : null;
+            AbilityHandlerConfig config = asset != null ? asset.getHandlerConfig() : null;
             return type.isInstance(config) ? type.cast(config) : null;
         }
 
         @Nonnull
-        public <T extends EffectHandlerConfig> T configOrDefault(@Nonnull Class<T> type, @Nonnull T fallback) {
+        public <T extends AbilityHandlerConfig> T configOrDefault(@Nonnull Class<T> type, @Nonnull T fallback) {
             T config = config(type);
             return config != null ? config : fallback;
         }

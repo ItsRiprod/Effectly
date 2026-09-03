@@ -1,5 +1,6 @@
 package com.riprod.effectly.api;
 
+import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.ComponentAccessor;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -60,10 +61,20 @@ public final class AbilityService {
 
     public static void applyForPlayer(
             @Nonnull Ref<EntityStore> ref,
+            @Nonnull CommandBuffer<EntityStore> commandBuffer,
+            @Nonnull World world
+    ) {
+        AbilityMutationUtils.applyAll(ref, commandBuffer, world);
+    }
+
+    // handlers attach and detach components, so the caller's accessor is deliberately unused here:
+    // it may be a live Store handed over from inside a system, where an archetype change throws
+    public static void applyForPlayer(
+            @Nonnull Ref<EntityStore> ref,
             @Nonnull ComponentAccessor<EntityStore> store,
             @Nonnull World world
     ) {
-        AbilityMutationUtils.applyAll(ref, store, world);
+        AbilityMutationUtils.applyAllLater(ref, world);
     }
 
     private static double toDouble(@Nonnull Object value) {

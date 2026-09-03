@@ -1,0 +1,6 @@
+{
+  "Inherits": "Physical",
+  "DurabilityLoss": false,
+  "StaminaLoss": false,
+  "BypassResistances": false
+}

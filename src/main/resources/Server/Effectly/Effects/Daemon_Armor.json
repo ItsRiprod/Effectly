@@ -1,0 +1,24 @@
+{
+  "Actions": [
+    {
+      "Type": "Burst",
+      "Trigger": "OnLand",
+      "MinFallDistance": 4.0,
+      "Cooldown": 1.0,
+      "Radius": 4.0,
+      "DamageCause": "Effectly_Burst"
+    },
+    {
+      "Type": "Bounce",
+      "Trigger": "OnLand",
+      "MinFallDistance": 1.5,
+      "Cooldown": 0.5,
+      "Restitution": 4.0
+    }
+  ],
+  "Type": "Numeric",
+  "Default": 1.0,
+  "Min": 0.0,
+  "Max": 3.0,
+  "Description": "Bounce back upward when landing from a fall"
+}

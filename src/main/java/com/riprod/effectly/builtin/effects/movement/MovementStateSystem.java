@@ -16,7 +16,7 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.riprod.effectly.core.abilities.component.ResolvedAbilityComponent;
 import com.riprod.effectly.core.effects.registry.EffectAsset;
-import com.riprod.effectly.core.effects.registry.EffectHandlerConfig;
+import com.riprod.effectly.core.effects.registry.AbilityHandlerConfig;
 import com.riprod.effectly.core.utils.AbilityConditionUtils;
 
 import java.util.List;
@@ -112,7 +112,7 @@ public final class MovementStateSystem extends EntityTickingSystem<EntityStore> 
     @Nonnull
     private static MovementStateConfig configOf(@Nonnull ResolvedAbilityComponent.Resolved ability) {
         EffectAsset asset = EffectAsset.byIndex(ability.assetIndex());
-        EffectHandlerConfig config = asset != null ? asset.getHandlerConfig() : null;
+        AbilityHandlerConfig config = asset != null ? asset.getHandlerConfig() : null;
         return config instanceof MovementStateConfig movement ? movement : MovementStateConfig.DEFAULTS;
     }
 }

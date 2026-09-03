@@ -7,6 +7,7 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.riprod.effectly.core.abilities.component.AbilityComponent;
 import com.riprod.effectly.core.abilities.component.ResolvedAbilityComponent;
+import com.riprod.effectly.core.actions.component.ActionHolderComponent;
 
 import java.util.UUID;
 import javax.annotation.Nonnull;
@@ -79,6 +80,7 @@ public final class AbilityContext {
     public void clearRoster() {
         components.tryRemoveComponent(ref, AbilityComponent.getComponentType());
         components.tryRemoveComponent(ref, ResolvedAbilityComponent.getComponentType());
+        components.tryRemoveComponent(ref, ActionHolderComponent.getComponentType());
         roster = null;
         resolved = null;
     }
@@ -95,6 +97,7 @@ public final class AbilityContext {
         AbilityComponent current = getRoster();
         if (current == null || current.isEmpty()) {
             components.tryRemoveComponent(ref, ResolvedAbilityComponent.getComponentType());
+            components.tryRemoveComponent(ref, ActionHolderComponent.getComponentType());
             resolved = null;
             return;
         }
@@ -102,8 +105,16 @@ public final class AbilityContext {
                 ? resolved
                 : components.getComponent(ref, ResolvedAbilityComponent.getComponentType());
         if (view == null) view = new ResolvedAbilityComponent();
-        view.setResolved(ResolvedAbilityComponent.resolve(current));
+        view.resolveFrom(current);
         resolved = view;
         components.putComponent(ref, ResolvedAbilityComponent.getComponentType(), view);
+
+        if (view.hasActions()) {
+            if (components.getComponent(ref, ActionHolderComponent.getComponentType()) == null) {
+                components.putComponent(ref, ActionHolderComponent.getComponentType(), new ActionHolderComponent());
+            }
+        } else {
+            components.tryRemoveComponent(ref, ActionHolderComponent.getComponentType());
+        }
     }
 }

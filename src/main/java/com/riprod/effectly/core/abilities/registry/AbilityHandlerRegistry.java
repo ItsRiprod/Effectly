@@ -4,8 +4,8 @@ import com.hypixel.hytale.component.ComponentRegistryProxy;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.riprod.effectly.core.abilities.component.ResolvedAbilityComponent;
 import com.riprod.effectly.core.effects.registry.EffectAsset;
-import com.riprod.effectly.core.effects.registry.EffectHandlerConfig;
-import com.riprod.effectly.core.effects.registry.EffectHandler;
+import com.riprod.effectly.core.effects.registry.AbilityHandlerConfig;
+import com.riprod.effectly.core.effects.registry.AbilityHandler;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
 
 public final class AbilityHandlerRegistry {
 
-    private static final Map<String, EffectHandler> HANDLERS = new LinkedHashMap<>();
+    private static final Map<String, AbilityHandler> HANDLERS = new LinkedHashMap<>();
 
     private AbilityHandlerRegistry() {}
 
@@ -24,45 +24,45 @@ public final class AbilityHandlerRegistry {
         HANDLERS.clear();
     }
 
-    public static void register(@Nonnull EffectHandler handler) {
-        EffectHandler existing = HANDLERS.putIfAbsent(handler.getId(), handler);
+    public static void register(@Nonnull AbilityHandler handler) {
+        AbilityHandler existing = HANDLERS.putIfAbsent(handler.getId(), handler);
         if (existing != null && existing.getClass() != handler.getClass()) {
             throw new IllegalArgumentException("duplicate ability handler id: " + handler.getId());
         }
         if (existing != null) HANDLERS.put(handler.getId(), handler);
 
-        EffectHandler.ConfigBinding<? extends EffectHandlerConfig> binding = handler.getConfigBinding();
+        AbilityHandler.ConfigBinding<? extends AbilityHandlerConfig> binding = handler.getConfigBinding();
         if (binding != null) {
-            EffectHandlerConfig.CODEC.register(handler.getId(), binding.type(), binding.codec());
+            AbilityHandlerConfig.CODEC.register(handler.getId(), binding.type(), binding.codec());
         }
     }
 
     public static void installAll(@Nonnull ComponentRegistryProxy<EntityStore> registry) {
-        for (EffectHandler handler : HANDLERS.values()) {
+        for (AbilityHandler handler : HANDLERS.values()) {
             handler.install(registry);
         }
     }
 
     @Nullable
-    public static EffectHandler get(@Nonnull String handlerId) {
+    public static AbilityHandler get(@Nonnull String handlerId) {
         return HANDLERS.get(handlerId);
     }
 
     @Nullable
-    public static EffectHandler forAbility(@Nonnull String abilityId) {
+    public static AbilityHandler forAbility(@Nonnull String abilityId) {
         EffectAsset asset = EffectAsset.getAssetMap().getAsset(abilityId);
         if (asset == null) return null;
         return HANDLERS.get(asset.getHandler());
     }
 
-    public static boolean holdsAnyFor(@Nonnull AbilityContext context, @Nonnull EffectHandler handler) {
+    public static boolean holdsAnyFor(@Nonnull AbilityContext context, @Nonnull AbilityHandler handler) {
         return !ResolvedAbilityComponent
                 .forHandler(context.getRef(), context.getComponents(), handler.getId())
                 .isEmpty();
     }
 
     @Nonnull
-    public static Collection<EffectHandler> all() {
+    public static Collection<AbilityHandler> all() {
         return Collections.unmodifiableCollection(HANDLERS.values());
     }
 

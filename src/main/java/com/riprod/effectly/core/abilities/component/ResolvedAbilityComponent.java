@@ -6,6 +6,7 @@ import com.hypixel.hytale.component.ComponentRegistryProxy;
 import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.riprod.effectly.core.actions.Action;
 import com.riprod.effectly.core.effects.registry.EffectAsset;
 
 import java.util.ArrayList;
@@ -24,9 +25,12 @@ public final class ResolvedAbilityComponent implements Component<EntityStore> {
 
     public record Resolved(@Nonnull String abilityId, int assetIndex) {}
 
+    public record ResolvedAction(@Nonnull String abilityId, int assetIndex, int actionIndex) {}
+
     private static ComponentType<EntityStore, ResolvedAbilityComponent> componentType;
 
     private Map<String, List<Resolved>> byHandler = Map.of();
+    private Map<String, List<ResolvedAction>> byTrigger = Map.of();
 
     @Nonnull
     public static ComponentType<EntityStore, ResolvedAbilityComponent> getComponentType() {
@@ -65,24 +69,47 @@ public final class ResolvedAbilityComponent implements Component<EntityStore> {
         return byHandler.getOrDefault(handlerId, List.of());
     }
 
+    @Nonnull
+    public static List<ResolvedAction> forTrigger(
+            @Nonnull Ref<EntityStore> ref,
+            @Nonnull ComponentAccessor<EntityStore> store,
+            @Nonnull String triggerId) {
+        ResolvedAbilityComponent resolved = of(ref, store);
+        return resolved == null ? List.of() : resolved.forTrigger(triggerId);
+    }
+
+    @Nonnull
+    public List<ResolvedAction> forTrigger(@Nonnull String triggerId) {
+        return byTrigger.getOrDefault(triggerId, List.of());
+    }
+
+    public boolean hasActions() {
+        return !byTrigger.isEmpty();
+    }
+
     public boolean isEmpty() {
         return byHandler.isEmpty();
     }
 
-    @Nonnull
-    public static Map<String, List<Resolved>> resolve(@Nonnull AbilityComponent roster) {
-        Map<String, List<Resolved>> out = new HashMap<>();
+    public void resolveFrom(@Nonnull AbilityComponent roster) {
+        Map<String, List<Resolved>> handlers = new HashMap<>();
+        Map<String, List<ResolvedAction>> triggers = new HashMap<>();
         for (String abilityId : roster.getAbilities().keySet()) {
             EffectAsset asset = EffectAsset.getAssetMap().getAsset(abilityId);
             if (asset == null || !asset.isEnabled()) continue;
-            out.computeIfAbsent(asset.getHandler(), id -> new ArrayList<>())
-                    .add(new Resolved(abilityId, EffectAsset.indexOf(abilityId)));
+            int assetIndex = EffectAsset.indexOf(abilityId);
+            handlers.computeIfAbsent(asset.getHandler(), id -> new ArrayList<>())
+                    .add(new Resolved(abilityId, assetIndex));
+            List<Action> actions = asset.getActions();
+            for (int i = 0; i < actions.size(); i++) {
+                String trigger = actions.get(i).getTrigger();
+                if (trigger == null) continue;
+                triggers.computeIfAbsent(trigger, id -> new ArrayList<>())
+                        .add(new ResolvedAction(abilityId, assetIndex, i));
+            }
         }
-        return out;
-    }
-
-    public void setResolved(@Nonnull Map<String, List<Resolved>> resolved) {
-        this.byHandler = resolved;
+        this.byHandler = handlers;
+        this.byTrigger = triggers;
     }
 
     @Nonnull
@@ -90,6 +117,7 @@ public final class ResolvedAbilityComponent implements Component<EntityStore> {
     public Component<EntityStore> clone() {
         ResolvedAbilityComponent copy = new ResolvedAbilityComponent();
         copy.byHandler = new HashMap<>(this.byHandler);
+        copy.byTrigger = new HashMap<>(this.byTrigger);
         return copy;
     }
 }

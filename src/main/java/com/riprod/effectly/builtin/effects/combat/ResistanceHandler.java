@@ -5,11 +5,11 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.riprod.effectly.core.abilities.component.AbilityEntry;
 import com.riprod.effectly.core.abilities.registry.AbilityContext;
 import com.riprod.effectly.core.abilities.registry.AbilityHandlerRegistry;
-import com.riprod.effectly.core.effects.registry.EffectHandler;
+import com.riprod.effectly.core.effects.registry.AbilityHandler;
 
 import javax.annotation.Nonnull;
 
-public final class ResistanceHandler implements EffectHandler {
+public final class ResistanceHandler implements AbilityHandler {
 
     public static final String ID = "resistance";
 
