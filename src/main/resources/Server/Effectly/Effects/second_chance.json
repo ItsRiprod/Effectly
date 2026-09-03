@@ -4,7 +4,7 @@
       {
         "Type": "Second_Chance",
         "Cooldown": 300.0,
-        "RestorePercent": 0.2,
+        "RestorePercent": 0.5,
         "Effects": {
           "Particles": [
             {

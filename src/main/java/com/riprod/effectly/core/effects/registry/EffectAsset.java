@@ -216,7 +216,6 @@ public final class EffectAsset implements JsonAssetWithMap<String, IndexedLookup
                 .documentation("The handler that implements this ability, plus its tuning. Id names a "
                         + "registered handler and selects the shape of the rest of the block; several "
                         + "ability assets may share one handler. Defaults to the asset id.")
-                .metadata(new UIEditorSectionStart("Handler"))
                 .add()
                 .append(new KeyedCodec<>("Type", new EnumCodec<>(AbilityType.class)),
                         (asset, v) -> asset.type = v,

@@ -4,7 +4,9 @@ import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.math.util.MathUtil;
 import com.hypixel.hytale.protocol.ChangeVelocityType;
+import com.hypixel.hytale.server.core.entity.knockback.KnockbackComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.modules.physics.component.Velocity;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -19,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.Nonnull;
 
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3d;
 
 public final class GustAction extends Action {
@@ -30,7 +33,7 @@ public final class GustAction extends Action {
             Set.of(SelfCapability.TYPE, PositionCapability.TYPE);
 
     @Nonnull
-    public static final BuilderCodec<GustAction> CODEC = BuilderCodec
+    public static final BuilderCodec<@NotNull GustAction> CODEC = BuilderCodec
             .builder(GustAction.class, GustAction::new, Action.BASE_CODEC)
             .append(new KeyedCodec<>("Radius", Codec.DOUBLE),
                     (action, v) -> action.radius = v,
@@ -68,9 +71,7 @@ public final class GustAction extends Action {
         boolean pushed = false;
         for (Ref<EntityStore> target : targets) {
             if (target == null || !target.isValid() || target.equals(self)) continue;
-
-            Velocity velocity = store.getComponent(target, Velocity.getComponentType());
-            if (velocity == null) continue;
+            if (store.getComponent(target, Velocity.getComponentType()) == null) continue;
 
             TransformComponent transform = store.getComponent(
                     target, TransformComponent.getComponentType());
@@ -83,13 +84,22 @@ public final class GustAction extends Action {
             double strength = force * value * (1.0 - distance / radius);
             if (strength <= 0) continue;
 
-            Vector3d direction = distance < 1e-6
+            Vector3d direction = distance < MathUtil.ZERO_LENGTH_EPSILON
                     ? new Vector3d(0, 1, 0)
                     : offset.div(distance);
             direction.y = Math.max(direction.y, 0.25);
-            direction.normalize();
+            direction.normalize().mul(strength).add(0, 0.5, 0);
 
-            velocity.addInstruction(direction.mul(strength), null, ChangeVelocityType.Add);
+            var knockbackType = KnockbackComponent.getComponentType();
+            KnockbackComponent knockback = store.getComponent(target, knockbackType);
+            if (knockback == null) {
+                knockback = new KnockbackComponent();
+                store.putComponent(target, knockbackType, knockback);
+            }
+            knockback.setVelocity(direction);
+            knockback.setVelocityType(ChangeVelocityType.Add);
+            knockback.setVelocityConfig(null);
+            knockback.setDuration(0);
             pushed = true;
         }
         return pushed;

@@ -41,6 +41,11 @@ public final class BurstAction extends Action {
                     action -> action.radius)
             .documentation("Radius in blocks around the landing point")
             .add()
+            .append(new KeyedCodec<>("Multiplier", Codec.DOUBLE),
+                    (action, v) -> action.multiplier = v,
+                    action -> action.multiplier)
+            .documentation("Multiplier for the burst damage")
+            .add()
             .append(new KeyedCodec<>("DamageCause", Codec.STRING),
                     (action, v) -> action.damageCause = v,
                     action -> action.damageCause)
@@ -51,6 +56,7 @@ public final class BurstAction extends Action {
             .build();
 
     private double radius = 4.0;
+    private double multiplier = 1.0;
     private String damageCause = "Effectly_Burst";
 
     @Nonnull
@@ -66,7 +72,7 @@ public final class BurstAction extends Action {
         DamageCause cause = DamageCause.getAssetMap().getAsset(damageCause);
         if (cause == null) return false;
 
-        float amount = (float) (value * context.get(MagnitudeCapability.TYPE).asNumber());
+        float amount = (float) (value * context.get(MagnitudeCapability.TYPE).asNumber() * multiplier);
         if (amount <= 0f) return false;
 
         var store = context.getEntityStore();

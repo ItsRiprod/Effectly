@@ -7,7 +7,6 @@
           "Magnitude": 4.0
         },
         "Cooldown": 1.0,
-        "Radius": 4.0,
         "DamageCause": "Effectly_Burst",
         "Effects": {
           "Particles": [

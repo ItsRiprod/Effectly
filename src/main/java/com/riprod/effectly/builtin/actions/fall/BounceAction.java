@@ -14,6 +14,7 @@ import com.riprod.effectly.core.actions.capability.CapabilityType;
 import java.util.Set;
 import javax.annotation.Nonnull;
 
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3d;
 
 public final class BounceAction extends Action {
@@ -25,7 +26,7 @@ public final class BounceAction extends Action {
             Set.of(SelfCapability.TYPE, MagnitudeCapability.TYPE);
 
     @Nonnull
-    public static final BuilderCodec<BounceAction> CODEC = BuilderCodec
+    public static final BuilderCodec<@NotNull BounceAction> CODEC = BuilderCodec
             .builder(BounceAction.class, BounceAction::new, Action.BASE_CODEC)
             .append(new KeyedCodec<>("Restitution", Codec.DOUBLE),
                     (action, v) -> action.restitution = v,
