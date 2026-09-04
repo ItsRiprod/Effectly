@@ -1,5 +1,34 @@
 # Changelog
 
+# [1.5.4]
+
+- Added new **Triggers**
+  - OnLand
+  - OnDamage
+  - OnDamaged
+  - OnAttacked
+  - OnFall
+  - OnAttack
+  - OnBreak
+  - OnDamageBlock
+  - OnPlace
+  - OnUseBlock
+  - OnUseEntity
+  - OnPickup
+  - OnDrop
+  - OnCraft
+  - OnRespawn
+  - OnSubmerge
+  - OnEnterFluid
+  - OnExitFluid
+  - OnDeath
+  - OnKilled
+  - OnKill
+- New **Abilities**
+  - Breath Capability
+  - Item Capability
+- Various bugfixes
+
 # [1.5.3]
 - Added **Capabilities** declaration to Triggers and Actions - enabling them to be mixed/matched more effectively
 - Migrated all existing **Abilities** (that used to be coupled) to the **Actions** system triggered by a few new **Triggers**

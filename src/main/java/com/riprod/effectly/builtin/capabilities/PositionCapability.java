@@ -28,9 +28,13 @@ public final class PositionCapability implements Capability {
         this.position = position;
     }
 
-    public PositionCapability(@Nonnull Vector3i block, @Nonnull BlockType blockType) {
+    public PositionCapability(@Nonnull Vector3i block) {
         this.position = new Vector3d(block.x() + 0.5, block.y(), block.z() + 0.5);
         this.block = block;
+    }
+
+    public PositionCapability(@Nonnull Vector3i block, @Nonnull BlockType blockType) {
+        this(block);
         this.blockType = blockType;
         this.blockResolved = true;
     }

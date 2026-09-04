@@ -27,12 +27,23 @@ import com.riprod.effectly.builtin.actions.damage.ReflectAction;
 import com.riprod.effectly.builtin.actions.damage.SecondChanceAction;
 import com.riprod.effectly.builtin.conditions.hand.EmptyHandCondition;
 import com.riprod.effectly.builtin.capabilities.BlockDamageCapability;
+import com.riprod.effectly.builtin.capabilities.BreathCapability;
+import com.riprod.effectly.builtin.capabilities.ItemCapability;
 import com.riprod.effectly.builtin.triggers.OnAttackProducerSystem;
 import com.riprod.effectly.builtin.triggers.OnBreakProducerSystem;
+import com.riprod.effectly.builtin.triggers.OnBreathingProducerSystem;
+import com.riprod.effectly.builtin.triggers.OnCraftProducerSystem;
 import com.riprod.effectly.builtin.triggers.OnDamageBlockProducerSystem;
 import com.riprod.effectly.builtin.triggers.OnDamageFilterProducerSystem;
 import com.riprod.effectly.builtin.triggers.OnDamagedProducerSystem;
+import com.riprod.effectly.builtin.triggers.OnDeathProducerSystem;
+import com.riprod.effectly.builtin.triggers.OnDropProducerSystem;
 import com.riprod.effectly.builtin.triggers.OnLandProducerSystem;
+import com.riprod.effectly.builtin.triggers.OnPickupProducerSystem;
+import com.riprod.effectly.builtin.triggers.OnPlaceProducerSystem;
+import com.riprod.effectly.builtin.triggers.OnRespawnProducerSystem;
+import com.riprod.effectly.builtin.triggers.OnUseBlockProducerSystem;
+import com.riprod.effectly.builtin.triggers.OnUseEntityProducerSystem;
 import com.riprod.effectly.builtin.triggers.VictimDamageProducerSystem;
 import com.riprod.effectly.commands.AbilityCommand;
 import com.riprod.effectly.config.EffectlyConfig;
@@ -95,6 +106,8 @@ public class EffectlyPlugin extends JavaPlugin {
         CapabilityRegistry.register(DamageCapability.TYPE);
         CapabilityRegistry.register(OtherEntityCapability.TYPE);
         CapabilityRegistry.register(BlockDamageCapability.TYPE);
+        CapabilityRegistry.register(ItemCapability.TYPE);
+        CapabilityRegistry.register(BreathCapability.TYPE);
 
         // Components - registered before any system class is touched, because a producer's
         // static Query field resolves its component type during class initialization
@@ -148,6 +161,41 @@ public class EffectlyPlugin extends JavaPlugin {
         TriggerRegistry.register(new Trigger(OnDamageBlockProducerSystem.TRIGGER,
                 OnDamageBlockProducerSystem.PROVIDES,
                 registry -> registry.registerSystem(new OnDamageBlockProducerSystem())));
+        TriggerRegistry.register(new Trigger(OnPlaceProducerSystem.TRIGGER,
+                OnPlaceProducerSystem.PROVIDES,
+                registry -> registry.registerSystem(new OnPlaceProducerSystem())));
+        TriggerRegistry.register(new Trigger(OnUseBlockProducerSystem.TRIGGER,
+                OnUseBlockProducerSystem.PROVIDES,
+                registry -> registry.registerSystem(new OnUseBlockProducerSystem())));
+        TriggerRegistry.register(new Trigger(OnUseEntityProducerSystem.TRIGGER,
+                OnUseEntityProducerSystem.PROVIDES,
+                registry -> registry.registerSystem(new OnUseEntityProducerSystem())));
+        TriggerRegistry.register(new Trigger(OnPickupProducerSystem.TRIGGER,
+                OnPickupProducerSystem.PROVIDES,
+                registry -> registry.registerSystem(new OnPickupProducerSystem())));
+        TriggerRegistry.register(new Trigger(OnDropProducerSystem.TRIGGER,
+                OnDropProducerSystem.PROVIDES,
+                registry -> registry.registerSystem(new OnDropProducerSystem())));
+        TriggerRegistry.register(new Trigger(OnCraftProducerSystem.TRIGGER,
+                OnCraftProducerSystem.PROVIDES,
+                registry -> registry.registerSystem(new OnCraftProducerSystem())));
+        TriggerRegistry.register(new Trigger(OnRespawnProducerSystem.TRIGGER,
+                OnRespawnProducerSystem.PROVIDES,
+                registry -> registry.registerSystem(new OnRespawnProducerSystem())));
+        TriggerRegistry.register(new Trigger(OnBreathingProducerSystem.TRIGGER_SUBMERGE,
+                OnBreathingProducerSystem.PROVIDES,
+                registry -> registry.registerSystem(new OnBreathingProducerSystem())));
+        TriggerRegistry.register(new Trigger(OnBreathingProducerSystem.TRIGGER_ENTER_FLUID,
+                OnBreathingProducerSystem.PROVIDES, null));
+        TriggerRegistry.register(new Trigger(OnBreathingProducerSystem.TRIGGER_EXIT_FLUID,
+                OnBreathingProducerSystem.PROVIDES, null));
+        TriggerRegistry.register(new Trigger(OnDeathProducerSystem.TRIGGER,
+                OnDeathProducerSystem.PROVIDES,
+                registry -> registry.registerSystem(new OnDeathProducerSystem())));
+        TriggerRegistry.register(new Trigger(OnDeathProducerSystem.TRIGGER_KILLED,
+                OnDeathProducerSystem.PROVIDES_WITH_OTHER, null));
+        TriggerRegistry.register(new Trigger(OnDeathProducerSystem.TRIGGER_KILL,
+                OnDeathProducerSystem.PROVIDES_WITH_OTHER, null));
 
         Configly.register(EffectlyConfig.TYPE, EffectlyConfig.class, EffectlyConfig.CODEC);
 
