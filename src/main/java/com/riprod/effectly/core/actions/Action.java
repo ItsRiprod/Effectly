@@ -19,6 +19,8 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.jetbrains.annotations.NotNull;
+
 public abstract class Action {
 
     private static final Gate[] NO_GATES = new Gate[0];
@@ -27,7 +29,7 @@ public abstract class Action {
     public static final CodecMapCodec<Action> CODEC = new CodecMapCodec<>("Type", true, false);
 
     @Nonnull
-    public static final BuilderCodec<Action> BASE_CODEC = BuilderCodec
+    public static final BuilderCodec<@NotNull Action> BASE_CODEC = BuilderCodec
             .abstractBuilder(Action.class)
             .append(new KeyedCodec<>("Type", Codec.STRING),
                     (action, v) -> action.type = v,

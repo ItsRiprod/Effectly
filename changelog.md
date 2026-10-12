@@ -1,5 +1,8 @@
 # Changelog
 
+# [1.6.0]
+- Added Update 7 support
+
 # [1.5.4]
 
 - Added new **Triggers**
